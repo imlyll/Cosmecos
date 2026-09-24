@@ -1,0 +1,165 @@
+@import 'tailwindcss';
+
+/* Script face used for the peach hand-lettered accents ("Best products", "Beauty"…) */
+@font-face {
+  font-family: 'Quentin';
+  src:
+    url('/fonts/Quentin.woff2') format('woff2'),
+    url('/fonts/Quentin.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  /* Cosmecos palette */
+  --color-ink: #232323;
+  --color-ink-soft: #1e1e1e;
+  --color-cream: #ffffff;
+  --color-beige: #f3f4f8;
+  --color-nude: #fff6ef;
+  --color-sand: #f5e0d2;
+  --color-blush: #ffd3b9;
+  --color-rose: #eaaa85;
+  --color-taupe: #737373;
+  --color-body: #616161;
+  --color-mute: #969696;
+  --color-line: #e0e0e0;
+  --color-success: #5f7d62;
+  --color-danger: #c0493f;
+
+  --font-serif: 'Raleway', system-ui, sans-serif;
+  --font-sans: 'Nunito Sans', system-ui, sans-serif;
+  --font-script: 'Quentin', cursive;
+
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-marquee: marquee 40s linear infinite;
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-cream font-sans text-body antialiased;
+    font-size: 16px;
+    line-height: 30px;
+    font-variant-numeric: lining-nums;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif font-light text-ink;
+  }
+  ::selection {
+    @apply bg-blush text-ink;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-rose);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .container-luxe {
+    @apply mx-auto w-full max-w-[1200px] px-4 sm:px-[15px];
+  }
+  .eyebrow {
+    @apply font-script text-[35px] leading-[1.6] font-normal tracking-normal text-rose normal-case;
+  }
+  /* The theme's outlined button: 13px Raleway bold caps inside a 1px frame */
+  .btn-cos {
+    @apply inline-flex h-14 items-center justify-center gap-2 border border-ink bg-transparent px-[38px] font-serif text-[13px] leading-4 font-bold text-ink uppercase transition-colors duration-300 hover:bg-ink hover:text-white disabled:opacity-50;
+  }
+  .btn-cos-light {
+    @apply border-white text-white hover:bg-white hover:text-ink;
+  }
+  /* Thin dark frame inset over a picture or block */
+  .frame-inset {
+    @apply pointer-events-none absolute inset-4 border border-ink transition-[inset] duration-500 ease-[var(--ease-luxe)];
+  }
+  .input-luxe {
+    @apply h-14 w-full border border-line bg-white px-[18px] text-base text-ink transition-colors duration-300 outline-none placeholder:text-mute focus:border-ink;
+  }
+  textarea.input-luxe {
+    @apply h-auto py-3;
+  }
+  .input-luxe[aria-invalid='true'] {
+    @apply border-danger;
+  }
+  .label-luxe {
+    @apply mb-2 block font-serif text-[13px] font-bold tracking-[0.05em] text-ink uppercase;
+  }
+  .link-underline {
+    @apply relative inline-block after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-right after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-[var(--ease-luxe)] hover:after:origin-left hover:after:scale-x-100;
+  }
+  /* Short peach brush stroke above widget titles */
+  .title-line {
+    @apply relative pt-4 before:absolute before:top-0 before:left-0 before:h-[6px] before:w-[30px] before:bg-rose before:content-[''];
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+/* Dual range slider: only the thumbs receive pointer events */
+.range-thumb {
+  pointer-events: none;
+  appearance: none;
+  background: transparent;
+}
+.range-thumb::-webkit-slider-thumb {
+  pointer-events: auto;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: var(--color-blush);
+  border: 1px solid var(--color-ink);
+  box-shadow: none;
+  cursor: grab;
+}
+.range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: var(--color-blush);
+  border: 1px solid var(--color-ink);
+  box-shadow: none;
+  cursor: grab;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
