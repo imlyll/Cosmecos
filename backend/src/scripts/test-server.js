@@ -26,9 +26,13 @@ async function main() {
   await mongoose.connect(process.env.MONGO_URI);
 
   await User.create({ name: 'Admin', email: 'admin@test.com', password: 'Admin1234', role: 'admin' });
-  const category = await Category.create({ name: 'Skincare' });
+  const category = await Category.create({
+    name: 'Skincare',
+    translations: { az: { name: 'Dəri baxımı' }, ru: { name: 'Уход за кожей' } },
+  });
   const serum = await Product.create({
     name: 'Vitamin C Serum',
+    translations: { az: { name: 'C vitaminli serum' }, ru: { name: 'Сыворотка с витамином C' } },
     description: 'Brightening serum.',
     category: category._id,
     price: 40,

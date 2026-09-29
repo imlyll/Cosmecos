@@ -1,19 +1,22 @@
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import Framed from '../ui/Framed';
 import Reveal from '../ui/Reveal';
 
+// Colours are tuned to each photo, so they stay the same in both themes.
 const BANNERS = [
-  { script: 'Best', title: 'For Body', image: '/images/home1-banner-1-2.jpg', scriptColor: '#ffe5d5', titleColor: '#ffffff', to: '/shop?category=body-care' },
-  { script: 'Multi', title: 'Cosmetics', image: '/images/home1-banner-2-2.jpg', scriptColor: '#f7bb98', titleColor: '#1c1c1c', to: '/shop?category=cosmetics' },
-  { script: 'Color', title: 'Nail Polish', image: '/images/home1-banner-3-2.jpg', scriptColor: '#e3cbbb', titleColor: '#1c1c1c', to: '/shop' },
+  { key: 'body', image: '/images/home1-banner-1-2.jpg', scriptColor: '#ffe5d5', titleColor: '#ffffff', to: '/shop?category=body-care' },
+  { key: 'cosmetics', image: '/images/home1-banner-2-2.jpg', scriptColor: '#f7bb98', titleColor: '#1c1c1c', to: '/shop?category=cosmetics' },
+  { key: 'nails', image: '/images/home1-banner-3-2.jpg', scriptColor: '#e3cbbb', titleColor: '#1c1c1c', to: '/shop' },
 ];
 
 /** Three framed category banners under the hero. */
 export default function Banners() {
+  const { t } = useTranslation();
   return (
     <section className="mt-[31px] grid gap-[30px] px-4 sm:px-[30px] md:grid-cols-3">
       {BANNERS.map((b, i) => (
-        <Reveal key={b.title} delay={i * 0.1}>
+        <Reveal key={b.key} delay={i * 0.1}>
           <Framed frameClassName="group-hover/frame:translate-x-5 group-hover/frame:translate-y-5">
             <Link to={b.to} className="group relative block h-[200px] overflow-hidden lg:h-[360px]">
               <span
@@ -25,10 +28,10 @@ export default function Banners() {
                   className="block font-script text-[70px] leading-[1.15] lg:text-[100px]"
                   style={{ color: b.scriptColor }}
                 >
-                  {b.script}
+                  {t(`home.banners.${b.key}.script`)}
                 </span>
                 <span className="block font-serif text-2xl leading-9 font-medium" style={{ color: b.titleColor }}>
-                  {b.title}
+                  {t(`home.banners.${b.key}.title`)}
                 </span>
               </span>
             </Link>

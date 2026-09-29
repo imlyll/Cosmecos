@@ -3,6 +3,13 @@
     "label": "Dil",
     "choose": "Dili seçin"
   },
+  "theme": {
+    "label": "Mövzu",
+    "light": "İşıqlı",
+    "dark": "Qaranlıq",
+    "toLight": "İşıqlı rejimə keç",
+    "toDark": "Qaranlıq rejimə keç"
+  },
   "nav": {
     "home": "Ana səhifə",
     "pages": "Səhifələr",
@@ -31,6 +38,49 @@
     "openMenu": "Menyunu aç",
     "openPanel": "Məlumat panelini aç"
   },
+  "a11y": {
+    "skipToContent": "Məzmuna keç",
+    "homeLink": "Cosmecos ana səhifə",
+    "close": "Bağla",
+    "mainNav": "Əsas menyu",
+    "mobileNav": "Mobil menyu",
+    "footerNav": "Alt menyu",
+    "accountNav": "Hesab",
+    "information": "Məlumat",
+    "checkingSession": "Sessiya yoxlanılır",
+    "decreaseQty": "Sayı azalt",
+    "increaseQty": "Sayı artır",
+    "rated": "5 üzərindən {{value}} reytinq",
+    "pagination": "Səhifələr",
+    "showImage": "{{n}}-ci şəkli göstər",
+    "prevImage": "Əvvəlki şəkil",
+    "nextImage": "Növbəti şəkil",
+    "productImage": "{{name}} şəkli",
+    "addToWishlist": "{{name}} məhsulunu istək siyahısına əlavə et",
+    "removeFromWishlist": "{{name}} məhsulunu istək siyahısından sil",
+    "carousel": "Seçilmişlər",
+    "slide": "{{n}}-ci slayd",
+    "showTestimonial": "{{n}}-ci rəyi göstər",
+    "partnerLogo": "Tərəfdaş loqosu",
+    "minPrice": "Minimum qiymət",
+    "maxPrice": "Maksimum qiymət",
+    "playVideo": "Videonu oynat",
+    "video": "Video",
+    "videoTitle": "Cosmecos videosu",
+    "onSocial": "{{name}} — {{network}}",
+    "map": "Xəritə",
+    "mapTitle": "Cosmecos xəritədə",
+    "checkoutProgress": "Sifariş mərhələləri",
+    "productInfo": "Məhsul haqqında məlumat"
+  },
+  "store": {
+    "address": "58 White St., Nyu-York"
+  },
+  "announcement": {
+    "discount": "25% endirim",
+    "text": "bütün məhsullara, kodu daxil edin:",
+    "code": "Cosmecos sale"
+  },
   "common": {
     "addToCart": "Səbətə əlavə et",
     "adding": "Əlavə edilir…",
@@ -38,6 +88,8 @@
     "readMore": "Ətraflı",
     "sale": "Endirim",
     "soldOut": "Satılıb",
+    "inStock": "Stokda var",
+    "outOfStock": "Stokda yoxdur",
     "signIn": "Daxil ol",
     "register": "Qeydiyyat",
     "checkout": "Sifarişi rəsmiləşdir",
@@ -45,11 +97,26 @@
     "placeOrder": "Sifarişi təsdiqlə",
     "viewBag": "Səbətə bax",
     "discoverProducts": "Məhsulları kəşf et",
+    "continueShopping": "Alış-verişə davam et",
+    "exploreMore": "Daha çox",
+    "viewMore": "Hamısına bax",
+    "shopNow": "İndi al",
+    "discover": "Kəşf et",
     "filter": "Filtrlə",
     "search": "Axtar",
     "loading": "Yüklənir…",
     "back": "Geri",
-    "close": "Bağla"
+    "close": "Bağla",
+    "edit": "Dəyiş",
+    "remove": "Sil",
+    "saveChanges": "Dəyişiklikləri saxla",
+    "from": "Başlayaraq",
+    "prev": "Əvvəlki",
+    "next": "Növbəti",
+    "previous": "Əvvəlki",
+    "qty": "Say: {{count}}",
+    "somethingWrong": "Xəta baş verdi.",
+    "tryAgain": "Yenidən cəhd et"
   },
   "search": {
     "title": "Nə axtarırsınız?",
@@ -58,7 +125,14 @@
     "searching": "Axtarılır…",
     "noResults": "“{{term}}” üzrə məhsul tapılmadı.",
     "viewAll": "Bütün nəticələrə bax",
-    "close": "Axtarışı bağla"
+    "close": "Axtarışı bağla",
+    "suggestions": [
+      "Dodaq boyası",
+      "Kirpik tuşu",
+      "Krem",
+      "Bədən yağı",
+      "Sabun"
+    ]
   },
   "cart": {
     "title": "Səbətiniz ({{count}})",
@@ -70,8 +144,24 @@
     "remove": "{{name}} məhsulunu sil",
     "unavailable": "Davam etmək üçün mövcud olmayan məhsulları düzəldin."
   },
+  "cartPage": {
+    "title": "Səbət",
+    "empty": "Səbətiniz hazırda boşdur.",
+    "returnToShop": "Mağazaya qayıt",
+    "product": "Məhsul",
+    "price": "Qiymət",
+    "quantity": "Say",
+    "subtotal": "Cəmi",
+    "onlyLeft": "Yalnız {{count}} ədəd qalıb — sayı azaldın",
+    "clear": "Səbəti təmizlə"
+  },
+  "freeShipping": {
+    "remaining": "Pulsuz çatdırılma üçün daha <strong>{{amount}}</strong> məbləğində məhsul əlavə edin",
+    "unlocked": "Pulsuz çatdırılma qazandınız"
+  },
   "summary": {
     "cartTotals": "Səbətin cəmi",
+    "yourOrder": "Sifarişiniz",
     "subtotal": "Ara cəm",
     "discount": "Endirim",
     "shipping": "Çatdırılma",
@@ -88,7 +178,8 @@
     "price": "Qiymət: ${{min}} — ${{max}}",
     "newArrivals": "Yeni məhsullar",
     "tags": "Məhsul teqləri",
-    "sidebar": "Mağaza paneli"
+    "sidebar": "Mağaza paneli",
+    "bannerAlt": "Gözəllik"
   },
   "shop": {
     "title": "Kataloq",
@@ -111,6 +202,345 @@
     "clearFilters": "Filtrləri təmizlə",
     "emptyTitle": "Məhsul tapılmadı",
     "emptyText": "Filtrləri dəyişin və ya başqa bir şey axtarın."
+  },
+  "product": {
+    "notFoundTitle": "Məhsul tapılmadı",
+    "notFoundText": "Məhsul köçürülmüş və ya artıq satışda olmaya bilər.",
+    "backToShop": "Mağazaya qayıt",
+    "sku": "Artikul",
+    "category": "Kateqoriya",
+    "availability": "Mövcudluq",
+    "tags": "Teqlər",
+    "shade": "Çalar",
+    "size": "Ölçü",
+    "soldOutOption": "{{name}} (satılıb)",
+    "onlyLeft": "Stokda yalnız {{count}} ədəd qalıb",
+    "description": "Təsvir",
+    "reviews": "Rəylər ({{count}})",
+    "weight": "Çəki",
+    "dimensions": "Ölçülər",
+    "ingredients": "Tərkib",
+    "howToUse": "İstifadə qaydası",
+    "rated_one": "{{count}} müştəri qiymətləndirməsinə əsasən 5 üzərindən <strong>{{rating}}</strong>.",
+    "rated_other": "{{count}} müştəri qiymətləndirməsinə əsasən 5 üzərindən <strong>{{rating}}</strong>.",
+    "noReviews": "Hələ rəy yoxdur.",
+    "related": "Oxşar məhsullar"
+  },
+  "wishlistPage": {
+    "title": "İstək siyahısı",
+    "empty": "İstək siyahısına məhsul əlavə edilməyib",
+    "count_one": "{{count}} saxlanmış məhsul",
+    "count_other": "{{count}} saxlanmış məhsul",
+    "moveToCart": "Səbətə köçür"
+  },
+  "checkout": {
+    "title": "Sifarişin rəsmiləşdirilməsi",
+    "steps": {
+      "shipping": "Çatdırılma",
+      "payment": "Ödəniş",
+      "review": "Yoxlama"
+    },
+    "shippingAddress": "Çatdırılma ünvanı",
+    "orderingAs": "{{email}} kimi sifariş verirsiniz",
+    "fullName": "Ad və soyad *",
+    "phone": "Telefon *",
+    "street": "Küçə ünvanı *",
+    "apartment": "Mənzil, ofis (istəyə bağlı)",
+    "city": "Şəhər *",
+    "state": "Rayon / region",
+    "postalCode": "Poçt indeksi *",
+    "country": "Ölkə *",
+    "errors": {
+      "fullName": "Ad və soyadınızı daxil edin",
+      "phone": "Düzgün telefon nömrəsi daxil edin",
+      "street": "Küçə ünvanını daxil edin",
+      "city": "Şəhəri daxil edin",
+      "postalCode": "Poçt indeksini daxil edin",
+      "country": "Ölkəni daxil edin"
+    },
+    "deliveryPayment": "Çatdırılma və ödəniş",
+    "standardDelivery": "Standart çatdırılma",
+    "deliveryTime": "3–5 iş günü",
+    "paymentMethod": "Ödəniş üsulu",
+    "methods": {
+      "cash_on_delivery": {
+        "label": "Qapıda nağd ödəniş",
+        "text": "Sifariş çatdıqda nağd və ya kartla ödəyin."
+      },
+      "card": {
+        "label": "Kredit / debet kartı",
+        "text": "Çatdırılma zamanı kuryerə kartla ödəyin."
+      },
+      "paypal": {
+        "label": "PayPal",
+        "text": "E-poçtunuza təhlükəsiz PayPal ödəniş linki göndərəcəyik."
+      }
+    },
+    "cardNote": "Onlayn kart ödənişi hələ qoşulmayıb — bu saytda kart məlumatları toplanmır.",
+    "reviewOrder": "Sifarişinizi yoxlayın",
+    "shipTo": "Çatdırılma ünvanı",
+    "payment": "Ödəniş",
+    "deliverySummary": "Standart çatdırılma · 3–5 iş günü",
+    "notes": "Sifariş qeydləri (istəyə bağlı)",
+    "backToBag": "Səbətə qayıt",
+    "continueTo": "Davam et: {{step}}",
+    "policy": "Sifariş verməklə satış şərtlərimizi və məxfilik siyasətimizi qəbul edirsiniz. Açılmamış məhsulları 14 gün ərzində qaytara bilərsiniz."
+  },
+  "orderStatus": {
+    "Pending": "Gözləmədə",
+    "Processing": "Hazırlanır",
+    "Shipped": "Göndərilib",
+    "Delivered": "Çatdırılıb",
+    "Cancelled": "Ləğv edilib"
+  },
+  "profile": {
+    "title": "Hesabım",
+    "tabs": {
+      "orders": "Sifariş tarixçəsi",
+      "details": "Hesab məlumatları",
+      "password": "Şifrə"
+    },
+    "wishlist": "İstək siyahısı",
+    "signOut": "Çıxış",
+    "order": "Sifariş",
+    "placed": "Tarix",
+    "total": "Cəmi",
+    "status": "Status",
+    "cancelled": "Bu sifariş ləğv edilib.",
+    "tracking": "İzləmə nömrəsi:",
+    "shippingTo": "Çatdırılma ünvanı",
+    "cancelConfirm": "Bu sifarişi ləğv edək? Bu əməliyyat geri qaytarıla bilməz.",
+    "cancelOrder": "Sifarişi ləğv et",
+    "noOrders": "Hələ sifariş yoxdur",
+    "noOrdersText": "Sifariş verdikdə o burada görünəcək.",
+    "startShopping": "Alış-verişə başla",
+    "fullName": "Ad və soyad",
+    "email": "E-poçt",
+    "phone": "Telefon",
+    "defaultAddress": "Əsas ünvan",
+    "street": "Küçə ünvanı",
+    "apartment": "Mənzil, ofis",
+    "city": "Şəhər",
+    "state": "Rayon / region",
+    "postalCode": "Poçt indeksi",
+    "country": "Ölkə",
+    "currentPassword": "Cari şifrə",
+    "newPassword": "Yeni şifrə",
+    "confirmPassword": "Yeni şifrəni təsdiqləyin",
+    "updatePassword": "Şifrəni yenilə",
+    "errors": {
+      "currentPassword": "Cari şifrənizi daxil edin"
+    }
+  },
+  "orderSuccess": {
+    "docTitle": "Təşəkkür edirik",
+    "confirmed": "Sifariş təsdiqləndi",
+    "thanks": "Təşəkkür edirik!",
+    "thanksName": "Təşəkkür edirik, {{name}}!",
+    "text": "Sifarişiniz qəbul edildi və diqqətlə hazırlanır. Yenilikləri hesabınızda izləyə bilərsiniz.",
+    "orderNumber": "Sifariş nömrəsi",
+    "status": "Status",
+    "total": "Cəmi",
+    "viewOrders": "Sifarişlərimə bax"
+  },
+  "notFound": {
+    "docTitle": "Səhifə tapılmadı",
+    "title": "Bu səhifə itib",
+    "text": "Axtardığınız səhifə mövcud deyil və ya köçürülüb.",
+    "backHome": "Ana səhifəyə qayıt",
+    "visitShop": "Mağazaya keç"
+  },
+  "pageHero": {
+    "subtitle": "Orqanik kosmetika",
+    "decoration": "Gözəllik"
+  },
+  "home": {
+    "hero": {
+      "prev": "Əvvəlki",
+      "next": "Növbəti",
+      "s1": {
+        "title": "Mükəmməl kosmetika",
+        "text": "Dünyanın ən tanınmış simalarının sevdiyi imza qaş kolleksiyamız müasir gözəllik tarixində iz qoyub.",
+        "cta": "Kəşf et"
+      },
+      "s2": {
+        "title": "Sizin mükəmməl kosmetikanız",
+        "text": "Gündəlik vasitələrdən parlaq rənglərə qədər — yüngül, davamlı və hər dəri tonuna yaraşan makiyajı kəşf edin.",
+        "cta": "Ətraflı"
+      },
+      "s3": {
+        "title": "Dünyanı dəyiş",
+        "text": "Dərinizə və planetə qayğı göstərən təmiz, şüurlu formulalar — çünki əsl gözəllik daha yüngül iz buraxır.",
+        "cta": "Ətraflı"
+      },
+      "s4": {
+        "title": "Gözəllik uyğunluğunuzu tapın",
+        "text": "Dəriniz, tonunuz və gündəlik qaydanız haqqında bir neçə suala cavab verin, sizə uyğun tekstura və çalarları seçək.",
+        "cta": "Hamısına bax"
+      }
+    },
+    "banners": {
+      "body": {
+        "script": "Ən yaxşı",
+        "title": "Bədən üçün"
+      },
+      "cosmetics": {
+        "script": "Multi",
+        "title": "Kosmetika"
+      },
+      "nails": {
+        "script": "Rəng",
+        "title": "Dırnaq lakı"
+      }
+    },
+    "categories": {
+      "concealer": "Mükəmməl konsiler",
+      "bodyCare": "Bədən baxımı",
+      "equipment": "Makiyaj ləvazimatları",
+      "soap": "Möhtəşəm sabunlar"
+    },
+    "about": {
+      "eyebrow": "Cosmecos haqqında",
+      "titleLine1": "Mükəmməl keyfiyyətə",
+      "titleLine2": "zəmanət veririk",
+      "lead": "Dünyanın ən tanınmış simalarının etibar etdiyi qaş və üz kolleksiyalarımız gözəllik tarixinə mühüm töhfə olub.",
+      "text": "Hər formula dermatoloqlarla birlikdə hazırlanır, real dəri üzərində sınaqdan keçirilir və etik yolla əldə edilmiş bitki inqrediyentlərindən istehsal olunur. Tərkib siyahılarımız qısa, dürüst və dərinizə lazım olmayan hər şeydən təmizdir.",
+      "label": "Cosmecos",
+      "sold": "Satılmış kosmetika",
+      "years": "Uğurlu il"
+    },
+    "bestSellers": {
+      "eyebrow": "Ən yaxşı məhsullar",
+      "title": "Ən çox satılanlar",
+      "subtitle": "Zövqlü və səliqəli kosmetik məhsullar"
+    },
+    "features": {
+      "naturalBeauty": "Təbii gözəllik",
+      "naturalIngredients": "Təbii inqrediyentlər",
+      "hypoallergenic": "100% hipoallergen",
+      "organic": "100% orqanik"
+    },
+    "spotlights": {
+      "eyebrow": "Üstünlüklər",
+      "eyeshadowTitle": "Göz kölgəsi inqilabı",
+      "eyeshadowLead": "Gözlərimiz ilahi nisbəti dərhal sezir və onu gözəllik və harmoniya ilə əlaqələndirir.",
+      "eyeshadowText": "Qaşlar burun deşiklərinin ortasının düz üstündən başlamalıdır. Qövsün ən yüksək nöqtəsi burnun ucunu göz bəbəyinin ortası ilə birləşdirməlidir.",
+      "founder": "Təsisçi",
+      "paletteAlt": "Göz kölgəsi palitrası",
+      "foundationTitle1": "Yalnız yüksək keyfiyyətli",
+      "foundationTitle2": "tonal kremlər və ənliklər",
+      "foundationText": "Tonal kremlərimiz və ənliklərimiz nəfəs alan, asanlıqla yayılan və səhər görüşlərindən axşam planlarına qədər davam edən “ikinci dəri” effekti üçün incə üyüdülüb. Qatlanan örtücülük təbii parıltı ilə qüsursuz mat görünüş arasında seçim etməyə imkan verir.",
+      "foundationAlt": "Tonal krem və ənlik",
+      "watermarkColor": "Rəng",
+      "watermarkSplash": "Ləkə"
+    },
+    "promo": {
+      "script": "Dırnaq lakı",
+      "title": "Makiyaj aksesuarları",
+      "text": "Qüsursuz makiyajı asanlaşdıran fırçalar, süngərlər və alətlər — indi 20% endirimlə.",
+      "badge": "-20%"
+    },
+    "newArrivals": {
+      "eyebrow": "Yeni məhsullar",
+      "title": "Yeniliklərlə tanış olun",
+      "imageAlt": "Bədən baxımı"
+    },
+    "testimonials": {
+      "eyebrow": "Rəylər",
+      "title": "Müştərilərimiz nə deyir",
+      "role": "Cosmecos müştərisi",
+      "q1": "Qaş dəsti səhər qaydamı dəyişdi. Çalarlar o qədər təbiidir ki, dostlarım qaşlarımın sadəcə mükəmməl olduğunu düşünür — qələm isə bütün gün yayılmadan qalır.",
+      "q2": "Dərim həssasdır və yeni məhsullara nadir hallarda etibar edirəm, amma Cosmecos kremləri heç vaxt qıcıqlandırmır. Dərim səhərdən axşama qədər sakit, yumşaq və nəmli olur.",
+      "q3": "Gözlərimiz harmoniyanı sezməyə öyrəşib və bu məhsullar dərimə məhz o tarazlığı gətirir. Gözəl qablaşdırma, xoş teksturalar və sürətli çatdırılma."
+    },
+    "guide": {
+      "title": "Gözəllik bələdçinizi tapın",
+      "text": "Cosmecos heyvanlar üzərində sınaq aparmadan məhsul hazırlanmasına sadiqdir.",
+      "watermarkHome": "Mükəmməl",
+      "watermarkAbout": "Makiyaj"
+    },
+    "blog": {
+      "eyebrow": "Xəbərlər və məqalələr",
+      "title": "Gözəllik bloqumuz",
+      "badge": "Gözəllik",
+      "by": "Müəllif: admin",
+      "p1": "Səpələnən pudra ilə rəng korreksiyası",
+      "p2": "Tonal kreminizi necə seçməli",
+      "p3": "Möhtəşəm qaş forması üçün 5 məsləhət"
+    }
+  },
+  "about": {
+    "title": "Haqqımızda",
+    "introTitle": "Təbii orqanik kosmetika cavanlaşmaya kömək edir",
+    "introText": "Dəri baxımı vasitələrimiz dərinin təbii yenilənməsini dəstəkləyən bitki mənşəli aktiv maddələrə, soyuq üsulla sıxılmış yağlara və zərif ekstraktlara əsaslanır. Sərt doldurucular yoxdur, qısa yollar yoxdur — yalnız dərini sakit, elastik və nəzərəçarpacaq dərəcədə təravətli edən balanslı formulalar.",
+    "introAlt": "Dırnaq lakı",
+    "newScript": "Yeni",
+    "types": {
+      "fresh": "Təravətli notlar",
+      "floral": "Çiçək notları",
+      "oceanic": "Okean notları"
+    },
+    "achievementsTitle": "Nailiyyətlərimiz",
+    "achievementsText": "Fəxr etdiyimiz rəqəmlər — hər biri xoşbəxt müştəri ilə qazanılıb.",
+    "stats": {
+      "sold": "Satılmış kosmetika",
+      "clients": "Məmnun müştəri",
+      "countries": "Ölkə",
+      "employees": "Əməkdaş"
+    },
+    "videoAlt": "Zərif üslub",
+    "teamTitle": "Komandamız",
+    "teamText": "Hər formulun, hər qablaşdırmanın və piştaxtalarımızdakı hər təbəssümün arxasında dayanan insanlar.",
+    "roles": {
+      "productManager": "Məhsul meneceri",
+      "serviceManager": "Xidmət meneceri",
+      "chiefManager": "Baş menecer",
+      "officeHead": "Ofis rəhbəri"
+    }
+  },
+  "contacts": {
+    "title": "Əlaqə",
+    "address": "Ünvan",
+    "phone": "Telefon",
+    "email": "E-poçt",
+    "sendMessage": "Mesaj göndərin",
+    "required": "E-poçt ünvanınız dərc edilməyəcək. Vacib sahələr * ilə işarələnib",
+    "fullName": "Ad və soyad",
+    "fullNamePlaceholder": "Ad və soyad *",
+    "emailPlaceholder": "E-poçt *",
+    "subject": "Mövzu",
+    "message": "Mesaj",
+    "send": "Göndər",
+    "sending": "Göndərilir…",
+    "sentTitle": "Mesaj göndərildi",
+    "sentText": "Bizimlə əlaqə saxladığınız üçün təşəkkür edirik. Bir iş günü ərzində cavab veririk.",
+    "sendAnother": "Başqa mesaj göndər",
+    "errors": {
+      "message": "Bir az ətraflı yazın (ən azı 10 simvol)"
+    }
+  },
+  "footer": {
+    "emailLabel": "E-poçt ünvanı",
+    "emailPlaceholder": "E-poçtunuz",
+    "subscribe": "Abunə ol",
+    "contacts": "Əlaqə",
+    "contactUs": "Bizimlə əlaqə",
+    "usefulLinks": "Faydalı keçidlər",
+    "newsletter": "Xəbər bülletenimiz",
+    "instagram": "Instagram",
+    "tagline": "Dünyanın ən tanınmış simalarının sevimlisi — qayğı ilə hazırlanmış təbii, heyvanlar üzərində sınanmayan gözəllik.",
+    "about": "Dəriniz və planet üçün qayğı ilə hazırlanmış təbii, heyvanlar üzərində sınanmayan gözəllik.",
+    "links": {
+      "eyeshadow": "Göz kölgəsi kolleksiyası",
+      "brushes": "Makiyaj fırçalarını necə təmizləməli",
+      "foundation": "Doğru tonal krem"
+    },
+    "copyright": "© {{year}} Cosmecos. Bütün hüquqlar qorunur."
+  },
+  "sidePanel": {
+    "text": "Gözlərimiz ilahi nisbəti dərhal sezir və onu gözəlliklə əlaqələndirir.",
+    "contactUs": "Bizimlə əlaqə",
+    "followUs": "Bizi izləyin"
   },
   "auth": {
     "welcomeBack": "Yenidən xoş gəlmisiniz",
@@ -177,11 +607,6 @@
     "verified": "E-poçt təsdiqləndi — Cosmecos-a xoş gəldiniz, {{name}}!",
     "verifyFirst": "Daxil olmaq üçün e-poçtunuzu təsdiqləyin"
   },
-  "footer": {
-    "emailLabel": "E-poçt ünvanı",
-    "emailPlaceholder": "E-poçtunuz",
-    "subscribe": "Abunə ol"
-  },
   "errors": {
     "network": "Serverə qoşulmaq mümkün olmadı. İnternet bağlantınızı yoxlayın.",
     "EMAIL_NOT_VERIFIED": "Davam etmək üçün e-poçt ünvanınızı təsdiqləyin.",
@@ -191,5 +616,8 @@
     "OTP_COOLDOWN": "Yeni kod tələb etməzdən əvvəl bir az gözləyin.",
     "ALREADY_VERIFIED": "Bu e-poçt artıq təsdiqlənib. Zəhmət olmasa daxil olun.",
     "EMAIL_SEND_FAILED": "Təsdiq məktubunu göndərə bilmədik. Bir azdan yenidən cəhd edin."
+  },
+  "meta": {
+    "tagline": "Kosmetika və gözəllik mağazası"
   }
 }

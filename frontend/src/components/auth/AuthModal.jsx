@@ -43,8 +43,8 @@ export default function AuthModal() {
       <div className="grid md:grid-cols-2">
         <div className="relative hidden overflow-hidden md:block">
           <img src={sizedImage(IMAGE, 900)} alt="" className="absolute inset-0 size-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
-          <p className="absolute right-8 bottom-8 left-8 font-serif text-3xl leading-tight text-cream italic">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <p className="absolute right-8 bottom-8 left-8 font-serif text-3xl leading-tight text-[#fff] italic">
             {t('auth.quoteModal')}
           </p>
         </div>

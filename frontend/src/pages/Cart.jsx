@@ -14,8 +14,8 @@ import { useTranslation } from 'react-i18next';
 /** WooCommerce-style info notice: outlined box with an "i" icon. */
 export function Notice({ children }) {
   return (
-    <p className="flex items-center gap-4 border-2 border-[#5c8fd6] px-[26px] py-[15px] text-taupe">
-      <Info className="size-[22px] shrink-0 text-[#5c8fd6]" strokeWidth={1.5} />
+    <p className="flex items-center gap-4 border-2 border-[#5c8fd6] px-[26px] py-[15px] text-taupe dark:border-[#6f93c4]">
+      <Info className="size-[22px] shrink-0 text-[#5c8fd6] dark:text-[#8fb0dc]" strokeWidth={1.5} />
       {children}
     </p>
   );
@@ -34,7 +34,7 @@ export default function Cart() {
 
   return (
     <>
-      <PageHero title="Shop Cart" image={HERO_IMAGES.beauty} />
+      <PageHero title={t('cartPage.title')} image={HERO_IMAGES.beauty} />
       <div className="container-luxe py-[150px] max-md:py-20">
         {isLoading ? (
           <div className="space-y-4">
@@ -44,9 +44,9 @@ export default function Cart() {
           </div>
         ) : cart.items.length === 0 ? (
           <div>
-            <Notice>Your cart is currently empty.</Notice>
+            <Notice>{t('cartPage.empty')}</Notice>
             <Link to="/shop" className="btn-cos mt-[50px] px-[38px]">
-              Return to shop
+              {t('cartPage.returnToShop')}
             </Link>
           </div>
         ) : (
@@ -55,11 +55,11 @@ export default function Cart() {
               <thead className="hidden border-b border-line md:table-header-group">
                 <tr>
                   <th className={th} colSpan={3}>
-                    Product
+                    {t('cartPage.product')}
                   </th>
-                  <th className={th}>Price</th>
-                  <th className={th}>Quantity</th>
-                  <th className={`${th} text-right`}>Subtotal</th>
+                  <th className={th}>{t('cartPage.price')}</th>
+                  <th className={th}>{t('cartPage.quantity')}</th>
+                  <th className={`${th} text-right`}>{t('cartPage.subtotal')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -77,7 +77,7 @@ export default function Cart() {
                         <button
                           type="button"
                           onClick={() => remove.mutate({ itemId: item._id })}
-                          aria-label={`Remove ${item.product.name}`}
+                          aria-label={t('cart.remove', { name: item.product.name })}
                           className="group grid size-8 place-items-center text-ink transition-colors hover:text-rose"
                         >
                           <X className="size-4 transition-transform duration-500 group-hover:rotate-90" strokeWidth={1.5} />
@@ -102,7 +102,7 @@ export default function Cart() {
                         {item.variant && <p className="mt-1 text-sm text-taupe">{item.variant.name}</p>}
                         {!item.isAvailable && (
                           <p className="mt-2 flex items-center gap-1.5 text-xs text-danger">
-                            <AlertCircle className="size-3.5" /> Only {item.availableStock} left — please reduce quantity
+                            <AlertCircle className="size-3.5" /> {t('cartPage.onlyLeft', { count: item.availableStock })}
                           </p>
                         )}
                       </td>
@@ -122,7 +122,7 @@ export default function Cart() {
                           onClick={() => remove.mutate({ itemId: item._id })}
                           className="font-serif text-xs font-bold text-mute uppercase md:hidden"
                         >
-                          Remove
+                          {t('common.remove')}
                         </button>
                       </td>
                     </motion.tr>
@@ -133,10 +133,10 @@ export default function Cart() {
 
             <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
               <Link to="/shop" className="btn-cos">
-                Continue shopping
+                {t('common.continueShopping')}
               </Link>
               <button type="button" onClick={() => clear.mutate()} className="btn-cos">
-                Clear cart
+                {t('cartPage.clear')}
               </button>
             </div>
 

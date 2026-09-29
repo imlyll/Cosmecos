@@ -1,14 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import Reveal from '../ui/Reveal';
 
 export const PARTNERS_BROWN = [1, 2, 3, 4, 5, 6].map((n) => `/images/partner-logo-${n}-brown-2.png`);
 export const PARTNERS_BLACK = [1, 2, 3, 4].map((n) => `/images/partner-logo-${n}-black-2.png`);
 
-/** Row of partner logos; on the home page it sits on a pale marble band. */
+/** Row of partner logos; on the home page it sits on a pale marble band (dimmed in dark mode). */
 export default function Partners({ logos = PARTNERS_BROWN, band = true, className }) {
+  const { t } = useTranslation();
   return (
     <section
-      className={clsx(band && 'bg-cover bg-center', className)}
+      className={clsx(band && 'bg-cover bg-center dark:bg-[#5b534c] dark:bg-blend-multiply', className)}
       style={band ? { backgroundImage: 'url(/images/home1-bg-2.jpg)' } : undefined}
     >
       <div
@@ -21,11 +23,12 @@ export default function Partners({ logos = PARTNERS_BROWN, band = true, classNam
           <Reveal key={src} delay={i * 0.06} className="flex justify-center">
             <img
               src={src}
-              alt="Partner logo"
+              alt={t('a11y.partnerLogo')}
               loading="lazy"
               className={clsx(
                 'max-h-[130px] w-auto max-w-full transition-opacity duration-300',
-                band ? 'opacity-60 hover:opacity-100' : 'hover:opacity-60'
+                // Black logos would disappear on the dark page, so they turn light.
+                band ? 'opacity-60 hover:opacity-100 dark:brightness-150' : 'hover:opacity-60 dark:invert'
               )}
             />
           </Reveal>

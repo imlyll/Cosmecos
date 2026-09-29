@@ -1,16 +1,19 @@
 const Product = require('../models/Product');
 const Wishlist = require('../models/Wishlist');
 const ApiError = require('../utils/ApiError');
+const { localizeProduct } = require('../utils/i18n');
 
-const PRODUCT_FIELDS = 'name slug brand price compareAtPrice images rating numReviews stock variants isActive';
+const PRODUCT_FIELDS =
+  'name slug brand price compareAtPrice images rating numReviews stock variants isActive translations.az.name translations.ru.name';
 
 async function sendWishlist(res, userId, extra = {}) {
+  const { lang } = res.req;
   const wishlist = await Wishlist.findOne({ user: userId }).populate({
     path: 'products',
     select: PRODUCT_FIELDS,
     match: { isActive: true },
   });
-  const products = (wishlist?.products || []).filter(Boolean);
+  const products = (wishlist?.products || []).filter(Boolean).map((p) => localizeProduct(p, lang));
   res.json({ success: true, ...extra, count: products.length, products });
 }
 

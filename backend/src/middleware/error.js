@@ -1,6 +1,7 @@
 const multer = require('multer');
 const mongoose = require('mongoose');
 const ApiError = require('../utils/ApiError');
+const { translateMessage } = require('../utils/messages');
 const { isProd } = require('../config/env');
 
 function notFound(req, _res, next) {
@@ -31,18 +32,22 @@ function normalize(err) {
 }
 
 // eslint-disable-next-line no-unused-vars
-function errorHandler(err, _req, res, _next) {
+function errorHandler(err, req, res, _next) {
   const apiError = normalize(err);
   const status = apiError?.statusCode || 500;
 
-  if (status >= 500) console.error(err);
+  // Our own ApiErrors (e.g. 502 when email can't be sent) are already logged where they are raised.
+  if (status >= 500 && !(err instanceof ApiError)) console.error(err);
 
+  const lang = req.lang;
   res.status(status).json({
     success: false,
-    message: apiError ? apiError.message : 'Internal server error',
+    message: translateMessage(apiError ? apiError.message : 'Internal server error', lang),
     ...(apiError?.code && { code: apiError.code }),
     ...apiError?.meta,
-    ...(apiError?.details && { errors: apiError.details }),
+    ...(apiError?.details && {
+      errors: apiError.details.map((d) => (d.message ? { ...d, message: translateMessage(d.message, lang) } : d)),
+    }),
     ...(!isProd && status >= 500 && { stack: err.stack }),
   });
 }

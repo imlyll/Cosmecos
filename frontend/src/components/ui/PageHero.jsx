@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { EASE } from '../../lib/motion';
+import { useTranslation } from 'react-i18next';
 
 export const HERO_IMAGES = {
   // Woman with a brush: shop, cart and checkout
@@ -13,12 +14,14 @@ export const HERO_IMAGES = {
  * a thin 80px title and the oversized "Beauty" lettering along the bottom.
  * `crumbs` is accepted for API compatibility; the theme shows no breadcrumbs.
  */
-export default function PageHero({ title, subtitle = 'Organic Cosmetic', image = HERO_IMAGES.polish, decoration = true }) {
+export default function PageHero({ title, subtitle, image = HERO_IMAGES.polish, decoration = true }) {
+  const { t } = useTranslation();
   return (
     <section className="relative flex h-[300px] items-center overflow-hidden bg-beige md:h-[499px]">
       <motion.div
         aria-hidden
-        className="absolute inset-0 bg-cover bg-center"
+        // Pale photos are multiplied down in dark mode so the title stays readable.
+        className="absolute inset-0 bg-cover bg-center dark:bg-[#4a4541] dark:bg-blend-multiply"
         style={{ backgroundImage: `url(${image})` }}
         initial={{ scale: 1.08 }}
         animate={{ scale: 1 }}
@@ -31,7 +34,7 @@ export default function PageHero({ title, subtitle = 'Organic Cosmetic', image =
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: EASE }}
         >
-          {subtitle}
+          {subtitle ?? t('pageHero.subtitle')}
         </motion.p>
         <motion.h1
           className="max-w-[60%] text-[40px] leading-[1.2] font-extralight text-ink sm:text-[56px] md:text-[80px]"
@@ -45,12 +48,12 @@ export default function PageHero({ title, subtitle = 'Organic Cosmetic', image =
       {decoration && (
         <motion.span
           aria-hidden
-          className="pointer-events-none absolute bottom-[-40px] left-[42%] font-script text-[110px] leading-[220px] whitespace-nowrap text-sand select-none md:-bottom-[84px] md:left-[50%] md:text-[200px]"
+          className="pointer-events-none absolute bottom-[-40px] left-[42%] font-script text-[110px] leading-[220px] whitespace-nowrap text-sand select-none dark:text-[#3a302a] md:-bottom-[84px] md:left-[50%] md:text-[200px]"
           initial={{ opacity: 0, x: 60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.4, ease: EASE, delay: 0.2 }}
         >
-          Beauty
+          {t('pageHero.decoration')}
         </motion.span>
       )}
     </section>

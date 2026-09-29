@@ -18,11 +18,13 @@ import { sizedImage } from '../lib/api';
 import { formatDate, formatPrice } from '../lib/format';
 import { EASE } from '../lib/motion';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useTranslation } from 'react-i18next';
 
+// Labels live in profile.tabs.<id>.
 const TABS = [
-  { id: 'orders', label: 'Order history', icon: Package },
-  { id: 'details', label: 'Account details', icon: UserRound },
-  { id: 'password', label: 'Password', icon: KeyRound },
+  { id: 'orders', icon: Package },
+  { id: 'details', icon: UserRound },
+  { id: 'password', icon: KeyRound },
 ];
 
 const STATUS_STYLES = {
@@ -35,7 +37,8 @@ const STATUS_STYLES = {
 const PROGRESS = ['Pending', 'Processing', 'Shipped', 'Delivered'];
 
 function StatusTimeline({ status }) {
-  if (status === 'Cancelled') return <p className="text-sm text-danger">This order was cancelled.</p>;
+  const { t } = useTranslation();
+  if (status === 'Cancelled') return <p className="text-sm text-danger">{t('profile.cancelled')}</p>;
   const current = PROGRESS.indexOf(status);
   return (
     <ol className="flex items-center">
@@ -43,7 +46,7 @@ function StatusTimeline({ status }) {
         <li key={s} className="flex flex-1 items-center last:flex-none">
           <div className="flex flex-col items-center gap-2">
             <span className={clsx('size-3 rounded-full', i <= current ? 'bg-ink' : 'bg-line')} />
-            <span className={clsx('text-[10px] tracking-[0.15em] uppercase', i <= current ? 'text-ink' : 'text-taupe')}>{s}</span>
+            <span className={clsx('text-[10px] tracking-[0.15em] uppercase', i <= current ? 'text-ink' : 'text-taupe')}>{t(`orderStatus.${s}`)}</span>
           </div>
           {i < PROGRESS.length - 1 && (
             <span className="relative mx-2 mb-6 h-px flex-1 bg-line">
@@ -62,6 +65,7 @@ function StatusTimeline({ status }) {
 }
 
 function OrderCard({ order }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const cancel = useCancelOrder();
   const canCancel = ['Pending', 'Processing'].includes(order.status);
@@ -75,19 +79,19 @@ function OrderCard({ order }) {
         className="grid w-full grid-cols-2 items-center gap-4 p-5 text-left sm:grid-cols-[1.3fr_1fr_1fr_auto_auto] sm:p-6"
       >
         <div>
-          <p className="font-serif text-xs font-bold tracking-[0.05em] text-mute uppercase">Order</p>
+          <p className="font-serif text-xs font-bold tracking-[0.05em] text-mute uppercase">{t('profile.order')}</p>
           <p className="font-medium tracking-wide">{order.orderNumber}</p>
         </div>
         <div>
-          <p className="font-serif text-xs font-bold tracking-[0.05em] text-mute uppercase">Placed</p>
+          <p className="font-serif text-xs font-bold tracking-[0.05em] text-mute uppercase">{t('profile.placed')}</p>
           <p className="text-sm">{formatDate(order.createdAt)}</p>
         </div>
         <div>
-          <p className="font-serif text-xs font-bold tracking-[0.05em] text-mute uppercase">Total</p>
+          <p className="font-serif text-xs font-bold tracking-[0.05em] text-mute uppercase">{t('profile.total')}</p>
           <p className="text-sm font-medium">{formatPrice(order.totalPrice)}</p>
         </div>
         <span className={clsx('justify-self-start px-3 py-1 text-[11px] tracking-wider sm:justify-self-auto', STATUS_STYLES[order.status])}>
-          {order.status}
+          {t(`orderStatus.${order.status}`)}
         </span>
         <motion.span animate={{ rotate: open ? 180 : 0 }} className="hidden sm:block">
           <ChevronDown className="size-4" />
@@ -107,7 +111,7 @@ function OrderCard({ order }) {
               <StatusTimeline status={order.status} />
               {order.trackingNumber && (
                 <p className="mt-4 text-sm">
-                  Tracking number: <span className="font-medium">{order.trackingNumber}</span>
+                  {t('profile.tracking')} <span className="font-medium">{order.trackingNumber}</span>
                 </p>
               )}
               <ul className="mt-6 divide-y divide-line">
@@ -127,7 +131,7 @@ function OrderCard({ order }) {
               </ul>
               <div className="mt-4 grid gap-6 border-t border-line pt-4 text-sm sm:grid-cols-2">
                 <div>
-                  <p className="label-luxe">Shipping to</p>
+                  <p className="label-luxe">{t('profile.shippingTo')}</p>
                   <p className="text-taupe">
                     {order.shippingAddress.fullName}, {order.shippingAddress.line1}, {order.shippingAddress.postalCode}{' '}
                     {order.shippingAddress.city}, {order.shippingAddress.country}
@@ -135,21 +139,23 @@ function OrderCard({ order }) {
                 </div>
                 <dl className="space-y-1">
                   <div className="flex justify-between">
-                    <dt className="text-taupe">Subtotal</dt>
+                    <dt className="text-taupe">{t('summary.subtotal')}</dt>
                     <dd>{formatPrice(order.itemsPrice)}</dd>
                   </div>
                   {order.discount > 0 && (
                     <div className="flex justify-between text-rose">
-                      <dt>Discount ({order.couponCode})</dt>
+                      <dt>
+                        {t('summary.discount')} ({order.couponCode})
+                      </dt>
                       <dd>−{formatPrice(order.discount)}</dd>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <dt className="text-taupe">Shipping</dt>
-                    <dd>{order.shippingPrice ? formatPrice(order.shippingPrice) : 'Free'}</dd>
+                    <dt className="text-taupe">{t('summary.shipping')}</dt>
+                    <dd>{order.shippingPrice ? formatPrice(order.shippingPrice) : t('summary.free')}</dd>
                   </div>
                   <div className="flex justify-between font-medium">
-                    <dt>Total</dt>
+                    <dt>{t('summary.total')}</dt>
                     <dd>{formatPrice(order.totalPrice)}</dd>
                   </div>
                 </dl>
@@ -161,10 +167,10 @@ function OrderCard({ order }) {
                     size="sm"
                     loading={cancel.isPending}
                     onClick={() => {
-                      if (window.confirm('Cancel this order? This cannot be undone.')) cancel.mutate(order._id);
+                      if (window.confirm(t('profile.cancelConfirm'))) cancel.mutate(order._id);
                     }}
                   >
-                    Cancel order
+                    {t('profile.cancelOrder')}
                   </Button>
                 </div>
               )}
@@ -177,11 +183,12 @@ function OrderCard({ order }) {
 }
 
 function OrdersTab() {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const { data, isLoading } = useOrders({ page, limit: 5 });
   if (isLoading) return <div className="space-y-4">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-20" />)}</div>;
   if (!data?.orders.length) {
-    return <EmptyState icon={Package} title="No orders yet" text="When you place an order it will appear here." action="Start shopping" to="/shop" />;
+    return <EmptyState icon={Package} title={t('profile.noOrders')} text={t('profile.noOrdersText')} action={t('profile.startShopping')} to="/shop" />;
   }
   return (
     <>
@@ -196,7 +203,7 @@ function OrdersTab() {
 }
 
 const detailsSchema = z.object({
-  name: z.string().trim().min(2, 'Please enter your name'),
+  name: z.string().trim().min(2, 'auth.errors.name'),
   phone: z.string().trim().max(30).optional(),
   address: z.object({
     line1: z.string().trim().max(120).optional(),
@@ -209,6 +216,7 @@ const detailsSchema = z.object({
 });
 
 function DetailsTab() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const update = useUpdateProfile();
   const a = user?.address || {};
@@ -231,23 +239,23 @@ function DetailsTab() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" noValidate>
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Full name" error={errors.name?.message} {...register('name')} />
-        <Field label="Email" value={user?.email || ''} disabled readOnly />
-        <Field label="Phone" type="tel" error={errors.phone?.message} {...register('phone')} />
+        <Field label={t('profile.fullName')} error={errors.name?.message && t(errors.name.message)} {...register('name')} />
+        <Field label={t('profile.email')} value={user?.email || ''} disabled readOnly />
+        <Field label={t('profile.phone')} type="tel" error={errors.phone?.message} {...register('phone')} />
       </div>
       <div>
-        <h3 className="text-xl font-normal">Default address</h3>
+        <h3 className="text-xl font-normal">{t('profile.defaultAddress')}</h3>
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          <Field className="sm:col-span-2" label="Street address" {...register('address.line1')} />
-          <Field className="sm:col-span-2" label="Apartment, suite" {...register('address.line2')} />
-          <Field label="City" {...register('address.city')} />
-          <Field label="State / region" {...register('address.state')} />
-          <Field label="Postal code" {...register('address.postalCode')} />
-          <Field label="Country" {...register('address.country')} />
+          <Field className="sm:col-span-2" label={t('profile.street')} {...register('address.line1')} />
+          <Field className="sm:col-span-2" label={t('profile.apartment')} {...register('address.line2')} />
+          <Field label={t('profile.city')} {...register('address.city')} />
+          <Field label={t('profile.state')} {...register('address.state')} />
+          <Field label={t('profile.postalCode')} {...register('address.postalCode')} />
+          <Field label={t('profile.country')} {...register('address.country')} />
         </div>
       </div>
       <Button type="submit" loading={update.isPending} disabled={!isDirty}>
-        Save changes
+        {t('common.saveChanges')}
       </Button>
     </form>
   );
@@ -255,13 +263,15 @@ function DetailsTab() {
 
 const passwordSchema = z
   .object({
-    currentPassword: z.string().min(1, 'Enter your current password'),
-    newPassword: z.string().min(8, 'At least 8 characters').regex(/[A-Za-z]/, 'Include a letter').regex(/\d/, 'Include a number'),
+    currentPassword: z.string().min(1, 'profile.errors.currentPassword'),
+    newPassword: z.string().min(8, 'auth.errors.min8').regex(/[A-Za-z]/, 'auth.errors.letter').regex(/\d/, 'auth.errors.number'),
     confirm: z.string(),
   })
-  .refine((v) => v.newPassword === v.confirm, { message: 'Passwords do not match', path: ['confirm'] });
+  .refine((v) => v.newPassword === v.confirm, { message: 'auth.errors.mismatch', path: ['confirm'] });
 
 function PasswordTab() {
+  const { t } = useTranslation();
+  const err = (e) => e?.message && t(e.message);
   const change = useChangePassword();
   const {
     register,
@@ -281,18 +291,19 @@ function PasswordTab() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-md space-y-5" noValidate>
-      <Field label="Current password" type="password" autoComplete="current-password" error={errors.currentPassword?.message} {...register('currentPassword')} />
-      <Field label="New password" type="password" autoComplete="new-password" error={errors.newPassword?.message} {...register('newPassword')} />
-      <Field label="Confirm new password" type="password" autoComplete="new-password" error={errors.confirm?.message} {...register('confirm')} />
+      <Field label={t('profile.currentPassword')} type="password" autoComplete="current-password" error={err(errors.currentPassword)} {...register('currentPassword')} />
+      <Field label={t('profile.newPassword')} type="password" autoComplete="new-password" error={err(errors.newPassword)} {...register('newPassword')} />
+      <Field label={t('profile.confirmPassword')} type="password" autoComplete="new-password" error={err(errors.confirm)} {...register('confirm')} />
       <Button type="submit" loading={change.isPending}>
-        Update password
+        {t('profile.updatePassword')}
       </Button>
     </form>
   );
 }
 
 export default function Profile() {
-  useDocumentTitle('My account');
+  const { t } = useTranslation();
+  useDocumentTitle(t('nav.myAccount'));
   const user = useAuthStore((s) => s.user);
   const logout = useLogout();
   const [params, setParams] = useSearchParams();
@@ -300,7 +311,7 @@ export default function Profile() {
 
   return (
     <>
-      <PageHero title="My Account" />
+      <PageHero title={t('profile.title')} />
       <div className="container-luxe grid gap-12 py-[150px] max-md:py-20 lg:grid-cols-[270px_1fr] lg:gap-[70px]">
         <aside>
           <div className="flex items-center gap-4 border-b border-line pb-6">
@@ -312,8 +323,8 @@ export default function Profile() {
               <p className="truncate text-xs text-taupe">{user?.email}</p>
             </div>
           </div>
-          <nav className="no-scrollbar mt-6 flex gap-2 overflow-x-auto lg:flex-col" aria-label="Account">
-            {TABS.map(({ id, label, icon: Icon }) => (
+          <nav className="no-scrollbar mt-6 flex gap-2 overflow-x-auto lg:flex-col" aria-label={t('a11y.accountNav')}>
+            {TABS.map(({ id, icon: Icon }) => (
               <button
                 key={id}
                 type="button"
@@ -326,14 +337,14 @@ export default function Profile() {
               >
                 {tab === id && <motion.span layoutId="account-tab" className="absolute inset-0 bg-ink" transition={{ duration: 0.4, ease: EASE }} />}
                 <Icon className="relative size-4" strokeWidth={1.5} />
-                <span className="relative">{label}</span>
+                <span className="relative">{t(`profile.tabs.${id}`)}</span>
               </button>
             ))}
             <Link to="/wishlist" className="flex shrink-0 items-center gap-3 border-b border-line px-4 py-4 font-serif text-sm font-semibold text-ink uppercase hover:text-rose">
-              <Heart className="size-4" strokeWidth={1.5} /> Wishlist
+              <Heart className="size-4" strokeWidth={1.5} /> {t('profile.wishlist')}
             </Link>
             <button type="button" onClick={logout} className="flex shrink-0 items-center gap-3 px-4 py-4 font-serif text-sm font-semibold text-ink uppercase hover:text-danger">
-              <LogOut className="size-4" strokeWidth={1.5} /> Sign out
+              <LogOut className="size-4" strokeWidth={1.5} /> {t('profile.signOut')}
             </button>
           </nav>
         </aside>
@@ -347,7 +358,7 @@ export default function Profile() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.4, ease: EASE }}
             >
-              <h2 className="title-line mb-8 text-[26px] leading-[38px] font-normal">{TABS.find((t) => t.id === tab).label}</h2>
+              <h2 className="title-line mb-8 text-[26px] leading-[38px] font-normal">{t(`profile.tabs.${tab}`)}</h2>
               {tab === 'orders' && <OrdersTab />}
               {tab === 'details' && <DetailsTab />}
               {tab === 'password' && <PasswordTab />}

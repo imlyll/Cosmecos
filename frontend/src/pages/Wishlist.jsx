@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
-import i18n from '../i18n';
+import { useTranslation } from 'react-i18next';
 import PageHero from '../components/ui/PageHero';
 import Price from '../components/ui/Price';
 import Rating from '../components/ui/Rating';
@@ -22,6 +22,7 @@ function pickVariant(product) {
 }
 
 function WishlistItem({ product, index }) {
+  const { t } = useTranslation();
   const toggle = useToggleWishlist();
   const addToCart = useAddToCart();
   const { ok, variant } = pickVariant(product);
@@ -33,7 +34,7 @@ function WishlistItem({ product, index }) {
       {
         onSuccess: () => {
           toggle.mutate({ product, silent: true });
-          if (variant) toast(i18n.t('toast.addedInVariant', { variant: variant.name }));
+          if (variant) toast(t('toast.addedInVariant', { variant: variant.name }));
         },
       }
     );
@@ -61,7 +62,7 @@ function WishlistItem({ product, index }) {
         <button
           type="button"
           onClick={() => toggle.mutate({ product })}
-          aria-label={`Remove ${product.name} from wishlist`}
+          aria-label={t('a11y.removeFromWishlist', { name: product.name })}
           className="group/x absolute top-[26px] right-[26px] z-10 grid size-9 place-items-center bg-white transition-colors hover:bg-ink hover:text-white"
         >
           <X className="size-4 transition-transform duration-500 group-hover/x:rotate-90" />
@@ -74,7 +75,7 @@ function WishlistItem({ product, index }) {
         </Link>
         <Price price={min} compareAtPrice={product.variants?.length ? undefined : product.compareAtPrice} from={min !== max} className="mt-2 justify-center" />
         <button type="button" onClick={moveToCart} disabled={!ok || addToCart.isPending} className="btn-cos mt-[26px] w-full">
-          {!ok ? 'Out of stock' : addToCart.isPending ? 'Adding…' : 'Move to cart'}
+          {!ok ? t('common.outOfStock') : addToCart.isPending ? t('common.adding') : t('wishlistPage.moveToCart')}
         </button>
       </div>
     </motion.li>
@@ -82,12 +83,13 @@ function WishlistItem({ product, index }) {
 }
 
 export default function Wishlist() {
-  useDocumentTitle('Wishlist');
+  const { t } = useTranslation();
+  useDocumentTitle(t('nav.wishlist'));
   const { products, isLoading } = useWishlist();
 
   return (
     <>
-      <PageHero title="Shop Wishlist" decoration={false} />
+      <PageHero title={t('wishlistPage.title')} decoration={false} />
       <div className="container-luxe py-[150px] max-md:py-20">
         {isLoading ? (
           <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
@@ -96,11 +98,11 @@ export default function Wishlist() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <p className="text-center text-lg text-body">No products added to the wishlist</p>
+          <p className="text-center text-lg text-body">{t('wishlistPage.empty')}</p>
         ) : (
           <>
             <p className="mb-12 text-center font-serif text-sm font-bold tracking-[0.05em] text-ink uppercase">
-              {products.length} saved item{products.length === 1 ? '' : 's'}
+              {t('wishlistPage.count', { count: products.length })}
             </p>
             <ul className="grid gap-x-[30px] gap-y-[70px] sm:grid-cols-2 lg:grid-cols-4">
               <AnimatePresence>

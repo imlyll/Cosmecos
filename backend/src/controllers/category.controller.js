@@ -3,12 +3,13 @@ const Category = require('../models/Category');
 const Product = require('../models/Product');
 const ApiError = require('../utils/ApiError');
 const { uploadImage, deleteImage } = require('../utils/storage');
+const { localizeCategory } = require('../utils/i18n');
 
 const findByIdOrSlug = (idOrSlug) =>
   mongoose.isValidObjectId(idOrSlug) ? Category.findById(idOrSlug) : Category.findOne({ slug: idOrSlug });
 
 // GET /api/categories
-async function listCategories(_req, res) {
+async function listCategories(req, res) {
   const [categories, counts] = await Promise.all([
     Category.find().sort({ name: 1 }).lean(),
     Product.aggregate([{ $match: { isActive: true } }, { $group: { _id: '$category', count: { $sum: 1 } } }]),
@@ -16,7 +17,7 @@ async function listCategories(_req, res) {
   const countMap = new Map(counts.map((c) => [String(c._id), c.count]));
   res.json({
     success: true,
-    categories: categories.map((c) => ({ ...c, productCount: countMap.get(String(c._id)) || 0 })),
+    categories: categories.map((c) => ({ ...localizeCategory(c, req.lang), productCount: countMap.get(String(c._id)) || 0 })),
   });
 }
 
@@ -24,7 +25,7 @@ async function listCategories(_req, res) {
 async function getCategory(req, res) {
   const category = await findByIdOrSlug(req.validatedParams.idOrSlug);
   if (!category) throw ApiError.notFound('Category not found');
-  res.json({ success: true, category });
+  res.json({ success: true, category: localizeCategory(category, req.lang) });
 }
 
 // POST /api/categories  (admin)

@@ -35,9 +35,25 @@ const variantSchema = z.object({
   stock: requiredNum('Enter stock').pipe(z.number().int('Whole numbers only').min(0, 'Must be 0 or more')),
 });
 
+// Azerbaijani / Russian versions of the text fields; blanks fall back to English in the shop.
+const TRANSLATION_LANGS = [
+  { code: 'az', label: 'Azərbaycan (AZE)' },
+  { code: 'ru', label: 'Русский (RU)' },
+];
+const TEXT_FIELDS = ['name', 'shortDescription', 'description', 'ingredients', 'howToUse'];
+const translationSchema = z.object({
+  name: z.string().trim().max(150),
+  shortDescription: z.string().trim().max(600),
+  description: z.string().trim().max(20000),
+  ingredients: z.string().trim().max(5000),
+  howToUse: z.string().trim().max(3000),
+});
+const emptyTranslation = () => Object.fromEntries(TEXT_FIELDS.map((f) => [f, '']));
+
 const schema = z
   .object({
     name: z.string().trim().min(2, 'Name must be at least 2 characters').max(150),
+    translations: z.object({ az: translationSchema, ru: translationSchema }),
     brand: z.string().trim().max(60),
     category: z.string().min(1, 'Choose a category'),
     shortDescription: z.string().trim().max(300, 'Keep it under 300 characters'),
@@ -61,6 +77,7 @@ const schema = z
 
 const EMPTY = {
   name: '',
+  translations: { az: emptyTranslation(), ru: emptyTranslation() },
   brand: 'Cosmecos',
   category: '',
   shortDescription: '',
@@ -82,6 +99,12 @@ function toFormValues(p) {
   return {
     ...EMPTY,
     name: p.name,
+    translations: Object.fromEntries(
+      TRANSLATION_LANGS.map(({ code }) => [
+        code,
+        Object.fromEntries(TEXT_FIELDS.map((f) => [f, p.translations?.[code]?.[f] || ''])),
+      ])
+    ),
     brand: p.brand || '',
     category: p.category?._id || p.category || '',
     shortDescription: p.shortDescription || '',
@@ -122,6 +145,10 @@ function buildFormData(values, { isEdit, files, urls, removedIds }) {
   if (values.compareAtPrice !== '' || isEdit) fd.append('compareAtPrice', values.compareAtPrice);
   if (!values.variants.length) fd.append('stock', values.stock);
   fd.append('tags', values.tags);
+  fd.append(
+    'translations',
+    JSON.stringify(Object.fromEntries(TRANSLATION_LANGS.map(({ code }) => [code, compact(values.translations[code])])))
+  );
   fd.append('skinTypes', JSON.stringify(values.skinTypes));
   fd.append('isFeatured', String(values.isFeatured));
   fd.append('isActive', String(values.isActive));
@@ -134,6 +161,49 @@ function buildFormData(values, { isEdit, files, urls, removedIds }) {
 
 function Textarea({ label, error, rows = 4, ...props }) {
   return <Field as="textarea" label={label} error={error} rows={rows} {...props} />;
+}
+
+/** AZE / RU tabs with the translatable text fields. */
+function TranslationsCard({ register, errors }) {
+  const [lang, setLang] = useState(TRANSLATION_LANGS[0].code);
+  const e = errors.translations?.[lang] || {};
+  const field = (name) => register(`translations.${lang}.${name}`);
+  return (
+    <Card
+      title="Translations"
+      action={
+        <div className="flex gap-1" role="tablist" aria-label="Translation language">
+          {TRANSLATION_LANGS.map((l) => (
+            <button
+              key={l.code}
+              type="button"
+              role="tab"
+              aria-selected={lang === l.code}
+              onClick={() => setLang(l.code)}
+              className={clsx(
+                'border px-3 py-1 text-xs tracking-[0.1em] uppercase transition-colors',
+                lang === l.code ? 'border-ink bg-ink text-cream' : 'border-line hover:border-ink'
+              )}
+            >
+              {l.code}
+            </button>
+          ))}
+        </div>
+      }
+    >
+      <div key={lang} className="grid gap-5 p-5 sm:grid-cols-2">
+        <p className="text-sm text-taupe sm:col-span-2">
+          {TRANSLATION_LANGS.find((l) => l.code === lang).label}: shown when shoppers choose this language. Leave a field
+          blank to show the English text.
+        </p>
+        <Field className="sm:col-span-2" label="Product name" error={e.name?.message} {...field('name')} />
+        <Field className="sm:col-span-2" label="Short description" error={e.shortDescription?.message} {...field('shortDescription')} />
+        <Textarea className="sm:col-span-2" label="Description" rows={5} error={e.description?.message} {...field('description')} />
+        <Textarea label="Ingredients" error={e.ingredients?.message} {...field('ingredients')} />
+        <Textarea label="How to use" error={e.howToUse?.message} {...field('howToUse')} />
+      </div>
+    </Card>
+  );
 }
 
 export default function ProductForm() {
@@ -262,6 +332,8 @@ export default function ProductForm() {
               <Textarea label="How to use" error={errors.howToUse?.message} {...register('howToUse')} />
             </div>
           </Card>
+
+          <TranslationsCard register={register} errors={errors} />
 
           <Card title="Images *">
             <div className="p-5">

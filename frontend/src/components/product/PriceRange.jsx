@@ -1,5 +1,8 @@
+import { useTranslation } from 'react-i18next';
+
 /** Controlled dual-thumb price slider on a thin dark track with peach thumbs. */
 export default function PriceRange({ min, max, value, onChange, step = 1 }) {
+  const { t } = useTranslation();
   const [lo, hi] = value;
   const span = Math.max(1, max - min);
   const left = ((lo - min) / span) * 100;
@@ -11,7 +14,7 @@ export default function PriceRange({ min, max, value, onChange, step = 1 }) {
       <div className="absolute top-1/2 h-px -translate-y-1/2 bg-ink" style={{ left: `${left}%`, right: `${right}%` }} />
       <input
         type="range"
-        aria-label="Minimum price"
+        aria-label={t('a11y.minPrice')}
         min={min}
         max={max}
         step={step}
@@ -21,7 +24,7 @@ export default function PriceRange({ min, max, value, onChange, step = 1 }) {
       />
       <input
         type="range"
-        aria-label="Maximum price"
+        aria-label={t('a11y.maxPrice')}
         min={min}
         max={max}
         step={step}

@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const env = require('./config/env');
 const routes = require('./routes');
+const { detectLanguage } = require('./utils/i18n');
 const { UPLOAD_DIR } = require('./utils/storage');
 const { notFound, errorHandler } = require('./middleware/error');
 
@@ -23,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 if (env.nodeEnv !== 'test') app.use(morgan(env.isProd ? 'combined' : 'dev'));
 
 app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '7d' }));
-app.use('/api', routes);
+app.use('/api', detectLanguage, routes);
 
 app.use(notFound);
 app.use(errorHandler);

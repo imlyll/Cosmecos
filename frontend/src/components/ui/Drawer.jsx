@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import { EASE } from '../../lib/motion';
+import { useTranslation } from 'react-i18next';
 
 function useLockBody(open, onClose) {
   useEffect(() => {
@@ -21,6 +22,7 @@ function useLockBody(open, onClose) {
 
 /** Side panel sliding in from the left or right. */
 export function Drawer({ open, onClose, side = 'right', title, children, className }) {
+  const { t } = useTranslation();
   useLockBody(open, onClose);
   const offset = side === 'right' ? '100%' : '-100%';
   return createPortal(
@@ -28,7 +30,7 @@ export function Drawer({ open, onClose, side = 'right', title, children, classNa
       {open && (
         <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label={title}>
           <motion.div
-            className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -48,7 +50,7 @@ export function Drawer({ open, onClose, side = 'right', title, children, classNa
           >
             <div className="flex items-center justify-between border-b border-line px-6 py-5">
               <h2 className="text-2xl">{title}</h2>
-              <button type="button" onClick={onClose} aria-label="Close" className="group p-1">
+              <button type="button" onClick={onClose} aria-label={t('a11y.close')} className="group p-1">
                 <X className="size-5 transition-transform duration-500 group-hover:rotate-90" />
               </button>
             </div>
@@ -63,6 +65,7 @@ export function Drawer({ open, onClose, side = 'right', title, children, classNa
 
 /** Centered dialog with a scale-in animation. */
 export function Modal({ open, onClose, children, className, label }) {
+  const { t } = useTranslation();
   useLockBody(open, onClose);
   return createPortal(
     <AnimatePresence>
@@ -74,7 +77,7 @@ export function Modal({ open, onClose, children, className, label }) {
           aria-label={label}
         >
           <motion.div
-            className="absolute inset-0 bg-ink/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/55 backdrop-blur-sm"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -90,7 +93,7 @@ export function Modal({ open, onClose, children, className, label }) {
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close"
+              aria-label={t('a11y.close')}
               className="group absolute top-4 right-4 z-10 grid size-9 place-items-center rounded-full bg-cream/80"
             >
               <X className="size-5 transition-transform duration-500 group-hover:rotate-90" />

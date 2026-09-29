@@ -1,9 +1,9 @@
 const crypto = require('crypto');
 const Otp = require('../models/Otp');
 const ApiError = require('../utils/ApiError');
-const { sendMail } = require('../utils/mailer');
+const { sendMail, describeMailError } = require('../utils/mailer');
 const { verificationEmail } = require('../utils/emailTemplates');
-const { jwtSecret, otp: config } = require('../config/env');
+const { jwtSecret, isProd, otp: config } = require('../config/env');
 
 const hashCode = (email, code) => crypto.createHmac('sha256', jwtSecret).update(`${email}:${code}`).digest('hex');
 
@@ -52,11 +52,19 @@ async function issueOtp(user, { purpose = 'register', lang, force = false } = {}
   try {
     await sendMail({ to: email, ...message, preview: { code } });
   } catch (err) {
-    console.error('Failed to send verification email:', err);
-    // Let the user retry straight away instead of waiting out a cooldown for an email that never arrived.
-    await Otp.deleteOne({ email, purpose });
+    const reason = describeMailError(err);
+    console.error(`[mail] Could not send the verification email to ${email}: ${reason}`);
+    if (isProd) {
+      // Let the user retry straight away instead of waiting out a cooldown for an email that never arrived.
+      await Otp.deleteOne({ email, purpose });
+    } else {
+      // Development fallback: keep the code and print it, so sign-up can be finished while SMTP is being fixed
+      // (signing in with the new account opens the code screen).
+      console.warn(`[mail] DEV fallback: verification code for ${email} is ${code}`);
+    }
     throw ApiError.badGateway('We could not send the verification email. Please try again shortly.', {
       code: 'EMAIL_SEND_FAILED',
+      ...(!isProd && { meta: { reason } }),
     });
   }
   return config.resendCooldownSeconds;

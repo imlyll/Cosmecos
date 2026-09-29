@@ -1,9 +1,11 @@
 import { Minus, Plus } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 /** Three separate outlined squares: − | qty | +, as in the theme (compact 40px boxes when size="sm"). */
 export default function QuantitySelector({ value, onChange, min = 1, max = 99, size = 'md', disabled }) {
+  const { t } = useTranslation();
   const box = clsx(
     'grid place-items-center border border-ink bg-white text-ink',
     size === 'sm' ? 'size-10' : 'size-14'
@@ -16,7 +18,7 @@ export default function QuantitySelector({ value, onChange, min = 1, max = 99, s
         className={btn}
         onClick={() => onChange(Math.max(min, value - 1))}
         disabled={disabled || value <= min}
-        aria-label="Decrease quantity"
+        aria-label={t('a11y.decreaseQty')}
       >
         <Minus className="size-4" strokeWidth={1.5} />
       </button>
@@ -39,7 +41,7 @@ export default function QuantitySelector({ value, onChange, min = 1, max = 99, s
         className={btn}
         onClick={() => onChange(Math.min(max, value + 1))}
         disabled={disabled || value >= max}
-        aria-label="Increase quantity"
+        aria-label={t('a11y.increaseQty')}
       >
         <Plus className="size-4" strokeWidth={1.5} />
       </button>

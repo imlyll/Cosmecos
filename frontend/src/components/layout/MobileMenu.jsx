@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/auth';
 import { EASE } from '../../lib/motion';
 import { useTranslation } from 'react-i18next';
 import { LanguageToggle } from './LanguageSwitcher';
+import ThemeToggle from './ThemeToggle';
 
 export default function MobileMenu() {
   const { t } = useTranslation();
@@ -22,7 +23,7 @@ export default function MobileMenu() {
 
   return (
     <Drawer open={menuOpen} onClose={() => setMenuOpen(false)} side="left" title={t('nav.menu')}>
-      <nav className="flex-1 overflow-y-auto px-6 py-8" aria-label="Mobile">
+      <nav className="flex-1 overflow-y-auto px-6 py-8" aria-label={t('a11y.mobileNav')}>
         <ul className="space-y-1">
           {NAV_LINKS.map((link, i) => (
             <motion.li
@@ -78,6 +79,10 @@ export default function MobileMenu() {
       <div className="flex items-center justify-between border-t border-line px-6 py-4">
         <span className="font-serif text-xs font-bold tracking-[0.12em] text-taupe uppercase">{t('language.label')}</span>
         <LanguageToggle />
+      </div>
+      <div className="flex items-center justify-between border-t border-line px-6 py-2">
+        <span className="font-serif text-xs font-bold tracking-[0.12em] text-taupe uppercase">{t('theme.label')}</span>
+        <ThemeToggle withLabel className="flex-row-reverse" />
       </div>
       <div className="border-t border-line px-6 py-6 text-sm text-taupe">
         <p>{STORE_INFO.phone}</p>

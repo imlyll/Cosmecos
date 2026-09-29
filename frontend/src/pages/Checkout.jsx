@@ -22,34 +22,37 @@ import { formatPrice } from '../lib/format';
 import { EASE } from '../lib/motion';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
+// Step and payment labels live in checkout.steps.<id> and checkout.methods.<value>.
 const STEPS = [
-  { id: 'shipping', label: 'Shipping', fields: ['fullName', 'phone', 'line1', 'line2', 'city', 'state', 'postalCode', 'country'] },
-  { id: 'payment', label: 'Payment', fields: ['paymentMethod'] },
-  { id: 'review', label: 'Review', fields: ['notes'] },
+  { id: 'shipping', fields: ['fullName', 'phone', 'line1', 'line2', 'city', 'state', 'postalCode', 'country'] },
+  { id: 'payment', fields: ['paymentMethod'] },
+  { id: 'review', fields: ['notes'] },
 ];
 
 const PAYMENT_METHODS = [
-  { value: 'cash_on_delivery', label: 'Cash on delivery', text: 'Pay in cash or by card when your order arrives.', icon: Banknote },
-  { value: 'card', label: 'Credit / debit card', text: 'Pay by card with the courier on delivery.', icon: CreditCard },
-  { value: 'paypal', label: 'PayPal', text: 'We’ll email you a secure PayPal payment link.', icon: Wallet },
+  { value: 'cash_on_delivery', icon: Banknote },
+  { value: 'card', icon: CreditCard },
+  { value: 'paypal', icon: Wallet },
 ];
 
+// Messages are translation keys, resolved when rendered.
 const schema = z.object({
-  fullName: z.string().trim().min(2, 'Please enter your full name'),
-  phone: z.string().trim().min(5, 'Enter a valid phone number').max(30),
-  line1: z.string().trim().min(3, 'Enter your street address'),
+  fullName: z.string().trim().min(2, 'checkout.errors.fullName'),
+  phone: z.string().trim().min(5, 'checkout.errors.phone').max(30),
+  line1: z.string().trim().min(3, 'checkout.errors.street'),
   line2: z.string().trim().max(120).optional(),
-  city: z.string().trim().min(2, 'Enter your city'),
+  city: z.string().trim().min(2, 'checkout.errors.city'),
   state: z.string().trim().max(60).optional(),
-  postalCode: z.string().trim().min(2, 'Enter your postal code').max(20),
-  country: z.string().trim().min(2, 'Enter your country'),
+  postalCode: z.string().trim().min(2, 'checkout.errors.postalCode').max(20),
+  country: z.string().trim().min(2, 'checkout.errors.country'),
   paymentMethod: z.enum(['cash_on_delivery', 'card', 'paypal']),
   notes: z.string().trim().max(500).optional(),
 });
 
 function Stepper({ step, onJump }) {
+  const { t } = useTranslation();
   return (
-    <ol className="flex items-center" aria-label="Checkout progress">
+    <ol className="flex items-center" aria-label={t('a11y.checkoutProgress')}>
       {STEPS.map((s, i) => {
         const done = i < step;
         const active = i === step;
@@ -62,19 +65,16 @@ function Stepper({ step, onJump }) {
               aria-current={active ? 'step' : undefined}
               className="flex items-center gap-3 disabled:cursor-default"
             >
-              <motion.span
-                className="grid size-10 place-items-center border font-serif text-[13px] font-bold"
-                animate={{
-                  backgroundColor: done || active ? '#232323' : 'rgba(0,0,0,0)',
-                  borderColor: done || active ? '#232323' : '#e0e0e0',
-                  color: done || active ? '#ffffff' : '#737373',
-                }}
-                transition={{ duration: 0.4 }}
+              <span
+                className={clsx(
+                  'grid size-10 place-items-center border font-serif text-[13px] font-bold transition-colors duration-400',
+                  done || active ? 'border-ink bg-ink text-white' : 'border-line bg-transparent text-taupe'
+                )}
               >
                 {done ? <Check className="size-4" /> : i + 1}
-              </motion.span>
+              </span>
               <span className={clsx('hidden font-serif text-[13px] font-bold tracking-[0.05em] uppercase sm:block', active ? 'text-ink' : 'text-taupe')}>
-                {s.label}
+                {t(`checkout.steps.${s.id}`)}
               </span>
             </button>
             {i < STEPS.length - 1 && (
@@ -129,6 +129,7 @@ export default function Checkout() {
     },
   });
   const paymentMethod = watch('paymentMethod');
+  const err = (e) => e?.message && t(e.message);
 
   if (isLoading) {
     return (
@@ -158,7 +159,7 @@ export default function Checkout() {
           setCouponCode('');
           navigate(`/order-success/${order._id}`, { replace: true });
         },
-        onError: (err) => toast.error(err.message),
+        onError: (error) => toast.error(error.message),
       }
     );
   };
@@ -172,7 +173,7 @@ export default function Checkout() {
 
   return (
     <>
-      <PageHero title="Shop Checkout" image={HERO_IMAGES.beauty} />
+      <PageHero title={t('checkout.title')} image={HERO_IMAGES.beauty} />
       <div className="container-luxe py-[150px] max-md:py-20">
 
         <div className="grid items-start gap-12 lg:grid-cols-[1fr_420px] xl:gap-16">
@@ -204,29 +205,29 @@ export default function Checkout() {
                   {step === 0 && (
                     <section aria-labelledby="ship-heading">
                       <h2 id="ship-heading" className="title-line text-[26px] leading-[38px] font-normal">
-                        Shipping address
+                        {t('checkout.shippingAddress')}
                       </h2>
-                      <p className="mt-2 text-taupe">Ordering as {user?.email}</p>
+                      <p className="mt-2 text-taupe">{t('checkout.orderingAs', { email: user?.email })}</p>
                       <div className="mt-8 grid gap-5 sm:grid-cols-2">
-                        <Field label="Full name *" autoComplete="name" error={errors.fullName?.message} {...register('fullName')} />
-                        <Field label="Phone *" type="tel" autoComplete="tel" error={errors.phone?.message} {...register('phone')} />
+                        <Field label={t('checkout.fullName')} autoComplete="name" error={err(errors.fullName)} {...register('fullName')} />
+                        <Field label={t('checkout.phone')} type="tel" autoComplete="tel" error={err(errors.phone)} {...register('phone')} />
                         <Field
                           className="sm:col-span-2"
-                          label="Street address *"
+                          label={t('checkout.street')}
                           autoComplete="address-line1"
-                          error={errors.line1?.message}
+                          error={err(errors.line1)}
                           {...register('line1')}
                         />
                         <Field
                           className="sm:col-span-2"
-                          label="Apartment, suite (optional)"
+                          label={t('checkout.apartment')}
                           autoComplete="address-line2"
                           {...register('line2')}
                         />
-                        <Field label="City *" autoComplete="address-level2" error={errors.city?.message} {...register('city')} />
-                        <Field label="State / region" autoComplete="address-level1" {...register('state')} />
-                        <Field label="Postal code *" autoComplete="postal-code" error={errors.postalCode?.message} {...register('postalCode')} />
-                        <Field label="Country *" autoComplete="country-name" error={errors.country?.message} {...register('country')} />
+                        <Field label={t('checkout.city')} autoComplete="address-level2" error={err(errors.city)} {...register('city')} />
+                        <Field label={t('checkout.state')} autoComplete="address-level1" {...register('state')} />
+                        <Field label={t('checkout.postalCode')} autoComplete="postal-code" error={err(errors.postalCode)} {...register('postalCode')} />
+                        <Field label={t('checkout.country')} autoComplete="country-name" error={err(errors.country)} {...register('country')} />
                       </div>
                     </section>
                   )}
@@ -234,21 +235,21 @@ export default function Checkout() {
                   {step === 1 && (
                     <section aria-labelledby="pay-heading">
                       <h2 id="pay-heading" className="title-line text-[26px] leading-[38px] font-normal">
-                        Delivery & payment
+                        {t('checkout.deliveryPayment')}
                       </h2>
                       <div className="mt-8 flex items-center gap-4 border border-ink bg-white p-5">
                         <Truck className="size-6 text-rose" strokeWidth={1.3} />
                         <div className="flex-1">
-                          <p className="font-serif font-semibold text-ink">Standard delivery</p>
-                          <p className="text-sm text-taupe">3–5 business days</p>
+                          <p className="font-serif font-semibold text-ink">{t('checkout.standardDelivery')}</p>
+                          <p className="text-sm text-taupe">{t('checkout.deliveryTime')}</p>
                         </div>
-                        <p className="text-sm">{cart.shippingPrice === 0 ? 'Free' : formatPrice(cart.shippingPrice)}</p>
+                        <p className="text-sm">{cart.shippingPrice === 0 ? t('summary.free') : formatPrice(cart.shippingPrice)}</p>
                       </div>
 
                       <fieldset className="mt-8">
-                        <legend className="label-luxe">Payment method</legend>
+                        <legend className="label-luxe">{t('checkout.paymentMethod')}</legend>
                         <div className="space-y-3">
-                          {PAYMENT_METHODS.map(({ value, label, text, icon: Icon }) => (
+                          {PAYMENT_METHODS.map(({ value, icon: Icon }) => (
                             <label
                               key={value}
                               className={clsx(
@@ -261,15 +262,15 @@ export default function Checkout() {
                                 {paymentMethod === value && <motion.span layoutId="pay-dot" className="size-2.5 rounded-full bg-ink" />}
                               </span>
                               <span className="flex-1">
-                                <span className="block font-serif font-semibold text-ink">{label}</span>
-                                <span className="mt-0.5 block text-sm text-taupe">{text}</span>
+                                <span className="block font-serif font-semibold text-ink">{t(`checkout.methods.${value}.label`)}</span>
+                                <span className="mt-0.5 block text-sm text-taupe">{t(`checkout.methods.${value}.text`)}</span>
                               </span>
                               <Icon className="size-6 text-taupe" strokeWidth={1.3} />
                             </label>
                           ))}
                         </div>
                         <p className="mt-4 text-xs text-taupe">
-                          Online card processing isn’t connected yet — no card details are collected on this site.
+                          {t('checkout.cardNote')}
                         </p>
                       </fieldset>
                     </section>
@@ -278,14 +279,14 @@ export default function Checkout() {
                   {step === 2 && (
                     <section aria-labelledby="review-heading">
                       <h2 id="review-heading" className="title-line text-[26px] leading-[38px] font-normal">
-                        Review your order
+                        {t('checkout.reviewOrder')}
                       </h2>
                       <div className="mt-8 grid gap-4 sm:grid-cols-2">
                         <div className="border border-line p-5 text-sm">
                           <div className="flex justify-between">
-                            <p className="label-luxe">Ship to</p>
+                            <p className="label-luxe">{t('checkout.shipTo')}</p>
                             <button type="button" onClick={() => setStep([0, -1])} className="link-underline text-xs">
-                              Edit
+                              {t('common.edit')}
                             </button>
                           </div>
                           <p className="font-medium">{values.fullName}</p>
@@ -301,13 +302,13 @@ export default function Checkout() {
                         </div>
                         <div className="border border-line p-5 text-sm">
                           <div className="flex justify-between">
-                            <p className="label-luxe">Payment</p>
+                            <p className="label-luxe">{t('checkout.payment')}</p>
                             <button type="button" onClick={() => setStep([1, -1])} className="link-underline text-xs">
-                              Edit
+                              {t('common.edit')}
                             </button>
                           </div>
-                          <p className="font-medium">{PAYMENT_METHODS.find((m) => m.value === values.paymentMethod)?.label}</p>
-                          <p className="text-taupe">Standard delivery · 3–5 business days</p>
+                          <p className="font-medium">{t(`checkout.methods.${values.paymentMethod}.label`)}</p>
+                          <p className="text-taupe">{t('checkout.deliverySummary')}</p>
                         </div>
                       </div>
 
@@ -318,7 +319,8 @@ export default function Checkout() {
                             <div className="flex-1">
                               <p className="font-serif text-lg leading-tight text-ink">{item.product.name}</p>
                               <p className="text-xs text-taupe">
-                                {item.variant ? `${item.variant.name} · ` : ''}Qty {item.quantity}
+                                {item.variant ? `${item.variant.name} · ` : ''}
+                                {t('common.qty', { count: item.quantity })}
                               </p>
                             </div>
                             <p className="text-sm">{formatPrice(item.subtotal)}</p>
@@ -326,7 +328,7 @@ export default function Checkout() {
                         ))}
                       </ul>
 
-                      <Field className="mt-8" label="Order notes (optional)" as="textarea" rows={3} {...register('notes')} />
+                      <Field className="mt-8" label={t('checkout.notes')} as="textarea" rows={3} {...register('notes')} />
                     </section>
                   )}
                 </motion.div>
@@ -336,18 +338,18 @@ export default function Checkout() {
             <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
               {step === 0 ? (
                 <Link to="/cart" className="group flex items-center gap-2 font-serif text-[13px] font-bold text-ink uppercase">
-                  <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" /> Back to bag
+                  <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" /> {t('checkout.backToBag')}
                 </Link>
               ) : (
                 <button type="button" onClick={back} className="group flex items-center gap-2 font-serif text-[13px] font-bold text-ink uppercase">
-                  <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" /> Back
+                  <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" /> {t('common.back')}
                 </button>
               )}
               {step < STEPS.length - 1 ? (
                 // Distinct keys stop React from reusing this <button> as the submit button:
                 // validation resolves in a microtask, before the click's default action runs.
                 <Button key="next" type="button" size="lg" onClick={next}>
-                  Continue to {STEPS[step + 1].label.toLowerCase()}
+                  {t('checkout.continueTo', { step: t(`checkout.steps.${STEPS[step + 1].id}`).toLowerCase() })}
                 </Button>
               ) : (
                 <Button key="submit" type="submit" size="lg" loading={placeOrder.isPending}>
@@ -355,10 +357,11 @@ export default function Checkout() {
                 </Button>
               )}
             </div>
+            {step === STEPS.length - 1 && <p className="mt-6 text-xs leading-relaxed text-taupe">{t('checkout.policy')}</p>}
           </form>
 
           <div className="lg:sticky lg:top-28">
-            <OrderSummary cart={cart} title="Your order" />
+            <OrderSummary cart={cart} title={t('summary.yourOrder')} />
           </div>
         </div>
       </div>

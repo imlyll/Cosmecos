@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 function pageList(page, pages) {
   if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
@@ -9,14 +10,15 @@ function pageList(page, pages) {
 
 /** Square numbered pages with Prev / Next text buttons, as in the theme. */
 export default function Pagination({ page, pages, onChange }) {
+  const { t } = useTranslation();
   if (pages <= 1) return null;
   const btn =
     'grid h-10 min-w-10 place-items-center border border-ink font-sans text-[13px] font-bold tracking-[0.05em] uppercase transition-colors duration-300';
   return (
-    <nav aria-label="Pagination" className="mt-10 flex flex-wrap justify-center gap-5">
+    <nav aria-label={t('a11y.pagination')} className="mt-10 flex flex-wrap justify-center gap-5">
       {page > 1 && (
         <button type="button" onClick={() => onChange(page - 1)} className={clsx(btn, 'px-4 text-ink hover:bg-ink hover:text-white')}>
-          Prev
+          {t('common.prev')}
         </button>
       )}
       {pageList(page, pages).map((p, i) =>
@@ -38,7 +40,7 @@ export default function Pagination({ page, pages, onChange }) {
       )}
       {page < pages && (
         <button type="button" onClick={() => onChange(page + 1)} className={clsx(btn, 'px-4 text-ink hover:bg-ink hover:text-white')}>
-          Next
+          {t('common.next')}
         </button>
       )}
     </nav>

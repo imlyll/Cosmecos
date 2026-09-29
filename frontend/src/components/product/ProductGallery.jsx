@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Modal } from '../ui/Drawer';
 import { sizedImage } from '../../lib/api';
 import { EASE } from '../../lib/motion';
+import { useTranslation } from 'react-i18next';
 
 const slide = {
   enter: (dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0.4 }),
@@ -14,6 +15,7 @@ const slide = {
 
 /** Main image with hover zoom, swipe/arrow navigation, thumbnails and a lightbox. */
 export default function ProductGallery({ images = [], name, badge }) {
+  const { t } = useTranslation();
   const [[index, dir], setIndex] = useState([0, 0]);
   const [zoom, setZoom] = useState({ active: false, x: 50, y: 50 });
   const [lightbox, setLightbox] = useState(false);
@@ -44,7 +46,7 @@ export default function ProductGallery({ images = [], name, badge }) {
               key={img._id || img.url}
               type="button"
               onClick={() => setIndex([i, i > index ? 1 : -1])}
-              aria-label={`Show image ${i + 1}`}
+              aria-label={t('a11y.showImage', { n: i + 1 })}
               aria-current={i === index}
               className={clsx(
                 'relative aspect-square w-24 shrink-0 overflow-hidden bg-beige transition-opacity duration-300',
@@ -114,8 +116,8 @@ export default function ProductGallery({ images = [], name, badge }) {
         {count > 1 && (
           <>
             {[
-              { d: -1, icon: ChevronLeft, pos: 'left-8', label: 'Previous image' },
-              { d: 1, icon: ChevronRight, pos: 'right-8', label: 'Next image' },
+              { d: -1, icon: ChevronLeft, pos: 'left-8', label: t('a11y.prevImage') },
+              { d: 1, icon: ChevronRight, pos: 'right-8', label: t('a11y.nextImage') },
             ].map(({ d, icon: Icon, pos, label }) => (
               <button
                 key={d}
@@ -137,7 +139,7 @@ export default function ProductGallery({ images = [], name, badge }) {
         )}
       </div>
 
-      <Modal open={lightbox} onClose={() => setLightbox(false)} className="max-w-5xl bg-beige" label={`${name} image`}>
+      <Modal open={lightbox} onClose={() => setLightbox(false)} className="max-w-5xl bg-beige" label={t('a11y.productImage', { name })}>
         <img src={sizedImage(current.url, 2000)} alt={current.alt || name} className="max-h-[88vh] w-full object-contain" />
       </Modal>
     </div>

@@ -16,6 +16,7 @@ import { useAddToCart } from '../hooks/useCart';
 import { useRequireAuth } from '../hooks/useRequireAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { EASE, fadeUp, stagger } from '../lib/motion';
+import { Trans, useTranslation } from 'react-i18next';
 
 function DetailsSkeleton() {
   return (
@@ -70,6 +71,7 @@ function MetaRow({ label, children }) {
 }
 
 export default function ProductDetails() {
+  const { t } = useTranslation();
   const { slug } = useParams();
   const { data, isLoading, isError } = useProduct(slug);
   const product = data?.product;
@@ -106,7 +108,7 @@ export default function ProductDetails() {
   if (isError || !product) {
     return (
       <div className="container-luxe">
-        <EmptyState title="Product not found" text="It may have been moved or is no longer available." action="Back to shop" to="/shop" />
+        <EmptyState title={t('product.notFoundTitle')} text={t('product.notFoundText')} action={t('product.backToShop')} to="/shop" />
       </div>
     );
   }
@@ -117,9 +119,9 @@ export default function ProductDetails() {
   const onSale = !variant && product.compareAtPrice > product.price;
   const swatches = product.variants?.some((v) => v.colorHex);
   const extraInfo = [
-    ['Weight', product.weight],
-    ['Dimensions', product.dimensions],
-    ...(product.ingredients ? [['Ingredients', product.ingredients]] : []),
+    [t('product.weight'), product.weight],
+    [t('product.dimensions'), product.dimensions],
+    ...(product.ingredients ? [[t('product.ingredients'), product.ingredients]] : []),
   ].filter(([, v]) => v);
 
   const handleAdd = () =>
@@ -131,8 +133,8 @@ export default function ProductDetails() {
     );
 
   const tabs = [
-    { id: 'description', label: 'Description' },
-    { id: 'reviews', label: `Reviews (${product.numReviews || 0})` },
+    { id: 'description', label: t('product.description') },
+    { id: 'reviews', label: t('product.reviews', { count: product.numReviews || 0 }) },
   ];
 
   return (
@@ -147,8 +149,8 @@ export default function ProductDetails() {
             name={product.name}
             badge={
               (onSale || soldOut) && (
-                <span className="absolute top-[37px] left-[5px] bg-ink-soft px-3 font-serif text-[13px] leading-[30px] font-medium text-white uppercase">
-                  {soldOut ? 'Sold out' : 'Sale'}
+                <span className="theme-light absolute top-[37px] left-[5px] bg-ink-soft px-3 font-serif text-[13px] leading-[30px] font-medium text-white uppercase">
+                  {soldOut ? t('common.soldOut') : t('common.sale')}
                 </span>
               )
             }
@@ -171,22 +173,27 @@ export default function ProductDetails() {
           )}
 
           <motion.dl variants={fadeUp} className="mt-9">
-            {(variant?.sku || product.sku) && <MetaRow label="SKU">{variant?.sku || product.sku}</MetaRow>}
+            {(variant?.sku || product.sku) && <MetaRow label={t('product.sku')}>{variant?.sku || product.sku}</MetaRow>}
             {product.category && (
-              <MetaRow label="Category">
+              <MetaRow label={t('product.category')}>
                 <Link to={`/shop?category=${product.category.slug}`} className="transition-colors hover:text-rose">
                   {product.category.name}
                 </Link>
               </MetaRow>
             )}
+            <MetaRow label={t('product.availability')}>
+              <span className={soldOut ? 'text-danger' : 'text-success'}>
+                {soldOut ? t('common.outOfStock') : t('common.inStock')}
+              </span>
+            </MetaRow>
             {product.tags?.length > 0 && (
               <div className="mt-1 flex flex-wrap items-center gap-2.5 font-serif text-[13px] font-semibold text-ink uppercase">
-                <dt>Tags:</dt>
+                <dt>{t('product.tags')}:</dt>
                 {product.tags.map((t) => (
                   <dd key={t}>
                     <Link
                       to={`/shop?tags=${encodeURIComponent(t)}`}
-                      className="block border border-black px-[9px] py-[3px] text-base leading-[22px] font-medium capitalize transition-colors hover:bg-ink hover:text-white"
+                      className="block border border-ink px-[9px] py-[3px] text-base leading-[22px] font-medium capitalize transition-colors hover:bg-ink hover:text-white"
                     >
                       {t}
                     </Link>
@@ -199,9 +206,9 @@ export default function ProductDetails() {
           {product.variants?.length > 0 && (
             <motion.div variants={fadeUp} className="mt-8">
               <p className="label-luxe">
-                {swatches ? 'Shade' : 'Size'}: <span className="font-medium text-taupe">{variant?.name}</span>
+                {swatches ? t('product.shade') : t('product.size')}: <span className="font-medium text-taupe">{variant?.name}</span>
               </p>
-              <div className="flex flex-wrap gap-3" role="radiogroup" aria-label={swatches ? 'Shade' : 'Size'}>
+              <div className="flex flex-wrap gap-3" role="radiogroup" aria-label={swatches ? t('product.shade') : t('product.size')}>
                 {product.variants.map((v) => {
                   const active = v._id === variantId;
                   const out = v.stock <= 0;
@@ -211,7 +218,7 @@ export default function ProductDetails() {
                       type="button"
                       role="radio"
                       aria-checked={active}
-                      aria-label={`${v.name}${out ? ' (sold out)' : ''}`}
+                      aria-label={out ? t('product.soldOutOption', { name: v.name }) : v.name}
                       title={v.name}
                       onClick={() => setVariantId(v._id)}
                       className={clsx(
@@ -246,7 +253,7 @@ export default function ProductDetails() {
 
           {!soldOut && stock <= 5 && (
             <motion.p variants={fadeUp} className="mt-6 text-sm text-danger">
-              Only {stock} left in stock
+              {t('product.onlyLeft', { count: stock })}
             </motion.p>
           )}
 
@@ -258,7 +265,7 @@ export default function ProductDetails() {
               disabled={soldOut || addToCart.isPending}
               className="btn-cos w-[185px] px-4"
             >
-              {soldOut ? 'Out of stock' : addToCart.isPending ? 'Adding…' : 'Add to cart'}
+              {soldOut ? t('common.outOfStock') : addToCart.isPending ? t('common.adding') : t('common.addToCart')}
             </button>
             <WishlistButton product={product} size="lg" className="relative -mt-1" />
           </motion.div>
@@ -267,20 +274,20 @@ export default function ProductDetails() {
 
       {/* Description / reviews tabs */}
       <section className="container-luxe pt-[100px] max-md:pt-16">
-        <div role="tablist" aria-label="Product information" className="flex">
-          {tabs.map((t) => (
+        <div role="tablist" aria-label={t('a11y.productInfo')} className="flex">
+          {tabs.map((item) => (
             <button
-              key={t.id}
+              key={item.id}
               role="tab"
               type="button"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
+              aria-selected={tab === item.id}
+              onClick={() => setTab(item.id)}
               className={clsx(
                 '-ml-px h-14 w-[188px] border border-ink font-serif text-[13px] font-bold tracking-[0.05em] uppercase transition-colors duration-300 first:ml-0',
-                tab === t.id ? 'bg-ink-soft text-white' : 'text-ink hover:bg-ink hover:text-white'
+                tab === item.id ? 'bg-ink text-white' : 'text-ink hover:bg-ink hover:text-white'
               )}
             >
-              {t.label}
+              {item.label}
             </button>
           ))}
         </div>
@@ -298,6 +305,12 @@ export default function ProductDetails() {
             {tab === 'description' ? (
               <>
                 <Description text={product.description} />
+                {product.howToUse && (
+                  <div className="mt-10 max-w-[870px]">
+                    <h3 className="label-luxe">{t('product.howToUse')}</h3>
+                    <p className="whitespace-pre-line text-taupe">{product.howToUse}</p>
+                  </div>
+                )}
                 {extraInfo.length > 0 && (
                   <table className="mt-10 w-full max-w-[368px] text-left">
                     <tbody>
@@ -317,12 +330,16 @@ export default function ProductDetails() {
                   <div className="flex flex-wrap items-center gap-4">
                     <Rating value={product.rating || 0} size="md" />
                     <p className="text-taupe">
-                      Rated <span className="font-bold text-ink">{(product.rating || 0).toFixed(2)}</span> out of 5 based on{' '}
-                      {product.numReviews} customer {product.numReviews === 1 ? 'rating' : 'ratings'}.
+                      <Trans
+                        i18nKey="product.rated"
+                        count={product.numReviews}
+                        values={{ rating: (product.rating || 0).toFixed(2) }}
+                        components={{ strong: <span className="font-bold text-ink" /> }}
+                      />
                     </p>
                   </div>
                 ) : (
-                  <p className="text-taupe">There are no reviews yet.</p>
+                  <p className="text-taupe">{t('product.noReviews')}</p>
                 )}
               </div>
             )}
@@ -332,7 +349,7 @@ export default function ProductDetails() {
 
       {related.length > 0 && (
         <section className="container-luxe pt-[150px] pb-[120px] max-md:py-20">
-          <h2 className="mb-10 text-[28px] leading-[1.47] font-light uppercase md:text-[38px]">Best sellers products</h2>
+          <h2 className="mb-10 text-[28px] leading-[1.47] font-light uppercase md:text-[38px]">{t('product.related')}</h2>
           <ProductGrid products={related.slice(0, 4)} columns={4} />
         </section>
       )}

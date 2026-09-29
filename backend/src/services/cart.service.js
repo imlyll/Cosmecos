@@ -2,7 +2,7 @@ const Cart = require('../models/Cart');
 const { calculateTotals, unitPrice } = require('./pricing.service');
 const { round2 } = require('../utils/money');
 
-const PRODUCT_FIELDS = 'name slug brand price compareAtPrice images stock variants isActive';
+const PRODUCT_FIELDS = 'name slug brand price compareAtPrice images stock variants isActive translations.az.name translations.ru.name';
 
 async function getOrCreateCart(userId) {
   return (await Cart.findOne({ user: userId })) || Cart.create({ user: userId, items: [] });
@@ -10,9 +10,9 @@ async function getOrCreateCart(userId) {
 
 /**
  * Populates a cart, drops lines whose product or variant no longer exists,
- * and returns a client-ready view with live prices and availability.
+ * and returns a client-ready view with live prices, availability and product names in `lang`.
  */
-async function buildCartView(cart) {
+async function buildCartView(cart, lang = 'en') {
   await cart.populate('items.product', PRODUCT_FIELDS);
 
   const valid = cart.items.filter((item) => {
@@ -34,7 +34,7 @@ async function buildCartView(cart) {
       _id: item._id,
       product: {
         _id: product._id,
-        name: product.name,
+        name: (lang !== 'en' && product.translations?.[lang]?.name) || product.name,
         slug: product.slug,
         brand: product.brand,
         image: variant?.image || product.images[0]?.url || null,

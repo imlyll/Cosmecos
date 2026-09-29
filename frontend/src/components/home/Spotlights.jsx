@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import Reveal from '../ui/Reveal';
 
 /** Huge faint script word placed behind a block. */
@@ -14,10 +15,11 @@ function Watermark({ children, className }) {
 }
 
 function Heading({ children }) {
+  const { t } = useTranslation();
   return (
     <>
       <Reveal as="p" className="eyebrow">
-        Features
+        {t('home.spotlights.eyebrow')}
       </Reveal>
       <Reveal
         as="h2"
@@ -32,53 +34,50 @@ function Heading({ children }) {
 
 /** Two alternating text + picture rows: "Eyeshadow revolution" and "Foundations & blushes". */
 export default function Spotlights() {
+  const { t } = useTranslation();
   return (
     <section className="overflow-hidden pt-[150px] pb-[120px] max-md:py-20">
       <div className="container-luxe grid items-center gap-12 lg:grid-cols-[520px_1fr] lg:gap-[85px]">
         <div className="relative z-10">
-          <Heading>Eyeshadow revolution</Heading>
+          <Heading>{t('home.spotlights.eyeshadowTitle')}</Heading>
           <Reveal as="p" delay={0.12} className="mt-6 font-bold text-ink">
-            Our eyes are intrinsically trained to spot divine proportion and immediately associate it with beauty and
-            harmony.
+            {t('home.spotlights.eyeshadowLead')}
           </Reveal>
           <Reveal as="p" delay={0.16} className="mt-5 text-taupe">
-            Brows should begin directly above the middle of your nostrils. The highest point of the arch should connect
-            the tip of the nose with the middle of the iris.
+            {t('home.spotlights.eyeshadowText')}
           </Reveal>
           <Reveal delay={0.2} className="mt-9 flex items-center gap-6">
             <img src="/images/avatar-2.jpg" alt="Ann Gray" className="size-[75px] rounded-full object-cover" />
             <div>
               <p className="font-serif text-xl leading-7 text-ink">Ann Gray</p>
-              <p className="font-serif text-sm font-bold text-mute uppercase">Founder</p>
+              <p className="font-serif text-sm font-bold text-mute uppercase">{t('home.spotlights.founder')}</p>
             </div>
-            <img src="/images/sign-2.png" alt="" aria-hidden className="h-[60px] w-auto" />
+            <img src="/images/sign-2.png" alt="" aria-hidden className="h-[60px] w-auto dark:invert" />
           </Reveal>
         </div>
         <Reveal className="relative">
-          <img src="/images/team-image-1.jpg" alt="Eyeshadow palette" className="relative ml-auto w-full max-w-[560px]" />
-          <Watermark className="-top-16 -left-24 opacity-80">Color</Watermark>
+          <img src="/images/team-image-1.jpg" alt={t('home.spotlights.paletteAlt')} className="relative ml-auto w-full max-w-[560px]" />
+          <Watermark className="-top-16 -left-24 opacity-80">{t('home.spotlights.watermarkColor')}</Watermark>
         </Reveal>
       </div>
 
       <div className="container-luxe mt-[150px] grid items-center gap-12 max-md:mt-20 lg:grid-cols-2 lg:gap-8">
         <Reveal className="order-2 lg:order-1">
-          <img src="/images/team-image-2.jpg" alt="Foundation and blush" className="w-full max-w-[665px]" />
+          <img src="/images/team-image-2.jpg" alt={t('home.spotlights.foundationAlt')} className="w-full max-w-[665px]" />
         </Reveal>
         <div className="relative order-1 lg:order-2">
-          <Watermark className="top-8 -right-40">Splash</Watermark>
+          <Watermark className="top-8 -right-40">{t('home.spotlights.watermarkSplash')}</Watermark>
           <Heading>
-            Only high quality
+            {t('home.spotlights.foundationTitle1')}
             <br />
-            foundations &amp; blushes
+            {t('home.spotlights.foundationTitle2')}
           </Heading>
           <Reveal as="p" delay={0.16} className="relative mt-6 text-taupe">
-            Popularized through customer relationships with some of the world’s most recognizable faces, the “brow
-            revolution” she ignited has become a landmark contribution to beauty history. In 2014, debuted its new color
-            makeup line on Instagram, cultivating a relationship with customers.
+            {t('home.spotlights.foundationText')}
           </Reveal>
           <Reveal delay={0.2}>
             <Link to="/shop" className="btn-cos relative mt-10">
-              Explore more
+              {t('common.exploreMore')}
             </Link>
           </Reveal>
         </div>

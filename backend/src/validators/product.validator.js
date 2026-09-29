@@ -25,8 +25,18 @@ const imageUrl = z.object({
   alt: z.string().trim().max(150).optional(),
 });
 
+// Per-language overrides; empty strings mean "use the English text".
+const productText = z.object({
+  name: z.string().trim().max(150).optional(),
+  shortDescription: z.string().trim().max(600).optional(),
+  description: z.string().trim().max(20000).optional(),
+  ingredients: z.string().trim().max(5000).optional(),
+  howToUse: z.string().trim().max(3000).optional(),
+});
+
 const productFields = {
   name: z.string().trim().min(2).max(150),
+  translations: fromJsonString(z.object({ az: productText.optional(), ru: productText.optional() })).optional(),
   brand: z.string().trim().max(60).optional(),
   shortDescription: z.string().trim().max(600).optional(),
   description: z.string().trim().min(10),

@@ -11,6 +11,7 @@ import SidePanel from './components/layout/SidePanel';
 import AuthModal from './components/auth/AuthModal';
 import ProtectedRoute, { SessionLoader } from './components/auth/ProtectedRoute';
 import { EASE } from './lib/motion';
+import { useTranslation } from 'react-i18next';
 import Home from './pages/Home';
 
 // Home ships in the main bundle; other pages load on demand.
@@ -30,6 +31,7 @@ const guard = (el) => <ProtectedRoute>{el}</ProtectedRoute>;
 
 /** The customer-facing shop: header, footer, overlays and page transitions. */
 export default function Storefront() {
+  const { t } = useTranslation();
   const location = useLocation();
 
   return (
@@ -38,7 +40,7 @@ export default function Storefront() {
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-ink focus:px-4 focus:py-2 focus:text-white"
       >
-        Skip to content
+        {t('a11y.skipToContent')}
       </a>
       <AnnouncementBar />
       <Header />

@@ -1,10 +1,12 @@
 import { Navigate, useLocation } from 'react-router';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../../store/auth';
+import { useTranslation } from 'react-i18next';
 
 export function SessionLoader() {
+  const { t } = useTranslation();
   return (
-    <div className="grid min-h-[60vh] place-items-center" role="status" aria-label="Checking your session">
+    <div className="grid min-h-[60vh] place-items-center" role="status" aria-label={t('a11y.checkingSession')}>
       <motion.span
         className="font-serif text-4xl text-rose italic"
         animate={{ opacity: [0.3, 1, 0.3] }}

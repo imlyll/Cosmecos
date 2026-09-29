@@ -22,9 +22,25 @@ const variantSchema = new mongoose.Schema({
   image: String,
 });
 
+// Azerbaijani / Russian overrides of the English text fields; anything left empty falls back to English.
+const productTextSchema = new mongoose.Schema(
+  {
+    name: { type: String, trim: true, maxlength: 150 },
+    shortDescription: { type: String, maxlength: 600 },
+    description: String,
+    ingredients: String,
+    howToUse: String,
+  },
+  { _id: false }
+);
+
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 150 },
+    translations: {
+      az: { type: productTextSchema, default: undefined },
+      ru: { type: productTextSchema, default: undefined },
+    },
     slug: { type: String, unique: true, index: true },
     brand: { type: String, trim: true, default: 'Cosmecos' },
     shortDescription: { type: String, maxlength: 600 },

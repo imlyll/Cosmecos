@@ -24,9 +24,10 @@ async function main() {
   const server = app.listen(0);
   const base = `http://127.0.0.1:${server.address().port}/api`;
 
-  const call = async (method, path, { token, body, form } = {}) => {
+  const call = async (method, path, { token, body, form, lang } = {}) => {
     const headers = {};
     if (token) headers.Authorization = `Bearer ${token}`;
+    if (lang) headers['X-Language'] = lang;
     if (body) headers['Content-Type'] = 'application/json';
     const res = await fetch(base + path, { method, headers, body: form || (body && JSON.stringify(body)) });
     return { status: res.status, data: await res.json() };
@@ -245,6 +246,55 @@ async function main() {
     assert.equal(r.data.priceRange.max, 48);
     step('filtering, sorting, pagination, slug lookup, facets');
 
+    // --- Catalog translations ---
+    r = await call('PUT', `/categories/${lips._id}`, {
+      token: adminToken,
+      body: { translations: { az: { name: 'Dodaqlar' }, ru: { name: 'Губы', description: 'Помады' } } },
+    });
+    assert.equal(r.status, 200, JSON.stringify(r.data));
+    r = await call('PUT', `/products/${lipstick._id}`, {
+      token: adminToken,
+      body: {
+        translations: {
+          az: { name: 'Məxməri dodaq boyası', description: 'Uzunmüddətli mat dodaq boyası.' },
+          ru: { name: 'Бархатная помада' },
+        },
+      },
+    });
+    assert.equal(r.status, 200, JSON.stringify(r.data));
+    assert.equal(r.data.product.name, 'Velvet Lipstick', 'admin responses keep the English fields');
+    assert.equal(r.data.product.translations.az.name, 'Məxməri dodaq boyası');
+
+    r = await call('GET', `/products/${lipstick.slug}`, { lang: 'az' });
+    assert.equal(r.data.product.name, 'Məxməri dodaq boyası');
+    assert.equal(r.data.product.description, 'Uzunmüddətli mat dodaq boyası.');
+    assert.equal(r.data.product.category.name, 'Dodaqlar');
+    assert.equal(r.data.product.translations, undefined, 'storefront responses drop the raw translations');
+    r = await call('GET', `/products/${lipstick.slug}`, { lang: 'ru' });
+    assert.equal(r.data.product.name, 'Бархатная помада');
+    assert.equal(r.data.product.description, 'Long-wear matte lipstick.', 'missing translations fall back to English');
+    r = await call('GET', `/products/${lipstick.slug}?lang=en`);
+    assert.equal(r.data.product.name, 'Velvet Lipstick');
+    r = await call('GET', '/products?search=бархат', { lang: 'ru' });
+    assert.equal(r.data.products[0]?.name, 'Бархатная помада', 'search matches translated names');
+    r = await call('GET', '/categories', { lang: 'ru' });
+    assert.equal(r.data.categories.find((c) => c.slug === 'lips').name, 'Губы');
+    r = await call('GET', '/products?category=lips', { lang: 'xx' });
+    assert.equal(r.data.products[0].name, 'Velvet Lipstick', 'unknown languages use English');
+    step('catalog text is served in the requested language (X-Language), English otherwise');
+
+    r = await call('POST', '/auth/login', { body: { email: 'leyla@test.com', password: 'Wrong123' }, lang: 'ru' });
+    assert.equal(r.data.message, 'Неверный e-mail или пароль');
+    r = await call('POST', '/cart/items', { token: userToken, body: { productId: lipstick._id }, lang: 'az' });
+    assert.equal(r.data.message, 'Bu məhsul üçün çalar və ya ölçü seçin');
+    r = await call('POST', '/cart/items', { token: userToken, body: { productId: lipstick._id, variantId: rose._id, quantity: 9 }, lang: 'ru' });
+    assert.equal(r.data.message, 'В наличии только 3 шт.');
+    r = await call('POST', '/auth/register', { body: { name: 'X', email: 'bad', password: 'short' }, lang: 'az' });
+    assert.equal(r.data.message, 'Məlumatlar yanlışdır');
+    r = await call('POST', '/auth/login', { body: { email: 'leyla@test.com', password: 'Wrong123' } });
+    assert.equal(r.data.message, 'Invalid email or password', 'no language header: English');
+    step('shopper-facing error messages are translated');
+
     // --- Cart ---
     r = await call('POST', '/cart/items', { token: userToken, body: { productId: lipstick._id, quantity: 1 } });
     assert.equal(r.status, 400, 'variant required');
@@ -267,6 +317,8 @@ async function main() {
     r = await call('PATCH', `/cart/items/${serumLine._id}`, { token: userToken, body: { quantity: 1 } });
     assert.equal(r.data.cart.itemsPrice, 100);
     assert.equal(r.data.cart.shippingPrice, 0, 'free shipping at 100');
+    r = await call('GET', '/cart', { token: userToken, lang: 'az' });
+    assert.ok(r.data.cart.items.some((i) => i.product.name === 'Məxməri dodaq boyası'), 'cart names are localized');
     step('cart add / merge / update / variant + stock checks / totals');
 
     // --- Wishlist ---

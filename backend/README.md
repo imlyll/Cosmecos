@@ -39,6 +39,10 @@ src/
 - Lists return `pagination: { page, limit, total, pages, hasNext, hasPrev }`.
 - Product and admin write endpoints accept **JSON or multipart/form-data**. In multipart, send arrays/objects (`variants`, `imageUrls`, `removeImageIds`) as JSON strings; `tags` may be comma-separated.
 
+## Languages
+
+Send `X-Language: az | en | ru` (or `?lang=`) to receive product and category names/descriptions in that language; untranslated fields fall back to English. Translations are stored as `translations.az` / `translations.ru` on products (`name, shortDescription, description, ingredients, howToUse`) and categories (`name, description`), and are accepted on create/update (as a JSON string in multipart forms). Requests without the header get the English fields plus the raw `translations` object, which is what the admin panel edits. Product search also matches translated names, cart and wishlist responses use the requested language, and shopper-facing error messages are translated (`src/utils/messages.js`). `npm run seed` adds AZ/RU names for the demo catalogue, and on an existing database it fills in missing translations.
+
 ## Endpoints
 
 ### Auth `/api/auth`
@@ -52,7 +56,20 @@ src/
 | PATCH | `/me` | user | `name?, phone?, address?` |
 | PATCH | `/me/password` | user | `currentPassword, newPassword` (returns a new token) |
 
-**Email verification:** codes expire after `OTP_TTL_MINUTES` (10), are stored only as an HMAC hash, and stop working after `OTP_MAX_ATTEMPTS` (5) wrong guesses. Error responses carry a `code` (`OTP_INVALID` + `attemptsLeft`, `OTP_EXPIRED`, `OTP_TOO_MANY_ATTEMPTS`, `OTP_COOLDOWN`, `ALREADY_VERIFIED`, `EMAIL_SEND_FAILED`). Set the `SMTP_*` variables to deliver mail. Without `SMTP_HOST`, development prints each email to the console instead of sending it; in production, registration returns `502 EMAIL_SEND_FAILED` until SMTP is configured. Accounts created before this feature, or by admins/seeds, count as verified.
+**Email verification:** codes expire after `OTP_TTL_MINUTES` (10), are stored only as an HMAC hash, and stop working after `OTP_MAX_ATTEMPTS` (5) wrong guesses. Error responses carry a `code` (`OTP_INVALID` + `attemptsLeft`, `OTP_EXPIRED`, `OTP_TOO_MANY_ATTEMPTS`, `OTP_COOLDOWN`, `ALREADY_VERIFIED`, `EMAIL_SEND_FAILED`). Set the `SMTP_*` variables to deliver mail (or `EMAIL_USER` / `EMAIL_PASS`, which imply Gmail). Without credentials, development prints each email to the console instead of sending it; in production, registration returns `502 EMAIL_SEND_FAILED` until SMTP is configured.
+
+**Sending real email with Gmail:** turn on 2-Step Verification for the Google account, create an App Password (Google Account → Security → App passwords) and put it in `backend/.env`:
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=you@gmail.com
+SMTP_PASS=abcd efgh ijkl mnop   # the 16-character App Password, not your normal password
+MAIL_FROM="Cosmecos <you@gmail.com>"
+```
+
+The server checks the SMTP login at startup and logs `[mail] SMTP ready` or the reason it failed (e.g. a rejected App Password). `npm run mail:check -- someone@example.com` sends a sample verification email with the current settings. If sending fails during development, the API still answers `502 EMAIL_SEND_FAILED` (with a `reason` field) and prints the code in the terminal, so sign-up can be finished by signing in with the new account. `npm run test:mail` checks real SMTP delivery against a local SMTP server. Accounts created before this feature, or by admins/seeds, count as verified.
 
 Register and login are rate-limited: 20 attempts per 15 minutes per IP in production, 200 otherwise. Set `AUTH_RATE_LIMIT` to override. New accounts always get the `user` role.
 

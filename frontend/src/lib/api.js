@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/auth';
+import i18n from '../i18n';
 
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
@@ -33,6 +34,10 @@ export const http = axios.create({
 http.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  // The API returns product/category text and error messages in this language. The admin panel
+  // always works on the original (English) fields, so it never sends one.
+  const inAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+  if (!inAdmin) config.headers['X-Language'] = i18n.resolvedLanguage || i18n.language;
   return config;
 });
 
@@ -63,11 +68,12 @@ export async function api(path, { method = 'GET', body, params, signal, onUpload
 }
 
 /** Resolves image URLs served by the API (e.g. /uploads/...) against the API origin. */
-export const assetUrl = (url) => (!url ? '' : url.startsWith('/') ? `${BASE}${url}` : url);
+// Missing images give undefined rather than '', since <img src=""> re-requests the page.
+export const assetUrl = (url) => (!url ? undefined : url.startsWith('/') ? `${BASE}${url}` : url);
 
 /** Requests a resized Unsplash image; other URLs are returned untouched. */
 export function sizedImage(url, width) {
-  if (!url) return '';
+  if (!url) return undefined;
   if (!url.includes('images.unsplash.com')) return assetUrl(url);
   const u = new URL(url);
   u.searchParams.set('w', String(width));

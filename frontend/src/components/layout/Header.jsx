@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Logo } from '../ui/Brand';
 import { NAV_LINKS } from './nav';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from './ThemeToggle';
 import { useCart } from '../../hooks/useCart';
 import { useWishlist } from '../../hooks/useWishlist';
 import { useAuthStore } from '../../store/auth';
@@ -88,7 +89,7 @@ function NavItem({ link }) {
       <AnimatePresence>
         {link.children && open && (
           <motion.ul
-            className="absolute top-full -left-[34px] z-10 w-[290px] bg-ink-soft py-[26px]"
+            className="theme-light absolute top-full -left-[34px] z-10 w-[290px] bg-ink-soft py-[26px]"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 6 }}
             exit={{ opacity: 0, y: 12 }}
@@ -157,7 +158,7 @@ export default function Header() {
       <div className="flex h-[70px] items-center pl-4 sm:pl-6 lg:h-[98px] lg:pl-10">
         <Logo />
 
-        <nav aria-label="Main" className="hidden flex-1 justify-center xl:flex">
+        <nav aria-label={t('a11y.mainNav')} className="hidden flex-1 justify-center xl:flex">
           <ul className="flex items-center gap-[52px]">
             {NAV_LINKS.map((link) => (
               <NavItem key={link.label} link={link} />
@@ -167,6 +168,7 @@ export default function Header() {
 
         <div className="ml-auto flex items-center gap-2 pr-2 sm:gap-4 xl:ml-0 xl:pr-[30px]">
           <LanguageSwitcher className="mr-1 hidden md:block" />
+          <ThemeToggle className="hidden md:flex" />
           {user?.role === 'admin' && (
             <span className="hidden sm:block">
               <IconButton label={t('nav.adminPanel')} to="/admin">
@@ -206,7 +208,7 @@ export default function Header() {
           type="button"
           onClick={() => setPanelOpen(true)}
           aria-label={t('header.openPanel')}
-          className="hidden h-full w-[89px] shrink-0 place-items-center bg-ink transition-colors duration-300 hover:bg-black lg:grid"
+          className="theme-light hidden h-full w-[89px] shrink-0 place-items-center bg-ink transition-colors duration-300 hover:bg-black lg:grid"
         >
           <DotsIcon />
         </button>

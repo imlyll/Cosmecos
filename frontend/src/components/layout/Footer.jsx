@@ -5,13 +5,13 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { Logo, SocialLinks } from '../ui/Brand';
 import Reveal from '../ui/Reveal';
-import { ContactList, CONTACT_ROWS } from './SidePanel';
+import { ContactList, useContactRows } from './SidePanel';
 import { NAV_LINKS, STORE_INFO, telHref } from './nav';
 
 const USEFUL_LINKS = [
-  { label: 'Eyeshadow Collection', to: '/shop?category=cosmetics' },
-  { label: 'How Clean Make Up Brushes', to: '/shop?category=makeup-equipment' },
-  { label: 'The Right Foundation', to: '/shop?category=body-care' },
+  { key: 'eyeshadow', to: '/shop?category=cosmetics' },
+  { key: 'brushes', to: '/shop?category=makeup-equipment' },
+  { key: 'foundation', to: '/shop?category=body-care' },
 ];
 
 const socialClass = 'border-white/30 text-white hover:border-rose hover:bg-rose';
@@ -49,7 +49,7 @@ function Newsletter() {
 function FooterMenu() {
   const { t } = useTranslation();
   return (
-    <nav aria-label="Footer">
+    <nav aria-label={t('a11y.footerNav')}>
       <ul className="flex flex-wrap justify-center gap-x-[70px] gap-y-3">
         {NAV_LINKS.map((l) => (
           <li key={l.label}>
@@ -64,6 +64,11 @@ function FooterMenu() {
       </ul>
     </nav>
   );
+}
+
+function Copyright() {
+  const { t } = useTranslation();
+  return <p className="mt-8 text-center text-sm text-[#8b8b8b]">{t('footer.copyright', { year: new Date().getFullYear() })}</p>;
 }
 
 /** Big faint brush "C" watermark. */
@@ -82,7 +87,7 @@ function Watermark({ className }) {
 function HomeFooter() {
   const { t } = useTranslation();
   return (
-    <footer className="relative mt-[90px] bg-ink-soft text-[#b1b0b0]">
+    <footer className="theme-light relative mt-[90px] bg-ink-soft text-[#b1b0b0]">
       <a
         href="https://instagram.com"
         target="_blank"
@@ -93,7 +98,7 @@ function HomeFooter() {
           <span className="block font-serif text-[22px] leading-6 font-medium tracking-[0.12em] text-ink uppercase transition-colors group-hover:text-white">
             @Cosmecos
           </span>
-          <span className="mt-1 block font-sans text-sm text-mute uppercase">Instagram</span>
+          <span className="mt-1 block font-sans text-sm text-mute uppercase">{t('footer.instagram')}</span>
         </span>
       </a>
 
@@ -102,24 +107,21 @@ function HomeFooter() {
           <Watermark className="top-0 left-1/2 w-[340px] -translate-x-1/2" />
           <div className="container-luxe relative grid gap-12 text-center md:grid-cols-3 md:text-left">
             <Reveal>
-              <h3 className="mb-4 text-xl font-normal text-white">Contacts</h3>
+              <h3 className="mb-4 text-xl font-normal text-white">{t('footer.contacts')}</h3>
               <ContactList className="inline-block text-left" />
             </Reveal>
             <Reveal delay={0.1} className="text-center">
               <Logo light className="mx-auto" />
-              <p className="mx-auto mt-5 max-w-[540px] leading-[30px] md:-mx-[60px] md:max-w-none">
-                Popularized through customer relationships with some of the world’s most recognizable faces, the
-                “brow revolution”.
-              </p>
+              <p className="mx-auto mt-5 max-w-[540px] leading-[30px] md:-mx-[60px] md:max-w-none">{t('footer.tagline')}</p>
               <SocialLinks className="mt-6 justify-center" itemClassName={socialClass} />
             </Reveal>
             <Reveal delay={0.2} className="md:text-right">
-              <h3 className="mb-4 text-xl font-normal text-white">Useful Links</h3>
+              <h3 className="mb-4 text-xl font-normal text-white">{t('footer.usefulLinks')}</h3>
               <ul className="space-y-3">
                 {USEFUL_LINKS.map((l) => (
-                  <li key={l.label}>
+                  <li key={l.key}>
                     <Link to={l.to} className="font-serif font-medium text-white transition-colors hover:text-rose">
-                      {t(l.label)}
+                      {t(`footer.links.${l.key}`)}
                     </Link>
                   </li>
                 ))}
@@ -128,6 +130,7 @@ function HomeFooter() {
           </div>
           <div className="relative mt-[70px]">
             <FooterMenu />
+            <Copyright />
           </div>
         </div>
       </div>
@@ -137,20 +140,19 @@ function HomeFooter() {
 
 /** Inner pages footer: brand, contacts and newsletter columns, then the menu on a separate row. */
 function PageFooter() {
-  const rows = [...CONTACT_ROWS, { text: STORE_INFO.phone2, href: telHref(STORE_INFO.phone2) }];
+  const { t } = useTranslation();
+  const rows = [...useContactRows(), { text: STORE_INFO.phone2, href: telHref(STORE_INFO.phone2) }];
   return (
-    <footer className="relative overflow-hidden bg-ink-soft text-[#b1b0b0]">
+    <footer className="theme-light relative overflow-hidden bg-ink-soft text-[#b1b0b0]">
       <Watermark className="-top-4 right-[8%] hidden w-[340px] lg:block" />
       <div className="container-luxe relative grid gap-12 pt-[100px] pb-[90px] sm:grid-cols-2 lg:grid-cols-4">
         <Reveal>
           <Logo light />
-          <p className="mt-[22px] max-w-[290px] leading-[30px]">
-            Hardhead catfish pikehead, pearleye yellowtail snapper tuna fire bar.
-          </p>
+          <p className="mt-[22px] max-w-[290px] leading-[30px]">{t('footer.about')}</p>
           <SocialLinks className="mt-[35px]" itemClassName={socialClass} />
         </Reveal>
         <Reveal delay={0.1}>
-          <h3 className="mb-3 text-xl font-normal text-white">Contact us</h3>
+          <h3 className="mb-3 text-xl font-normal text-white">{t('footer.contactUs')}</h3>
           <ul className="space-y-[3px] font-serif font-medium text-white">
             {rows.map((r) => (
               <li key={r.text}>
@@ -166,12 +168,13 @@ function PageFooter() {
           </ul>
         </Reveal>
         <Reveal delay={0.2}>
-          <h3 className="mb-3 text-xl font-normal text-white">Our newsletter</h3>
+          <h3 className="mb-3 text-xl font-normal text-white">{t('footer.newsletter')}</h3>
           <Newsletter />
         </Reveal>
       </div>
       <div className="relative border-t border-white/[0.07] py-[34px]">
         <FooterMenu />
+        <Copyright />
       </div>
     </footer>
   );

@@ -9,6 +9,12 @@ const User = require('../models/User');
 const Category = require('../models/Category');
 const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
+const {
+  CATEGORY_TRANSLATIONS,
+  COPY,
+  productTranslations,
+  LEGACY_SHORT_DESCRIPTION_START,
+} = require('./seed-content');
 
 // Product photos live in backend/uploads/demo and are served by the API at /uploads/demo/*.
 const demoImage = (file) => `/uploads/demo/${file}`;
@@ -22,18 +28,6 @@ const CATEGORIES = [
   { name: 'Perfect Concealer', description: 'Concealers and correctors.' },
 ];
 
-const SHORT_DESCRIPTION = [
-  'False brotula viperfish tenpounder tube-eye capelin flathead central mudminnow sillago; crocodile shark featherfin knifefish piranha cod icefish bullhead, wasp fish.',
-  'Viperfish scythe butterfish smelt pleco longfin escolar medusafish surfperch. Australian herring: Pacific viperfish grenadier orangestriped hatchetfish pearl danio leatherjacket. Butterflyfish crocodile shark zebra shark sergeant major peladillo.',
-].join('\n\n');
-
-// Paragraph text, then "- " lines that the product page renders as a checklist.
-const DESCRIPTION = [
-  'False brotula viperfish tenpounder tube-eye capelin flathead central mudminnow sillago; crocodile shark featherfin knifefish piranha cod icefish bullhead, wasp fish. Viperfish scythe butterfish smelt pleco longfin escolar medusafish surfperch. Australian herring: Pacific viperfish grenadier orangestriped hatchetfish pearl danio leatherjacket. Butterflyfish crocodile',
-  '- Frilled shark ground shark livebearer cutthroat trout',
-  '- Tonguefish devil ray smalleye squaretail dogfish',
-  '- Porcupinefish warty angler zebra turkeyfish',
-].join('\n');
 
 // The demo store's catalogue, in publishing order (the last one is the newest).
 const PRODUCTS = [
@@ -69,8 +63,9 @@ const PRODUCTS = [
   stock: 50,
   numReviews: p.rating ? 1 : 0,
   isFeatured: p.category === 'Body Care',
-  shortDescription: SHORT_DESCRIPTION,
-  description: DESCRIPTION,
+  shortDescription: COPY.en.shortDescription,
+  description: COPY.en.description,
+  translations: productTranslations(p.name),
   weight: '2 kg',
   dimensions: '2 × 4 × 5 cm',
   images: [image],
@@ -105,7 +100,14 @@ async function seed() {
 
   const catIds = {};
   for (const c of CATEGORIES) {
-    const doc = (await Category.findOne({ name: c.name })) || (await Category.create(c));
+    const translations = CATEGORY_TRANSLATIONS[c.name];
+    let doc = await Category.findOne({ name: c.name });
+    if (!doc) doc = await Category.create({ ...c, translations });
+    else if (!doc.translations?.az?.name) {
+      // Categories seeded before translations existed get them now.
+      doc.translations = translations;
+      await doc.save();
+    }
     catIds[c.name] = doc._id;
   }
 
@@ -113,9 +115,33 @@ async function seed() {
   const hour = 60 * 60 * 1000;
   const start = Date.now() - PRODUCTS.length * hour;
   let created = 0;
+  let updated = 0;
   for (const [order, { images, ...p }] of PRODUCTS.entries()) {
     const category = catIds[p.category];
-    if (await Product.exists({ name: p.name, category })) continue;
+    const existing = await Product.findOne({ name: p.name, category });
+    if (existing) {
+      // Upgrade products from earlier seeds: real copy instead of placeholder text, plus translations.
+      // Text an admin has edited is left alone.
+      let changed = false;
+      const placeholder = existing.shortDescription?.startsWith(LEGACY_SHORT_DESCRIPTION_START);
+      if (placeholder) {
+        existing.shortDescription = p.shortDescription;
+        existing.description = p.description;
+        changed = true;
+      }
+      if (!existing.translations?.az?.name) {
+        // Translated descriptions only match the demo copy; for edited text, add just the names.
+        existing.translations = placeholder
+          ? p.translations
+          : { az: { name: p.translations.az.name }, ru: { name: p.translations.ru.name } };
+        changed = true;
+      }
+      if (changed) {
+        await existing.save();
+        updated += 1;
+      }
+      continue;
+    }
     const doc = await Product.create({
       ...p,
       images: images.map((file) => ({ url: demoImage(file), alt: p.name })),
@@ -135,7 +161,9 @@ async function seed() {
     await Coupon.updateOne({ code: c.code }, { $setOnInsert: c }, { upsert: true });
   }
 
-  console.log(`Seeded ${CATEGORIES.length} categories, ${created} new products, ${COUPONS.length} coupons`);
+  console.log(
+    `Seeded ${CATEGORIES.length} categories, ${created} new products (${updated} updated), ${COUPONS.length} coupons`
+  );
 }
 
 seed()

@@ -7,8 +7,14 @@ const ApiError = require('../utils/ApiError');
 const { paginate, escapeRegex } = require('../utils/pagination');
 const { uploadImage, deleteImage } = require('../utils/storage');
 const { SORTS } = require('../validators/product.validator');
+const { localizeProduct } = require('../utils/i18n');
 
-const CATEGORY_FIELDS = 'name slug';
+const CATEGORY_FIELDS = 'name slug translations';
+// Long texts are left out of list responses, in every language.
+const LIST_EXCLUDE = ['description', 'ingredients', 'howToUse']
+  .flatMap((f) => [f, `translations.az.${f}`, `translations.ru.${f}`])
+  .map((f) => `-${f}`)
+  .join(' ');
 
 /** Resolves a category id or slug to the ids of it and its direct sub-categories. */
 async function resolveCategoryIds(idOrSlug) {
@@ -58,7 +64,14 @@ async function listProducts(req, res) {
   }
   if (q.search) {
     const rx = new RegExp(escapeRegex(q.search), 'i');
-    filter.$or = [{ name: rx }, { brand: rx }, { tags: rx }, { shortDescription: rx }];
+    filter.$or = [
+      { name: rx },
+      { 'translations.az.name': rx },
+      { 'translations.ru.name': rx },
+      { brand: rx },
+      { tags: rx },
+      { shortDescription: rx },
+    ];
   }
   if (q.brand) filter.brand = new RegExp(`^${escapeRegex(q.brand)}$`, 'i');
   if (q.tags?.length) filter.tags = { $in: q.tags };
@@ -78,11 +91,15 @@ async function listProducts(req, res) {
       .skip((q.page - 1) * q.limit)
       .limit(q.limit)
       .populate('category', CATEGORY_FIELDS)
-      .select('-ingredients -howToUse -description'),
+      .select(LIST_EXCLUDE),
     Product.countDocuments(filter),
   ]);
 
-  res.json({ success: true, products, pagination: paginate({ page: q.page, limit: q.limit, total }) });
+  res.json({
+    success: true,
+    products: products.map((p) => localizeProduct(p, req.lang)),
+    pagination: paginate({ page: q.page, limit: q.limit, total }),
+  });
 }
 
 // GET /api/products/filters  - facet data for the shop sidebar
@@ -115,7 +132,7 @@ async function getProduct(req, res) {
   if (!product) throw ApiError.notFound('Product not found');
 
   // Same category first, then its parent category, then best sellers, until there are 4.
-  const RELATED_FIELDS = 'name slug price compareAtPrice images rating brand stock variants tags category';
+  const RELATED_FIELDS = 'name slug price compareAtPrice images rating brand stock variants tags category translations.az.name translations.ru.name';
   const related = [];
   const exclude = () => [product._id, ...related.map((p) => p._id)];
   const parentId = product.category?._id && (await Category.findById(product.category._id).select('parent'))?.parent;
@@ -133,7 +150,11 @@ async function getProduct(req, res) {
     related.push(...more);
   }
 
-  res.json({ success: true, product, related });
+  res.json({
+    success: true,
+    product: localizeProduct(product, req.lang),
+    related: related.map((p) => localizeProduct(p, req.lang)),
+  });
 }
 
 // POST /api/products  (admin, multipart or JSON)

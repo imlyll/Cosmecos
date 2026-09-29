@@ -3,6 +3,13 @@
     "label": "Language",
     "choose": "Choose language"
   },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode"
+  },
   "nav": {
     "home": "Home",
     "pages": "Pages",
@@ -31,6 +38,49 @@
     "openMenu": "Open menu",
     "openPanel": "Open information panel"
   },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "homeLink": "Cosmecos home",
+    "close": "Close",
+    "mainNav": "Main",
+    "mobileNav": "Mobile",
+    "footerNav": "Footer",
+    "accountNav": "Account",
+    "information": "Information",
+    "checkingSession": "Checking your session",
+    "decreaseQty": "Decrease quantity",
+    "increaseQty": "Increase quantity",
+    "rated": "Rated {{value}} out of 5",
+    "pagination": "Pagination",
+    "showImage": "Show image {{n}}",
+    "prevImage": "Previous image",
+    "nextImage": "Next image",
+    "productImage": "{{name}} image",
+    "addToWishlist": "Add {{name}} to wishlist",
+    "removeFromWishlist": "Remove {{name}} from wishlist",
+    "carousel": "Featured",
+    "slide": "Slide {{n}}",
+    "showTestimonial": "Show testimonial {{n}}",
+    "partnerLogo": "Partner logo",
+    "minPrice": "Minimum price",
+    "maxPrice": "Maximum price",
+    "playVideo": "Play video",
+    "video": "Video",
+    "videoTitle": "Cosmecos video",
+    "onSocial": "{{name}} on {{network}}",
+    "map": "Map",
+    "mapTitle": "Cosmecos on the map",
+    "checkoutProgress": "Checkout progress",
+    "productInfo": "Product information"
+  },
+  "store": {
+    "address": "58 White St., New York"
+  },
+  "announcement": {
+    "discount": "25% off",
+    "text": "on all products enter code:",
+    "code": "Cosmecos sale"
+  },
   "common": {
     "addToCart": "Add to cart",
     "adding": "Adding…",
@@ -38,6 +88,8 @@
     "readMore": "Read more",
     "sale": "Sale",
     "soldOut": "Sold out",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
     "signIn": "Sign in",
     "register": "Register",
     "checkout": "Checkout",
@@ -45,11 +97,26 @@
     "placeOrder": "Place order",
     "viewBag": "View bag",
     "discoverProducts": "Discover products",
+    "continueShopping": "Continue shopping",
+    "exploreMore": "Explore more",
+    "viewMore": "View more",
+    "shopNow": "Shop now",
+    "discover": "Discover",
     "filter": "Filter",
     "search": "Search",
     "loading": "Loading…",
     "back": "Back",
-    "close": "Close"
+    "close": "Close",
+    "edit": "Edit",
+    "remove": "Remove",
+    "saveChanges": "Save changes",
+    "from": "From",
+    "prev": "Prev",
+    "next": "Next",
+    "previous": "Previous",
+    "qty": "Qty {{count}}",
+    "somethingWrong": "Something went wrong.",
+    "tryAgain": "Try again"
   },
   "search": {
     "title": "What are you looking for?",
@@ -58,7 +125,14 @@
     "searching": "Searching…",
     "noResults": "No products match “{{term}}”.",
     "viewAll": "View all results",
-    "close": "Close search"
+    "close": "Close search",
+    "suggestions": [
+      "Serum",
+      "Lipstick",
+      "Mascara",
+      "Cream",
+      "Body oil"
+    ]
   },
   "cart": {
     "title": "Your bag ({{count}})",
@@ -70,8 +144,24 @@
     "remove": "Remove {{name}}",
     "unavailable": "Adjust unavailable items to continue."
   },
+  "cartPage": {
+    "title": "Shop Cart",
+    "empty": "Your cart is currently empty.",
+    "returnToShop": "Return to shop",
+    "product": "Product",
+    "price": "Price",
+    "quantity": "Quantity",
+    "subtotal": "Subtotal",
+    "onlyLeft": "Only {{count}} left — please reduce quantity",
+    "clear": "Clear cart"
+  },
+  "freeShipping": {
+    "remaining": "Add <strong>{{amount}}</strong> more for free shipping",
+    "unlocked": "You’ve unlocked free shipping"
+  },
   "summary": {
     "cartTotals": "Cart totals",
+    "yourOrder": "Your order",
     "subtotal": "Subtotal",
     "discount": "Discount",
     "shipping": "Shipping",
@@ -88,7 +178,8 @@
     "price": "Price: ${{min}} — ${{max}}",
     "newArrivals": "Meet New Arrivals",
     "tags": "Product tags",
-    "sidebar": "Shop sidebar"
+    "sidebar": "Shop sidebar",
+    "bannerAlt": "Beauty"
   },
   "shop": {
     "title": "Shop Catalog",
@@ -111,6 +202,345 @@
     "clearFilters": "Clear filters",
     "emptyTitle": "No products found",
     "emptyText": "Try adjusting your filters or search for something else."
+  },
+  "product": {
+    "notFoundTitle": "Product not found",
+    "notFoundText": "It may have been moved or is no longer available.",
+    "backToShop": "Back to shop",
+    "sku": "SKU",
+    "category": "Category",
+    "availability": "Availability",
+    "tags": "Tags",
+    "shade": "Shade",
+    "size": "Size",
+    "soldOutOption": "{{name}} (sold out)",
+    "onlyLeft": "Only {{count}} left in stock",
+    "description": "Description",
+    "reviews": "Reviews ({{count}})",
+    "weight": "Weight",
+    "dimensions": "Dimensions",
+    "ingredients": "Ingredients",
+    "howToUse": "How to use",
+    "rated_one": "Rated <strong>{{rating}}</strong> out of 5 based on {{count}} customer rating.",
+    "rated_other": "Rated <strong>{{rating}}</strong> out of 5 based on {{count}} customer ratings.",
+    "noReviews": "There are no reviews yet.",
+    "related": "Related products"
+  },
+  "wishlistPage": {
+    "title": "Shop Wishlist",
+    "empty": "No products added to the wishlist",
+    "count_one": "{{count}} saved item",
+    "count_other": "{{count}} saved items",
+    "moveToCart": "Move to cart"
+  },
+  "checkout": {
+    "title": "Shop Checkout",
+    "steps": {
+      "shipping": "Shipping",
+      "payment": "Payment",
+      "review": "Review"
+    },
+    "shippingAddress": "Shipping address",
+    "orderingAs": "Ordering as {{email}}",
+    "fullName": "Full name *",
+    "phone": "Phone *",
+    "street": "Street address *",
+    "apartment": "Apartment, suite (optional)",
+    "city": "City *",
+    "state": "State / region",
+    "postalCode": "Postal code *",
+    "country": "Country *",
+    "errors": {
+      "fullName": "Please enter your full name",
+      "phone": "Enter a valid phone number",
+      "street": "Enter your street address",
+      "city": "Enter your city",
+      "postalCode": "Enter your postal code",
+      "country": "Enter your country"
+    },
+    "deliveryPayment": "Delivery & payment",
+    "standardDelivery": "Standard delivery",
+    "deliveryTime": "3–5 business days",
+    "paymentMethod": "Payment method",
+    "methods": {
+      "cash_on_delivery": {
+        "label": "Cash on delivery",
+        "text": "Pay in cash or by card when your order arrives."
+      },
+      "card": {
+        "label": "Credit / debit card",
+        "text": "Pay by card with the courier on delivery."
+      },
+      "paypal": {
+        "label": "PayPal",
+        "text": "We’ll email you a secure PayPal payment link."
+      }
+    },
+    "cardNote": "Online card processing isn’t connected yet — no card details are collected on this site.",
+    "reviewOrder": "Review your order",
+    "shipTo": "Ship to",
+    "payment": "Payment",
+    "deliverySummary": "Standard delivery · 3–5 business days",
+    "notes": "Order notes (optional)",
+    "backToBag": "Back to bag",
+    "continueTo": "Continue to {{step}}",
+    "policy": "By placing your order you agree to our terms of sale and privacy policy. Unopened items can be returned within 14 days."
+  },
+  "orderStatus": {
+    "Pending": "Pending",
+    "Processing": "Processing",
+    "Shipped": "Shipped",
+    "Delivered": "Delivered",
+    "Cancelled": "Cancelled"
+  },
+  "profile": {
+    "title": "My Account",
+    "tabs": {
+      "orders": "Order history",
+      "details": "Account details",
+      "password": "Password"
+    },
+    "wishlist": "Wishlist",
+    "signOut": "Sign out",
+    "order": "Order",
+    "placed": "Placed",
+    "total": "Total",
+    "status": "Status",
+    "cancelled": "This order was cancelled.",
+    "tracking": "Tracking number:",
+    "shippingTo": "Shipping to",
+    "cancelConfirm": "Cancel this order? This cannot be undone.",
+    "cancelOrder": "Cancel order",
+    "noOrders": "No orders yet",
+    "noOrdersText": "When you place an order it will appear here.",
+    "startShopping": "Start shopping",
+    "fullName": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "defaultAddress": "Default address",
+    "street": "Street address",
+    "apartment": "Apartment, suite",
+    "city": "City",
+    "state": "State / region",
+    "postalCode": "Postal code",
+    "country": "Country",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "updatePassword": "Update password",
+    "errors": {
+      "currentPassword": "Enter your current password"
+    }
+  },
+  "orderSuccess": {
+    "docTitle": "Thank you",
+    "confirmed": "Order confirmed",
+    "thanks": "Thank you!",
+    "thanksName": "Thank you, {{name}}!",
+    "text": "Your order has been received and is being prepared with care. You’ll find updates in your account.",
+    "orderNumber": "Order number",
+    "status": "Status",
+    "total": "Total",
+    "viewOrders": "View my orders"
+  },
+  "notFound": {
+    "docTitle": "Page not found",
+    "title": "This page has drifted away",
+    "text": "The page you are looking for doesn’t exist or has been moved.",
+    "backHome": "Back home",
+    "visitShop": "Visit the shop"
+  },
+  "pageHero": {
+    "subtitle": "Organic Cosmetic",
+    "decoration": "Beauty"
+  },
+  "home": {
+    "hero": {
+      "prev": "Previous",
+      "next": "Next",
+      "s1": {
+        "title": "Perfect Cosmetic",
+        "text": "Loved by some of the world’s most recognizable faces, our signature brow collection has become a landmark in modern beauty.",
+        "cta": "Discover"
+      },
+      "s2": {
+        "title": "Your Perfect Cosmetic",
+        "text": "From everyday essentials to statement color, discover makeup that moves with you — lightweight, long-wearing and made to flatter every skin tone.",
+        "cta": "Read more"
+      },
+      "s3": {
+        "title": "Change the World",
+        "text": "Clean, conscious formulas that care for your skin and for the planet — because true beauty leaves a lighter footprint.",
+        "cta": "Read more"
+      },
+      "s4": {
+        "title": "Find Your Beauty Match",
+        "text": "Answer a few quick questions about your skin, tone and routine, and we’ll match you with the textures and shades made for you.",
+        "cta": "View more"
+      }
+    },
+    "banners": {
+      "body": {
+        "script": "Best",
+        "title": "For Body"
+      },
+      "cosmetics": {
+        "script": "Multi",
+        "title": "Cosmetics"
+      },
+      "nails": {
+        "script": "Color",
+        "title": "Nail Polish"
+      }
+    },
+    "categories": {
+      "concealer": "Perfect Concealer",
+      "bodyCare": "Body Care",
+      "equipment": "Makeup Equipment",
+      "soap": "Awesome Soap"
+    },
+    "about": {
+      "eyebrow": "About Cosmecos",
+      "titleLine1": "We guaranteed",
+      "titleLine2": "perfect quality",
+      "lead": "Trusted by some of the world’s most recognizable faces, our brow and complexion collections have become a landmark contribution to beauty history.",
+      "text": "Every formula is developed with dermatologists, tested on real skin and made from ethically sourced botanicals. We keep our ingredient lists short, honest and free from anything your skin doesn’t need.",
+      "label": "Cosmecos",
+      "sold": "Cosmetics sold",
+      "years": "Perfect years"
+    },
+    "bestSellers": {
+      "eyebrow": "Best products",
+      "title": "Best sellers products",
+      "subtitle": "The stylish and organized cosmetic products"
+    },
+    "features": {
+      "naturalBeauty": "Natural Beauty",
+      "naturalIngredients": "Natural Ingredients",
+      "hypoallergenic": "Hypoallergenic 100%",
+      "organic": "100% Organic"
+    },
+    "spotlights": {
+      "eyebrow": "Features",
+      "eyeshadowTitle": "Eyeshadow revolution",
+      "eyeshadowLead": "Our eyes are intrinsically trained to spot divine proportion and immediately associate it with beauty and harmony.",
+      "eyeshadowText": "Brows should begin directly above the middle of your nostrils. The highest point of the arch should connect the tip of the nose with the middle of the iris.",
+      "founder": "Founder",
+      "paletteAlt": "Eyeshadow palette",
+      "foundationTitle1": "Only high quality",
+      "foundationTitle2": "foundations & blushes",
+      "foundationText": "Our foundations and blushes are finely milled for a second-skin finish that breathes, blends and lasts from morning meetings to evening plans. Buildable coverage lets you choose between a natural glow and a flawless matte look.",
+      "foundationAlt": "Foundation and blush",
+      "watermarkColor": "Color",
+      "watermarkSplash": "Splash"
+    },
+    "promo": {
+      "script": "Nail polish",
+      "title": "Make up accessories",
+      "text": "Brushes, sponges and tools that make flawless application effortless — now with 20% off.",
+      "badge": "-20%"
+    },
+    "newArrivals": {
+      "eyebrow": "New Products",
+      "title": "Meet new arrivals",
+      "imageAlt": "Body care"
+    },
+    "testimonials": {
+      "eyebrow": "Testimonials",
+      "title": "What our clients say",
+      "role": "Client of Cosmecos",
+      "q1": "The brow kit changed my morning routine. The shades are so natural that friends think my brows are simply perfect — and the pencil lasts all day without smudging.",
+      "q2": "I have sensitive skin and rarely trust new products, but Cosmecos creams never irritate it. My skin feels calm, soft and hydrated from morning to night.",
+      "q3": "Our eyes are trained to spot harmony, and these products bring exactly that balance to my skin. Beautiful packaging, lovely textures and fast delivery."
+    },
+    "guide": {
+      "title": "Find Your Beauty Guide",
+      "text": "Cosmecos is committed to cruelty-free product formulation & testing.",
+      "watermarkHome": "Perfect",
+      "watermarkAbout": "Make"
+    },
+    "blog": {
+      "eyebrow": "News & Articles",
+      "title": "Our beauty blog",
+      "badge": "Beauty",
+      "by": "By admin",
+      "p1": "Color Correct with Loose Setting Powder",
+      "p2": "Choose Your Foundation Cream",
+      "p3": "5 Tips on How to Shape Your Incredible Eyebrows"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "introTitle": "Natural organic cosmetics promotes rejuvenation",
+    "introText": "Our skincare is built on plant-based actives, cold-pressed oils and gentle extracts that support your skin’s natural renewal. No harsh fillers, no shortcuts — just carefully balanced formulas that leave skin calm, supple and visibly refreshed.",
+    "introAlt": "Nail polish",
+    "newScript": "New",
+    "types": {
+      "fresh": "Fresh Types",
+      "floral": "Floral Types",
+      "oceanic": "Oceanic Types"
+    },
+    "achievementsTitle": "Our achievements",
+    "achievementsText": "Numbers we are proud of — built one happy customer at a time.",
+    "stats": {
+      "sold": "Cosmetics Sold",
+      "clients": "Happy Clients",
+      "countries": "Countries",
+      "employees": "Employees"
+    },
+    "videoAlt": "Great style",
+    "teamTitle": "Our team",
+    "teamText": "The people behind every formula, every package and every smile at our counters.",
+    "roles": {
+      "productManager": "Product Manager",
+      "serviceManager": "Service Manager",
+      "chiefManager": "Chief Manager",
+      "officeHead": "Office Head"
+    }
+  },
+  "contacts": {
+    "title": "Contacts",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "sendMessage": "Send message",
+    "required": "Your email address will not be published. Required fields are marked *",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Full name *",
+    "emailPlaceholder": "Email *",
+    "subject": "Subject",
+    "message": "Message",
+    "send": "Send",
+    "sending": "Sending…",
+    "sentTitle": "Message sent",
+    "sentText": "Thank you for reaching out. We reply within one business day.",
+    "sendAnother": "Send another message",
+    "errors": {
+      "message": "Tell us a little more (at least 10 characters)"
+    }
+  },
+  "footer": {
+    "emailLabel": "Email address",
+    "emailPlaceholder": "Your email",
+    "subscribe": "Subscribe",
+    "contacts": "Contacts",
+    "contactUs": "Contact us",
+    "usefulLinks": "Useful Links",
+    "newsletter": "Our newsletter",
+    "instagram": "Instagram",
+    "tagline": "Loved by some of the world’s most recognizable faces — natural, cruelty-free beauty made with care.",
+    "about": "Natural, cruelty-free beauty crafted with care for your skin and the planet.",
+    "links": {
+      "eyeshadow": "Eyeshadow Collection",
+      "brushes": "How to Clean Makeup Brushes",
+      "foundation": "The Right Foundation"
+    },
+    "copyright": "© {{year}} Cosmecos. All rights reserved."
+  },
+  "sidePanel": {
+    "text": "Our eyes are intrinsically trained to spot divine proportion and immediately associate it with beauty.",
+    "contactUs": "Contact Us",
+    "followUs": "Follow us"
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -177,11 +607,6 @@
     "verified": "Email verified — welcome to Cosmecos, {{name}}!",
     "verifyFirst": "Please verify your email to sign in"
   },
-  "footer": {
-    "emailLabel": "Email address",
-    "emailPlaceholder": "Your email",
-    "subscribe": "Subscribe"
-  },
   "errors": {
     "network": "Unable to reach the server. Please check your connection.",
     "EMAIL_NOT_VERIFIED": "Please verify your email address to continue.",
@@ -191,5 +616,8 @@
     "OTP_COOLDOWN": "Please wait a moment before requesting another code.",
     "ALREADY_VERIFIED": "This email is already verified. Please sign in.",
     "EMAIL_SEND_FAILED": "We couldn't send the verification email. Please try again shortly."
+  },
+  "meta": {
+    "tagline": "Cosmetics & Beauty Shop"
   }
 }

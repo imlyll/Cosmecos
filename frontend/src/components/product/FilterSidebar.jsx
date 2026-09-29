@@ -145,7 +145,7 @@ export default function FilterSidebar({ filters, setFilter }) {
                 aria-pressed={active}
                 className={clsx(
                   'mx-[5px] mt-2.5 border px-[9px] py-[3px] font-serif leading-[22px] font-medium capitalize transition-colors duration-300',
-                  active ? 'border-ink bg-ink text-white' : 'border-black text-ink hover:bg-ink hover:text-white'
+                  active ? 'border-ink bg-ink text-white' : 'border-ink text-ink hover:bg-ink hover:text-white'
                 )}
               >
                 {t.name}
@@ -156,7 +156,7 @@ export default function FilterSidebar({ filters, setFilter }) {
       </Widget>
 
       <Link to="/shop" className="block overflow-hidden">
-        <img src="/images/banner.jpg" alt="Beauty" className="w-full transition-transform duration-[1.2s] hover:scale-105" />
+        <img src="/images/banner.jpg" alt={t('filters.bannerAlt')} className="w-full transition-transform duration-[1.2s] hover:scale-105" />
       </Link>
     </div>
   );

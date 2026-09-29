@@ -10,8 +10,6 @@ import { formatPrice } from '../../lib/format';
 import { EASE } from '../../lib/motion';
 import { useTranslation } from 'react-i18next';
 
-const SUGGESTIONS = ['Serum', 'Lipstick', 'Parfum', 'Cleanser', 'Body oil'];
-
 function useDebounced(value, delay = 300) {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -29,6 +27,8 @@ export default function SearchOverlay() {
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const close = () => setSearchOpen(false);
+  // Search terms in the shopper's language (the API also matches translated product names).
+  const suggestions = t('search.suggestions', { returnObjects: true });
 
   const { data, isFetching } = useProducts({ search, limit: 6 }, { enabled: search.length >= 2 });
 
@@ -94,7 +94,7 @@ export default function SearchOverlay() {
                 </button>
               </div>
               <div className="mt-5 flex flex-wrap justify-center gap-2">
-                {SUGGESTIONS.map((s) => (
+                {suggestions.map((s) => (
                   <button
                     key={s}
                     type="button"

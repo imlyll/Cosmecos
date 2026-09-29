@@ -9,6 +9,30 @@ for (const key of required) {
 
 const num = (value, fallback) => (value === undefined || value === '' ? fallback : Number(value));
 
+/**
+ * SMTP_HOST / SMTP_PORT / SMTP_USER / SMTP_PASS, or the Gmail shorthand EMAIL_USER / EMAIL_PASS
+ * (which implies smtp.gmail.com). Port 465 uses implicit TLS; 587 upgrades with STARTTLS.
+ */
+function smtpConfig() {
+  const e = process.env;
+  const user = (e.SMTP_USER || e.EMAIL_USER || '').trim();
+  const host = (e.SMTP_HOST || (e.EMAIL_USER ? 'smtp.gmail.com' : '')).trim();
+  const port = num(e.SMTP_PORT, 587);
+  let pass = e.SMTP_PASS || e.EMAIL_PASS || '';
+  // Google shows App Passwords as "abcd efgh ijkl mnop"; the spaces are not part of the password.
+  if (/gmail\.com$/i.test(host)) pass = pass.replace(/\s+/g, '');
+  return {
+    host,
+    port,
+    secure: e.SMTP_SECURE ? e.SMTP_SECURE === 'true' : port === 465,
+    user,
+    pass,
+    from: e.MAIL_FROM || (user ? `Cosmecos <${user}>` : 'Cosmecos <no-reply@cosmecos.com>'),
+    // Only for local/self-signed relays; leave unset for Gmail and other public providers.
+    rejectUnauthorized: e.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false',
+  };
+}
+
 module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
   isProd: process.env.NODE_ENV === 'production',
@@ -27,15 +51,9 @@ module.exports = {
   },
   // Login/register attempts per IP per 15 minutes (strict in production, relaxed while developing).
   authRateLimit: num(process.env.AUTH_RATE_LIMIT, process.env.NODE_ENV === 'production' ? 20 : 200),
-  // SMTP settings for transactional email. Without SMTP_HOST, emails are logged to the console (dev/test only).
-  mail: {
-    host: process.env.SMTP_HOST,
-    port: num(process.env.SMTP_PORT, 587),
-    secure: process.env.SMTP_SECURE === 'true',
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-    from: process.env.MAIL_FROM || 'Cosmecos <no-reply@cosmecos.com>',
-  },
+  // SMTP settings for transactional email (see utils/mailer.js). Without working credentials,
+  // development prints emails to the console instead of sending them.
+  mail: smtpConfig(),
   // Email verification codes sent on registration.
   otp: {
     ttlMinutes: num(process.env.OTP_TTL_MINUTES, 10),

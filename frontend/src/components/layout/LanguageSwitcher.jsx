@@ -90,7 +90,7 @@ export default function LanguageSwitcher({ className }) {
           <motion.ul
             role="listbox"
             aria-label={t('language.label')}
-            className="absolute top-full right-0 z-20 w-[200px] bg-ink-soft py-4 shadow-[0_15px_40px_rgba(0,0,0,0.18)]"
+            className="theme-light absolute top-full right-0 z-20 w-[200px] bg-ink-soft py-4 shadow-[0_15px_40px_rgba(0,0,0,0.18)]"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 6 }}
             exit={{ opacity: 0, y: 12 }}

@@ -2,12 +2,15 @@ const env = require('./config/env');
 const connectDB = require('./config/db');
 const app = require('./app');
 const mongoose = require('mongoose');
+const { verifyMailer } = require('./utils/mailer');
 
 async function start() {
   await connectDB(env.mongoUri);
   const server = app.listen(env.port, () => {
     console.log(`Cosmecos API running on http://localhost:${env.port} (${env.nodeEnv})`);
   });
+  // Reports SMTP problems (e.g. a wrong Gmail App Password) at boot; never blocks startup.
+  verifyMailer();
 
   const shutdown = (signal) => {
     console.log(`${signal} received, shutting down...`);

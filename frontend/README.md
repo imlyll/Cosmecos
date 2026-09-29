@@ -26,6 +26,18 @@ Environment variables (`.env.example`):
 | `VITE_PROXY_TARGET` | Backend the dev proxy points at (default `http://localhost:5000`). |
 | `VITE_PROMO_VIDEO_URL` | Optional mp4. When set, the home promo banner shows a play button that opens it. |
 
+## Languages (AZE / ENG / RU)
+
+All interface text lives in `src/i18n/locales/{az,en,ru}.json` (react-i18next); the three files have identical keys, which a test enforces. The header dropdown and the mobile-menu toggle switch language; the choice is saved in `localStorage` (`cosmecos-lang`), and first-time visitors get their browser language when it is one of the three.
+
+Product and category names and descriptions come from the API in the current language: every storefront request sends an `X-Language` header, catalog queries are keyed by language, and the cart/wishlist refetch on a switch. Admins enter the Azerbaijani and Russian versions in the product form's **Translations** card (blank fields fall back to English). Shopper-facing API error messages are translated by the API too. The admin panel itself stays in English.
+
+## Light / dark theme
+
+`ThemeProvider` (`src/context/ThemeContext.jsx`) puts `.dark` on `<html>`; the sun/moon button sits next to the language switcher and in the mobile menu. The choice is saved in `localStorage` (`cosmecos-theme`); until the shopper picks one, the theme follows the OS setting (`prefers-color-scheme`). A small script in `index.html` applies it before first paint, so there is no flash.
+
+Tailwind 4 has no `tailwind.config.js`: class-based dark mode is declared in `src/index.css` with `@custom-variant dark`, and the palette tokens (`ink`, `cream`, `white`, `line`, `rose`…) are redefined under `.dark`, so components follow the theme without per-component `dark:` classes. Blocks that are dark in both themes (footer, side panel, menus) and the admin panel use `.theme-light` to keep the light palette; photo sections are dimmed with a `dark:bg-blend-multiply` overlay.
+
 ## Pages
 
 | Route | What's there |

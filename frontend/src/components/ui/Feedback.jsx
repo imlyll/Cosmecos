@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import Button from './Button';
 import { EASE } from '../../lib/motion';
+import { useTranslation } from 'react-i18next';
 
 export function Skeleton({ className }) {
   return <div className={clsx('animate-pulse bg-beige', className)} />;
@@ -43,12 +44,13 @@ export function EmptyState({ icon: Icon, title, text, action, to }) {
 }
 
 export function ErrorState({ error, onRetry }) {
+  const { t } = useTranslation();
   return (
     <div className="py-16 text-center">
-      <p className="text-sm text-danger">{error?.message || 'Something went wrong.'}</p>
+      <p className="text-sm text-danger">{error?.message || t('common.somethingWrong')}</p>
       {onRetry && (
         <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>
-          Try again
+          {t('common.tryAgain')}
         </Button>
       )}
     </div>

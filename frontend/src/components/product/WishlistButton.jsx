@@ -1,10 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import { useToggleWishlist, useWishlist } from '../../hooks/useWishlist';
 import { useRequireAuth } from '../../hooks/useRequireAuth';
 
 export default function WishlistButton({ product, className, size = 'md' }) {
+  const { t } = useTranslation();
   const { has } = useWishlist();
   const toggle = useToggleWishlist();
   const requireAuth = useRequireAuth();
@@ -21,7 +23,7 @@ export default function WishlistButton({ product, className, size = 'md' }) {
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      aria-label={active ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+      aria-label={t(active ? 'a11y.removeFromWishlist' : 'a11y.addToWishlist', { name: product.name })}
       className={clsx(
         // Callers position it (absolute over a card, or relative inline); either anchors the burst ring.
         'grid place-items-center rounded-full text-ink transition-colors duration-300 hover:text-rose',

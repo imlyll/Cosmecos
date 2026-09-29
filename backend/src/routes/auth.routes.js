@@ -5,6 +5,7 @@ const v = require('../validators/auth.validator');
 const validate = require('../middleware/validate');
 const { protect } = require('../middleware/auth');
 const { authRateLimit } = require('../config/env');
+const ApiError = require('../utils/ApiError');
 
 // Slow down brute-force attempts on credential endpoints.
 const authLimiter = rateLimit({
@@ -12,7 +13,8 @@ const authLimiter = rateLimit({
   limit: authRateLimit,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
-  message: { success: false, message: 'Too many attempts, please try again later' },
+  // Through the error handler, so the message is translated like any other error.
+  handler: (_req, _res, next) => next(ApiError.tooManyRequests('Too many attempts, please try again later')),
 });
 
 router.post('/register', authLimiter, validate({ body: v.register }), ctrl.register);
