@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth';
 import { useUIStore } from '../store/ui';
+import i18n, { errorMessage } from '../i18n';
 
 const EMPTY_CART = { items: [], itemCount: 0, itemsPrice: 0, shippingPrice: 0, totalPrice: 0, discount: 0 };
 
@@ -27,7 +28,7 @@ function useCartMutation(mutationFn, { onSuccessMessage } = {}) {
       const msg = typeof onSuccessMessage === 'function' ? onSuccessMessage(vars) : onSuccessMessage;
       if (msg) toast.success(msg);
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(errorMessage(err)),
   });
 }
 
@@ -36,7 +37,7 @@ export function useAddToCart({ openDrawer = true } = {}) {
   const mutation = useCartMutation(
     ({ productId, variantId, quantity = 1 }) =>
       api('/cart/items', { method: 'POST', body: { productId, variantId, quantity } }),
-    { onSuccessMessage: (vars) => (vars.name ? `${vars.name} added to your bag` : 'Added to your bag') }
+    { onSuccessMessage: (vars) => (vars.name ? i18n.t('toast.addedToBag', { name: vars.name }) : i18n.t('toast.addedToBagGeneric')) }
   );
   return {
     ...mutation,
@@ -56,7 +57,7 @@ export const useUpdateCartItem = () =>
 
 export const useRemoveCartItem = () =>
   useCartMutation(({ itemId }) => api(`/cart/items/${itemId}`, { method: 'DELETE' }), {
-    onSuccessMessage: 'Removed from your bag',
+    onSuccessMessage: () => i18n.t('toast.removedFromBag'),
   });
 
 export const useClearCart = () => useCartMutation(() => api('/cart', { method: 'DELETE' }));

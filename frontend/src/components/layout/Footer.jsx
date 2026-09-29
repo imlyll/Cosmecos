@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { Logo, SocialLinks } from '../ui/Brand';
 import Reveal from '../ui/Reveal';
 import { ContactList, CONTACT_ROWS } from './SidePanel';
@@ -16,28 +17,29 @@ const USEFUL_LINKS = [
 const socialClass = 'border-white/30 text-white hover:border-rose hover:bg-rose';
 
 function Newsletter() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const onSubmit = (e) => {
     e.preventDefault();
-    if (!/^\S+@\S+\.\S+$/.test(email)) return toast.error('Please enter a valid email address');
+    if (!/^\S+@\S+\.\S+$/.test(email)) return toast.error(t('toast.invalidEmail'));
     // No newsletter provider is connected yet; confirm locally.
-    toast.success('Thank you for subscribing!');
+    toast.success(t('toast.subscribed'));
     setEmail('');
   };
   return (
     <form onSubmit={onSubmit} className="mt-2 flex border-b border-white/20 focus-within:border-white">
       <label htmlFor="newsletter" className="sr-only">
-        Email address
+        {t('footer.emailLabel')}
       </label>
       <input
         id="newsletter"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Your email"
+        placeholder={t('footer.emailPlaceholder')}
         className="w-full bg-transparent py-3 text-base text-white outline-none placeholder:text-[#8b8b8b]"
       />
-      <button type="submit" aria-label="Subscribe" className="group px-2 text-white">
+      <button type="submit" aria-label={t('footer.subscribe')} className="group px-2 text-white">
         <ArrowRight className="size-4 transition-transform duration-500 group-hover:translate-x-1" />
       </button>
     </form>
@@ -45,6 +47,7 @@ function Newsletter() {
 }
 
 function FooterMenu() {
+  const { t } = useTranslation();
   return (
     <nav aria-label="Footer">
       <ul className="flex flex-wrap justify-center gap-x-[70px] gap-y-3">
@@ -54,7 +57,7 @@ function FooterMenu() {
               to={l.to}
               className="font-serif text-[15px] font-semibold text-white uppercase transition-colors duration-300 hover:text-rose"
             >
-              {l.label}
+              {t(l.label)}
             </Link>
           </li>
         ))}
@@ -77,6 +80,7 @@ function Watermark({ className }) {
 
 /** Home page footer: Instagram tag, then a framed three-column block with the menu underneath. */
 function HomeFooter() {
+  const { t } = useTranslation();
   return (
     <footer className="relative mt-[90px] bg-ink-soft text-[#b1b0b0]">
       <a
@@ -115,7 +119,7 @@ function HomeFooter() {
                 {USEFUL_LINKS.map((l) => (
                   <li key={l.label}>
                     <Link to={l.to} className="font-serif font-medium text-white transition-colors hover:text-rose">
-                      {l.label}
+                      {t(l.label)}
                     </Link>
                   </li>
                 ))}

@@ -1,28 +1,30 @@
-// Main menu. Items with `children` open a dark dropdown on hover.
+// Main menu. `label` is a translation key; items with `children` open a dark dropdown on hover.
 export const NAV_LINKS = [
-  { label: 'Home', to: '/' },
+  { id: 'home', label: 'nav.home', to: '/' },
   {
-    label: 'Pages',
+    id: 'pages',
+    label: 'nav.pages',
     to: '/about-us',
     children: [
-      { label: 'About Us', to: '/about-us' },
-      { label: 'Wishlist', to: '/wishlist' },
-      { label: 'My Account', to: '/profile' },
+      { label: 'nav.aboutUs', to: '/about-us' },
+      { label: 'nav.wishlist', to: '/wishlist' },
+      { label: 'nav.myAccount', to: '/profile' },
     ],
   },
   {
-    label: 'Shop',
+    id: 'shop',
+    label: 'nav.shop',
     to: '/shop',
     children: [
-      { label: 'Shop Catalog', to: '/shop' },
-      { label: 'Body Care', to: '/shop?category=body-care' },
-      { label: 'Cosmetics', to: '/shop?category=cosmetics' },
-      { label: 'Hair Care', to: '/shop?category=hair-care' },
-      { label: 'Cart', to: '/cart' },
-      { label: 'Checkout', to: '/checkout' },
+      { label: 'nav.shopCatalog', to: '/shop' },
+      { label: 'nav.bodyCare', to: '/shop?category=body-care' },
+      { label: 'nav.cosmetics', to: '/shop?category=cosmetics' },
+      { label: 'nav.hairCare', to: '/shop?category=hair-care' },
+      { label: 'nav.cart', to: '/cart' },
+      { label: 'nav.checkout', to: '/checkout' },
     ],
   },
-  { label: 'Contacts', to: '/contacts' },
+  { id: 'contacts', label: 'nav.contacts', to: '/contacts' },
 ];
 
 export const STORE_INFO = {

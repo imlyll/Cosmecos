@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { LoginForm, RegisterForm } from '../components/auth/AuthForms';
+import OtpForm from '../components/auth/OtpForm';
 import { useAuthStore } from '../store/auth';
 import { sizedImage } from '../lib/api';
 import { EASE } from '../lib/motion';
@@ -13,16 +16,30 @@ const IMAGES = {
 
 /** Dedicated /login and /register pages (the modal covers in-context sign-in). */
 export default function AuthPage({ mode }) {
+  const { t } = useTranslation();
   const token = useAuthStore((s) => s.token);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || '/profile';
   const isLogin = mode === 'login';
-  useDocumentTitle(isLogin ? 'Sign in' : 'Create account');
+  // Set once registration (or login to an unverified account) has emailed a code.
+  const [verification, setVerification] = useState(null);
+  const step = verification ? 'verify' : mode;
+
+  const [eyebrow, title] = {
+    login: [t('auth.welcomeBack'), t('auth.signIn')],
+    register: [t('auth.joinCosmecos'), t('auth.createAccount')],
+    verify: [t('otp.eyebrow'), t('otp.title')],
+  }[step];
+  useDocumentTitle(title);
 
   if (token) return <Navigate to={from} replace />;
 
   const onSuccess = () => navigate(from, { replace: true });
+  const switchTo = (path) => {
+    setVerification(null);
+    navigate(path, { state: location.state });
+  };
 
   return (
     <div className="grid min-h-[calc(100svh-7.5rem)] lg:grid-cols-2">
@@ -38,24 +55,26 @@ export default function AuthPage({ mode }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent" />
         <p className="absolute right-12 bottom-12 left-12 font-script text-5xl leading-tight text-white">
-          {isLogin ? '“Your ritual, remembered.”' : '“Join a community that celebrates natural beauty.”'}
+          {isLogin ? t('auth.quoteLogin') : t('auth.quoteRegister')}
         </p>
       </div>
 
       <div className="flex items-center justify-center px-4 py-16 sm:px-10">
         <motion.div
-          key={mode}
+          key={step}
           className="w-full max-w-md"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: EASE }}
         >
-          <p className="eyebrow">{isLogin ? 'Welcome back' : 'Join Cosmecos'}</p>
-          <h1 className="mt-3 mb-10 text-[40px] leading-tight font-extralight md:text-[56px]">{isLogin ? 'Sign in' : 'Create account'}</h1>
-          {isLogin ? (
-            <LoginForm onSuccess={onSuccess} onSwitch={() => navigate('/register', { state: location.state })} />
+          <p className="eyebrow">{eyebrow}</p>
+          <h1 className="mt-3 mb-10 text-[40px] leading-tight font-extralight md:text-[56px]">{title}</h1>
+          {step === 'verify' ? (
+            <OtpForm {...verification} onSuccess={onSuccess} onBack={() => switchTo('/register')} />
+          ) : isLogin ? (
+            <LoginForm onSuccess={onSuccess} onVerify={setVerification} onSwitch={() => switchTo('/register')} />
           ) : (
-            <RegisterForm onSuccess={onSuccess} onSwitch={() => navigate('/login', { state: location.state })} />
+            <RegisterForm onVerify={setVerification} onSwitch={() => switchTo('/login')} />
           )}
         </motion.div>
       </div>

@@ -3,8 +3,10 @@ import { Link, NavLink, useLocation } from 'react-router';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { ChevronDown, Heart, LayoutDashboard, Menu, Search, ShoppingBag, User } from 'lucide-react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import { Logo } from '../ui/Brand';
 import { NAV_LINKS } from './nav';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useCart } from '../../hooks/useCart';
 import { useWishlist } from '../../hooks/useWishlist';
 import { useAuthStore } from '../../store/auth';
@@ -43,10 +45,11 @@ function IconButton({ label, onClick, to, children }) {
 const isActiveLink = (link, pathname) => {
   if (link.to === '/') return pathname === '/';
   const paths = [link.to, ...(link.children || []).map((c) => c.to)].map((to) => to.split('?')[0]);
-  return paths.includes(pathname) || (link.label === 'Shop' && pathname.startsWith('/product'));
+  return paths.includes(pathname) || (link.id === 'shop' && pathname.startsWith('/product'));
 };
 
 function NavItem({ link }) {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const active = isActiveLink(link, pathname);
@@ -66,7 +69,7 @@ function NavItem({ link }) {
         aria-expanded={link.children ? open : undefined}
         className="relative flex h-[98px] items-center gap-[13px] font-serif text-[15px] font-medium text-ink uppercase transition-colors duration-300 hover:text-rose"
       >
-        {link.label}
+        {t(link.label)}
         {link.children && (
           <ChevronDown
             className={clsx('size-3.5 transition-transform duration-300', open && 'rotate-180')}
@@ -98,7 +101,7 @@ function NavItem({ link }) {
                   onClick={() => setOpen(false)}
                   className="block px-[34px] py-[5px] font-serif text-[17px] leading-[31px] font-medium text-white transition-colors duration-300 hover:text-rose"
                 >
-                  {child.label}
+                  {t(child.label)}
                 </Link>
               </li>
             ))}
@@ -126,6 +129,7 @@ function DotsIcon() {
  * Hides while scrolling down and slides back in when scrolling up.
  */
 export default function Header() {
+  const { t } = useTranslation();
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [raised, setRaised] = useState(false);
@@ -162,36 +166,37 @@ export default function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2 pr-2 sm:gap-4 xl:ml-0 xl:pr-[30px]">
+          <LanguageSwitcher className="mr-1 hidden md:block" />
           {user?.role === 'admin' && (
             <span className="hidden sm:block">
-              <IconButton label="Admin panel" to="/admin">
+              <IconButton label={t('nav.adminPanel')} to="/admin">
                 <LayoutDashboard className="size-[22px]" strokeWidth={1.2} />
               </IconButton>
             </span>
           )}
           <span className="hidden sm:block">
             {user ? (
-              <IconButton label="My account" to="/profile">
+              <IconButton label={t('header.myAccount')} to="/profile">
                 <User className="size-6" strokeWidth={1.2} />
               </IconButton>
             ) : (
-              <IconButton label="Sign in" onClick={() => openAuth('login')}>
+              <IconButton label={t('header.signIn')} onClick={() => openAuth('login')}>
                 <User className="size-6" strokeWidth={1.2} />
               </IconButton>
             )}
           </span>
-          <IconButton label={`Wishlist (${wishCount})`} to="/wishlist">
+          <IconButton label={t('header.wishlist', { count: wishCount })} to="/wishlist">
             <Heart className="size-6" strokeWidth={1.2} />
           </IconButton>
-          <IconButton label={`Shopping bag (${cart.itemCount})`} onClick={() => setCartOpen(true)}>
+          <IconButton label={t('header.bag', { count: cart.itemCount })} onClick={() => setCartOpen(true)}>
             <ShoppingBag className="size-6" strokeWidth={1.2} />
             <CountBadge count={cart.itemCount} />
           </IconButton>
-          <IconButton label="Search" onClick={() => setSearchOpen(true)}>
+          <IconButton label={t('header.search')} onClick={() => setSearchOpen(true)}>
             <Search className="size-6" strokeWidth={1.2} />
           </IconButton>
           <span className="xl:hidden">
-            <IconButton label="Open menu" onClick={() => setMenuOpen(true)}>
+            <IconButton label={t('header.openMenu')} onClick={() => setMenuOpen(true)}>
               <Menu className="size-6" strokeWidth={1.2} />
             </IconButton>
           </span>
@@ -200,7 +205,7 @@ export default function Header() {
         <button
           type="button"
           onClick={() => setPanelOpen(true)}
-          aria-label="Open information panel"
+          aria-label={t('header.openPanel')}
           className="hidden h-full w-[89px] shrink-0 place-items-center bg-ink transition-colors duration-300 hover:bg-black lg:grid"
         >
           <DotsIcon />

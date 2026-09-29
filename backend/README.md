@@ -44,11 +44,15 @@ src/
 ### Auth `/api/auth`
 | Method | Path | Access | Body |
 |---|---|---|---|
-| POST | `/register` | public | `name, email, password` (8+ chars, letter + number) |
-| POST | `/login` | public | `email, password` |
+| POST | `/register` | public | `name, email, password` (8+ chars, letter + number), `lang?` (`en`/`az`/`ru`). Creates an **unverified** account and emails a 6-digit code; no token yet |
+| POST | `/verify-otp` | public | `email, code`. Verifies the account and returns `{ token, user }` |
+| POST | `/resend-otp` | public | `email, lang?`. Sends a fresh code (60 s cooldown → `429 OTP_COOLDOWN`) |
+| POST | `/login` | public | `email, password, lang?`. Unverified accounts get `403 EMAIL_NOT_VERIFIED` and a new code |
 | GET | `/me` | user | |
 | PATCH | `/me` | user | `name?, phone?, address?` |
 | PATCH | `/me/password` | user | `currentPassword, newPassword` (returns a new token) |
+
+**Email verification:** codes expire after `OTP_TTL_MINUTES` (10), are stored only as an HMAC hash, and stop working after `OTP_MAX_ATTEMPTS` (5) wrong guesses. Error responses carry a `code` (`OTP_INVALID` + `attemptsLeft`, `OTP_EXPIRED`, `OTP_TOO_MANY_ATTEMPTS`, `OTP_COOLDOWN`, `ALREADY_VERIFIED`, `EMAIL_SEND_FAILED`). Set the `SMTP_*` variables to deliver mail. Without `SMTP_HOST`, development prints each email to the console instead of sending it; in production, registration returns `502 EMAIL_SEND_FAILED` until SMTP is configured. Accounts created before this feature, or by admins/seeds, count as verified.
 
 Register and login are rate-limited: 20 attempts per 15 minutes per IP in production, 200 otherwise. Set `AUTH_RATE_LIMIT` to override. New accounts always get the `user` role.
 

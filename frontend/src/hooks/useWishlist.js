@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth';
+import i18n, { errorMessage } from '../i18n';
 
 export function useWishlist() {
   const token = useAuthStore((s) => s.token);
@@ -34,11 +35,11 @@ export function useToggleWishlist() {
     },
     onError: (err, _vars, ctx) => {
       qc.setQueryData(key(), ctx?.previous);
-      toast.error(err.message);
+      toast.error(errorMessage(err));
     },
     onSuccess: (data, { product, silent }) => {
       qc.setQueryData(key(), data);
-      if (!silent) toast.success(data.added ? `${product.name} saved to your wishlist` : 'Removed from wishlist');
+      if (!silent) toast.success(data.added ? i18n.t('toast.savedToWishlist', { name: product.name }) : i18n.t('toast.removedFromWishlist'));
     },
   });
 }

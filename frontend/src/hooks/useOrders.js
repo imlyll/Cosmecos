@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import i18n, { errorMessage } from '../i18n';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth';
 
@@ -39,9 +40,9 @@ export function useCancelOrder() {
     mutationFn: (id) => api(`/orders/${id}/cancel`, { method: 'PATCH' }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['orders'] });
-      toast.success('Order cancelled');
+      toast.success(i18n.t('toast.orderCancelled'));
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toast.error(errorMessage(err)),
   });
 }
 

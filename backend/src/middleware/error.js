@@ -40,6 +40,8 @@ function errorHandler(err, _req, res, _next) {
   res.status(status).json({
     success: false,
     message: apiError ? apiError.message : 'Internal server error',
+    ...(apiError?.code && { code: apiError.code }),
+    ...apiError?.meta,
     ...(apiError?.details && { errors: apiError.details }),
     ...(!isProd && status >= 500 && { stack: err.stack }),
   });

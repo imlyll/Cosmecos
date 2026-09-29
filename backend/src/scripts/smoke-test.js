@@ -10,11 +10,15 @@ async function main() {
   process.env.JWT_SECRET = 'smoke-test-secret';
   process.env.NODE_ENV = 'test';
   process.env.CLOUDINARY_CLOUD_NAME = ''; // force local disk storage
+  process.env.SMTP_HOST = ''; // capture emails in memory
+  process.env.OTP_RESEND_COOLDOWN_SECONDS = '2';
 
   const mongoose = require('mongoose');
   const connectDB = require('../config/db');
   const app = require('../app');
   const User = require('../models/User');
+  const Otp = require('../models/Otp');
+  const { lastMailTo } = require('../utils/mailer');
 
   await connectDB(process.env.MONGO_URI);
   const server = app.listen(0);
@@ -28,6 +32,17 @@ async function main() {
     return { status: res.status, data: await res.json() };
   };
   const step = (name) => console.log(`  ✓ ${name}`);
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const otpFor = (email) => lastMailTo(email)?.code;
+  const otherThan = (code) => (code === '000000' ? '111111' : '000000');
+  /** Registers and verifies a customer, returning their token. */
+  const signUp = async (name, email) => {
+    const res = await call('POST', '/auth/register', { body: { name, email, password: 'Secret123' } });
+    assert.equal(res.status, 201, JSON.stringify(res.data));
+    const verified = await call('POST', '/auth/verify-otp', { body: { email, code: otpFor(email) } });
+    assert.equal(verified.status, 200, JSON.stringify(verified.data));
+    return verified.data.token;
+  };
 
   try {
     // --- Auth ---
@@ -37,13 +52,92 @@ async function main() {
     step('register validation rejects weak password');
 
     r = await call('POST', '/auth/register', {
-      body: { name: 'Leyla', email: 'Leyla@Test.com', password: 'Secret123', role: 'admin' },
+      body: { name: 'Leyla', email: 'Leyla@Test.com', password: 'Secret123', role: 'admin', lang: 'az' },
     });
     assert.equal(r.status, 201);
+    assert.equal(r.data.requiresVerification, true);
+    assert.equal(r.data.token, undefined, 'no token before the email is verified');
+    assert.equal(r.data.email, 'leyla@test.com');
+    assert.ok(r.data.resendAvailableIn > 0);
+    const mail = lastMailTo('leyla@test.com');
+    assert.match(mail.code, /^\d{6}$/);
+    assert.ok(mail.text.includes(mail.code));
+    assert.match(mail.subject, /təsdiq/, 'email is sent in the requested language');
+    assert.equal((await User.findOne({ email: 'leyla@test.com' })).isVerified, false);
+    step('register creates an unverified account and emails a 6-digit code');
+
+    r = await call('POST', '/auth/login', { body: { email: 'leyla@test.com', password: 'Secret123' } });
+    assert.equal(r.status, 403);
+    assert.equal(r.data.code, 'EMAIL_NOT_VERIFIED');
+    assert.equal(r.data.token, undefined);
+    r = await call('POST', '/auth/login', { body: { email: 'leyla@test.com', password: 'Wrong123' } });
+    assert.equal(r.status, 401, 'unverified status is only revealed with the right password');
+    step('unverified accounts cannot sign in');
+
+    r = await call('POST', '/auth/resend-otp', { body: { email: 'leyla@test.com' } });
+    assert.equal(r.status, 429);
+    assert.equal(r.data.code, 'OTP_COOLDOWN');
+    assert.ok(r.data.resendAvailableIn > 0);
+    step('resend is limited by a cooldown');
+
+    const firstCode = otpFor('leyla@test.com');
+    await sleep(2100);
+    r = await call('POST', '/auth/resend-otp', { body: { email: 'leyla@test.com' } });
+    assert.equal(r.status, 200);
+    const code = otpFor('leyla@test.com');
+    r = await call('POST', '/auth/resend-otp', { body: { email: 'nobody@test.com' } });
+    assert.equal(r.status, 200, 'unknown emails get the same answer');
+    step('resend issues a new code');
+
+    r = await call('POST', '/auth/verify-otp', { body: { email: 'leyla@test.com', code: '12345' } });
+    assert.equal(r.status, 400);
+    assert.ok(r.data.errors.some((e) => e.field === 'code'));
+    if (firstCode !== code) {
+      r = await call('POST', '/auth/verify-otp', { body: { email: 'leyla@test.com', code: firstCode } });
+      assert.equal(r.data.code, 'OTP_INVALID', 'a replaced code no longer works');
+    }
+    r = await call('POST', '/auth/verify-otp', { body: { email: 'leyla@test.com', code: otherThan(code) } });
+    assert.equal(r.status, 400);
+    assert.equal(r.data.code, 'OTP_INVALID');
+    assert.equal(typeof r.data.attemptsLeft, 'number');
+    step('wrong or malformed codes are rejected');
+
+    r = await call('POST', '/auth/verify-otp', { body: { email: 'Leyla@Test.com', code } });
+    assert.equal(r.status, 200, JSON.stringify(r.data));
     assert.equal(r.data.user.role, 'user', 'role must not be settable on register');
+    assert.equal(r.data.user.isVerified, true);
     assert.equal(r.data.user.password, undefined);
     const userToken = r.data.token;
-    step('register ignores role and hides password');
+    r = await call('POST', '/auth/verify-otp', { body: { email: 'leyla@test.com', code } });
+    assert.equal(r.status, 409, 'a code cannot be reused');
+    step('verify-otp activates the account, returns a token and ignores role');
+
+    // Brute force: the code stops working after too many wrong guesses.
+    await call('POST', '/auth/register', { body: { name: 'Guess', email: 'guess@test.com', password: 'Secret123' } });
+    const guessCode = otpFor('guess@test.com');
+    for (let i = 0; i < 5; i++) {
+      await call('POST', '/auth/verify-otp', { body: { email: 'guess@test.com', code: otherThan(guessCode) } });
+    }
+    r = await call('POST', '/auth/verify-otp', { body: { email: 'guess@test.com', code: guessCode } });
+    assert.equal(r.status, 429);
+    assert.equal(r.data.code, 'OTP_TOO_MANY_ATTEMPTS');
+    step('codes are locked after 5 wrong attempts');
+
+    await Otp.updateOne({ email: 'guess@test.com' }, { expiresAt: new Date(Date.now() - 1000), attempts: 0 });
+    r = await call('POST', '/auth/verify-otp', { body: { email: 'guess@test.com', code: guessCode } });
+    assert.equal(r.data.code, 'OTP_EXPIRED');
+    step('expired codes are rejected');
+
+    // Registering again while unverified updates the pending account instead of failing.
+    await sleep(2100);
+    r = await call('POST', '/auth/register', { body: { name: 'Guess Again', email: 'guess@test.com', password: 'Other1234' } });
+    assert.equal(r.status, 201);
+    r = await call('POST', '/auth/verify-otp', { body: { email: 'guess@test.com', code: otpFor('guess@test.com') } });
+    assert.equal(r.status, 200);
+    assert.equal(r.data.user.name, 'Guess Again');
+    r = await call('POST', '/auth/login', { body: { email: 'guess@test.com', password: 'Other1234' } });
+    assert.equal(r.status, 200);
+    step('re-registering a pending email resends the code');
 
     r = await call('POST', '/auth/register', { body: { name: 'Dup', email: 'leyla@test.com', password: 'Secret123' } });
     assert.equal(r.status, 409);
@@ -351,8 +445,7 @@ async function main() {
     step(`${protectedRoutes.length} protected routes reject missing / invalid / expired tokens`);
 
     // --- Second customer: profile, password change, cart & wishlist removal, coupons at checkout ---
-    r = await call('POST', '/auth/register', { body: { name: 'Aysel', email: 'aysel@test.com', password: 'Secret123' } });
-    let aysel = r.data.token;
+    let aysel = await signUp('Aysel', 'aysel@test.com');
     r = await call('PATCH', '/auth/me', { token: aysel, body: { phone: '+994551112233', address: { city: 'Ganja' } } });
     assert.equal(r.status, 200);
     assert.equal(r.data.user.phone, '+994551112233');
@@ -429,8 +522,7 @@ async function main() {
     assert.equal(r.status, 200);
     step('order with coupon, card payment and shipping fee');
 
-    r = await call('POST', '/auth/register', { body: { name: 'Other', email: 'other@test.com', password: 'Secret123' } });
-    const other = r.data.token;
+    const other = await signUp('Other', 'other@test.com');
     r = await call('GET', `/orders/${ayselOrder._id}`, { token: other });
     assert.equal(r.status, 404, "customers can't read other customers' orders");
     r = await call('PATCH', `/orders/${ayselOrder._id}/cancel`, { token: other });

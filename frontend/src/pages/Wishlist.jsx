@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
+import i18n from '../i18n';
 import PageHero from '../components/ui/PageHero';
 import Price from '../components/ui/Price';
 import Rating from '../components/ui/Rating';
@@ -32,7 +33,7 @@ function WishlistItem({ product, index }) {
       {
         onSuccess: () => {
           toggle.mutate({ product, silent: true });
-          if (variant) toast(`Added in ${variant.name} — you can change it in your bag`);
+          if (variant) toast(i18n.t('toast.addedInVariant', { variant: variant.name }));
         },
       }
     );

@@ -2,9 +2,11 @@ import { forwardRef, useId, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 /** Labelled input with animated error message; spreads react-hook-form's register(). */
 const Field = forwardRef(function Field({ label, error, type = 'text', as, className, ...props }, ref) {
+  const { t } = useTranslation();
   const id = useId();
   const [show, setShow] = useState(false);
   const isPassword = type === 'password';
@@ -32,7 +34,7 @@ const Field = forwardRef(function Field({ label, error, type = 'text', as, class
             type="button"
             onClick={() => setShow((s) => !s)}
             className="absolute inset-y-0 right-0 grid w-12 place-items-center text-taupe hover:text-ink"
-            aria-label={show ? 'Hide password' : 'Show password'}
+            aria-label={show ? t('auth.hidePassword') : t('auth.showPassword')}
           >
             {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>

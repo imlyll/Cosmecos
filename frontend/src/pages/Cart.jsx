@@ -9,6 +9,7 @@ import { useCart, useClearCart, useRemoveCartItem, useUpdateCartItem } from '../
 import { sizedImage } from '../lib/api';
 import { formatPrice } from '../lib/format';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useTranslation } from 'react-i18next';
 
 /** WooCommerce-style info notice: outlined box with an "i" icon. */
 export function Notice({ children }) {
@@ -23,7 +24,8 @@ export function Notice({ children }) {
 const th = 'py-4 text-left font-serif text-sm font-bold tracking-[0.05em] text-ink uppercase';
 
 export default function Cart() {
-  useDocumentTitle('Cart');
+  const { t } = useTranslation();
+  useDocumentTitle(t('nav.cart'));
   const { cart, isLoading } = useCart();
   const update = useUpdateCartItem();
   const remove = useRemoveCartItem();
@@ -141,10 +143,10 @@ export default function Cart() {
             <div className="mt-[70px] ml-auto max-w-[470px]">
               <OrderSummary cart={cart}>
                 {unavailable ? (
-                  <p className="mt-4 text-center text-sm text-danger">Adjust unavailable items to continue.</p>
+                  <p className="mt-4 text-center text-sm text-danger">{t('cart.unavailable')}</p>
                 ) : (
                   <Link to="/checkout" className="btn-cos mt-4 w-full bg-ink text-white hover:bg-transparent hover:text-ink">
-                    Proceed to checkout
+                    {t('common.proceedToCheckout')}
                   </Link>
                 )}
               </OrderSummary>

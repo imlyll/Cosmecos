@@ -4,10 +4,13 @@ import { useAuthStore } from '../store/auth';
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 export class ApiError extends Error {
-  constructor(message, status, errors) {
+  /** `code` is the API's machine-readable error code (e.g. OTP_INVALID); `data` is the full error body. */
+  constructor(message, status, errors, { code, data } = {}) {
     super(message);
     this.status = status;
     this.errors = errors;
+    this.code = code;
+    this.data = data;
   }
 }
 
@@ -44,10 +47,12 @@ http.interceptors.response.use(
     // A rejected token means the session is over; clear it so the UI shows a guest.
     // Credential endpoints answer 401 for a wrong password, which says nothing about the current session.
     const sentToken = Boolean(error.config?.headers?.Authorization);
-    const isCredentialCheck = /^\/?auth\/(login|register)$/.test(error.config?.url || '');
+    const isCredentialCheck = /^\/?auth\/(login|register|verify-otp|resend-otp)$/.test(error.config?.url || '');
     if (res.status === 401 && sentToken && !isCredentialCheck) useAuthStore.getState().logout();
     const data = res.data || {};
-    return Promise.reject(new ApiError(data.message || 'Something went wrong', res.status, data.errors));
+    return Promise.reject(
+      new ApiError(data.message || 'Something went wrong', res.status, data.errors, { code: data.code, data })
+    );
   }
 );
 

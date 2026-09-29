@@ -1,4 +1,5 @@
 const { z } = require('./common');
+const { LANGS } = require('../utils/emailTemplates');
 
 const password = z
   .string()
@@ -18,16 +19,29 @@ const address = z.object({
   country: z.string().trim().max(60).optional(),
 });
 
+// Language for emails sent to the user.
+const lang = z.enum(LANGS).optional();
+const email = z.email().trim().toLowerCase();
+
 const register = z.object({
   name: z.string().trim().min(2).max(80),
-  email: z.email().trim().toLowerCase(),
+  email,
   password,
+  lang,
 });
 
 const login = z.object({
-  email: z.email().trim().toLowerCase(),
+  email,
   password: z.string().min(1, 'Password is required'),
+  lang,
 });
+
+const verifyOtp = z.object({
+  email,
+  code: z.string().trim().regex(/^\d{6}$/, 'Enter the 6-digit code'),
+});
+
+const resendOtp = z.object({ email, lang });
 
 const updateProfile = z
   .object({
@@ -47,4 +61,4 @@ const changePassword = z
     path: ['newPassword'],
   });
 
-module.exports = { register, login, updateProfile, changePassword };
+module.exports = { register, login, verifyOtp, resendOtp, updateProfile, changePassword };

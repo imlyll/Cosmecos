@@ -27,6 +27,9 @@ const userSchema = new mongoose.Schema(
     avatar: { url: String, publicId: String },
     address: addressSchema,
     isActive: { type: Boolean, default: true },
+    // Self-registered accounts start unverified until the emailed code is confirmed. The default is true
+    // so accounts created before email verification existed, and ones created by admins/seeds, keep working.
+    isVerified: { type: Boolean, default: true },
     passwordChangedAt: Date,
   },
   { timestamps: true }

@@ -13,6 +13,7 @@ import Button from '../components/ui/Button';
 import OrderSummary from '../components/product/OrderSummary';
 import { Skeleton } from '../components/ui/Feedback';
 import { useCart } from '../hooks/useCart';
+import { useTranslation } from 'react-i18next';
 import { usePlaceOrder } from '../hooks/useOrders';
 import { useAuthStore } from '../store/auth';
 import { useUIStore } from '../store/ui';
@@ -94,7 +95,8 @@ function Stepper({ step, onJump }) {
 }
 
 export default function Checkout() {
-  useDocumentTitle('Checkout');
+  const { t } = useTranslation();
+  useDocumentTitle(t('nav.checkout'));
   const [[step, dir], setStep] = useState([0, 1]);
   const { cart, isLoading } = useCart();
   const user = useAuthStore((s) => s.user);
@@ -349,7 +351,7 @@ export default function Checkout() {
                 </Button>
               ) : (
                 <Button key="submit" type="submit" size="lg" loading={placeOrder.isPending}>
-                  <Lock className="size-4" /> Place order
+                  <Lock className="size-4" /> {t('common.placeOrder')}
                 </Button>
               )}
             </div>

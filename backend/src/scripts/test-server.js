@@ -11,9 +11,13 @@ async function main() {
   process.env.NODE_ENV = 'test';
   process.env.CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
   process.env.CLOUDINARY_CLOUD_NAME = '';
+  process.env.SMTP_HOST = ''; // capture emails in memory
+  process.env.OTP_RESEND_COOLDOWN_SECONDS = '1';
 
+  const express = require('express');
   const mongoose = require('mongoose');
-  const app = require('../app');
+  const api = require('../app');
+  const { lastMailTo } = require('../utils/mailer');
   const User = require('../models/User');
   const Category = require('../models/Category');
   const Product = require('../models/Product');
@@ -38,6 +42,15 @@ async function main() {
     variants: [{ name: 'Rose', stock: 5 }],
   });
   await Coupon.create({ code: 'TEN', type: 'percent', value: 10 });
+
+  // Test-only route so the tests can read the verification code that would have been emailed.
+  const app = express();
+  app.get('/__test__/otp/:email', (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    const mail = lastMailTo(req.params.email);
+    res.json({ code: mail?.code || null, subject: mail?.subject || null });
+  });
+  app.use(api);
 
   const server = app.listen(0, '127.0.0.1', () => {
     const info = {

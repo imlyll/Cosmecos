@@ -8,6 +8,7 @@ import { useProducts } from '../../hooks/useCatalog';
 import { sizedImage } from '../../lib/api';
 import { formatPrice } from '../../lib/format';
 import { EASE } from '../../lib/motion';
+import { useTranslation } from 'react-i18next';
 
 const SUGGESTIONS = ['Serum', 'Lipstick', 'Parfum', 'Cleanser', 'Body oil'];
 
@@ -21,6 +22,7 @@ function useDebounced(value, delay = 300) {
 }
 
 export default function SearchOverlay() {
+  const { t } = useTranslation();
   const { searchOpen, setSearchOpen } = useUIStore();
   const [term, setTerm] = useState('');
   const search = useDebounced(term.trim());
@@ -58,7 +60,7 @@ export default function SearchOverlay() {
           className="fixed inset-0 z-[75] overflow-y-auto bg-cream"
           role="dialog"
           aria-modal="true"
-          aria-label="Search"
+          aria-label={t('header.search')}
           initial={{ clipPath: 'inset(0 0 100% 0)' }}
           animate={{ clipPath: 'inset(0 0 0% 0)' }}
           exit={{ clipPath: 'inset(0 0 100% 0)' }}
@@ -66,7 +68,7 @@ export default function SearchOverlay() {
         >
           <div className="container-luxe py-8">
             <div className="flex justify-end">
-              <button type="button" onClick={close} aria-label="Close search" className="group p-2">
+              <button type="button" onClick={close} aria-label={t('search.close')} className="group p-2">
                 <X className="size-6 transition-transform duration-500 group-hover:rotate-90" />
               </button>
             </div>
@@ -77,17 +79,17 @@ export default function SearchOverlay() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.7, ease: EASE }}
             >
-              <p className="eyebrow mb-4 text-center">What are you looking for?</p>
+              <p className="eyebrow mb-4 text-center">{t('search.title')}</p>
               <div className="flex items-center border-b border-ink pb-3">
                 <input
                   ref={inputRef}
                   value={term}
                   onChange={(e) => setTerm(e.target.value)}
-                  placeholder="Search products…"
-                  aria-label="Search products"
+                  placeholder={t('search.placeholder')}
+                  aria-label={t('search.label')}
                   className="w-full bg-transparent font-serif text-3xl outline-none placeholder:text-taupe/50 md:text-5xl"
                 />
-                <button type="submit" aria-label="Search" className="p-2">
+                <button type="submit" aria-label={t('common.search')} className="p-2">
                   <Search className="size-6" strokeWidth={1.5} />
                 </button>
               </div>
@@ -106,9 +108,9 @@ export default function SearchOverlay() {
             </motion.form>
 
             <div className="mx-auto mt-12 max-w-3xl">
-              {isFetching && <p className="text-center text-sm text-taupe">Searching…</p>}
+              {isFetching && <p className="text-center text-sm text-taupe">{t('search.searching')}</p>}
               {!isFetching && search.length >= 2 && results.length === 0 && (
-                <p className="text-center text-sm text-taupe">No products match “{search}”.</p>
+                <p className="text-center text-sm text-taupe">{t('search.noResults', { term: search })}</p>
               )}
               <ul className="grid gap-4 sm:grid-cols-2">
                 {results.map((p, i) => (
@@ -140,7 +142,7 @@ export default function SearchOverlay() {
               {results.length > 0 && (
                 <div className="mt-8 text-center">
                   <button type="button" onClick={onSubmit} className="link-underline text-xs tracking-[0.2em] uppercase">
-                    View all results
+                    {t('search.viewAll')}
                   </button>
                 </div>
               )}

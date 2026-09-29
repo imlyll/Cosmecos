@@ -17,6 +17,8 @@ const authLimiter = rateLimit({
 
 router.post('/register', authLimiter, validate({ body: v.register }), ctrl.register);
 router.post('/login', authLimiter, validate({ body: v.login }), ctrl.login);
+router.post('/verify-otp', authLimiter, validate({ body: v.verifyOtp }), ctrl.verifyOtp);
+router.post('/resend-otp', authLimiter, validate({ body: v.resendOtp }), ctrl.resendOtp);
 
 router.get('/me', protect, ctrl.me);
 router.patch('/me', protect, validate({ body: v.updateProfile }), ctrl.updateMe);

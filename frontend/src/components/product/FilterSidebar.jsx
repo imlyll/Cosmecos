@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import PriceRange from './PriceRange';
 import MiniProduct from './MiniProduct';
 import { useCategories, useFilterOptions, useProducts } from '../../hooks/useCatalog';
+import { useTranslation } from 'react-i18next';
 
 function Widget({ title, children, className }) {
   return (
@@ -16,6 +17,7 @@ function Widget({ title, children, className }) {
 }
 
 function SearchWidget({ value, onSearch }) {
+  const { t } = useTranslation();
   const [q, setQ] = useState(value || '');
   useEffect(() => setQ(value || ''), [value]);
   return (
@@ -28,17 +30,17 @@ function SearchWidget({ value, onSearch }) {
       }}
     >
       <label htmlFor="shop-search" className="sr-only">
-        Search products
+        {t('search.label')}
       </label>
       <input
         id="shop-search"
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Search products…"
+        placeholder={t('search.placeholder')}
         className="input-luxe pr-14"
       />
-      <button type="submit" aria-label="Search" className="absolute top-0 right-0 grid h-14 w-14 place-items-center text-ink">
+      <button type="submit" aria-label={t('common.search')} className="absolute top-0 right-0 grid h-14 w-14 place-items-center text-ink">
         <Search className="size-[22px]" strokeWidth={1.3} />
       </button>
     </form>
@@ -46,6 +48,7 @@ function SearchWidget({ value, onSearch }) {
 }
 
 function PriceWidget({ filters, setFilter }) {
+  const { t } = useTranslation();
   const { data: options } = useFilterOptions();
   const min = Math.floor(options?.priceRange.min ?? 0);
   const max = Math.ceil(options?.priceRange.max ?? 100);
@@ -57,20 +60,20 @@ function PriceWidget({ filters, setFilter }) {
 
   if (!options) return null;
   return (
-    <Widget title="Filter by price">
+    <Widget title={t('filters.filterByPrice')}>
       <div className="px-1 pt-2">
         <PriceRange min={min} max={max} value={range} onChange={setRange} />
       </div>
       <div className="mt-7 flex items-center justify-between gap-4">
         <p className="font-serif text-sm font-medium text-ink uppercase">
-          Price: ${range[0]} — ${range[1]}
+          {t('filters.price', { min: range[0], max: range[1] })}
         </p>
         <button
           type="button"
           onClick={() => setFilter({ minPrice: range[0] > min ? range[0] : '', maxPrice: range[1] < max ? range[1] : '' })}
           className="btn-cos h-10 px-[33px]"
         >
-          Filter
+          {t('common.filter')}
         </button>
       </div>
     </Widget>
@@ -79,6 +82,7 @@ function PriceWidget({ filters, setFilter }) {
 
 /** Shop sidebar: search, categories, price filter, newest products, tags and a promo picture. */
 export default function FilterSidebar({ filters, setFilter }) {
+  const { t } = useTranslation();
   const { data: categories = [] } = useCategories();
   const { data: options } = useFilterOptions();
   const { data: newest } = useProducts({ sort: 'newest', limit: 3 });
@@ -93,7 +97,7 @@ export default function FilterSidebar({ filters, setFilter }) {
     <div>
       <SearchWidget value={filters.search} onSearch={(q) => setFilter('search', q)} />
 
-      <Widget title="Categories">
+      <Widget title={t('filters.categories')}>
         <ul>
           {categories
             .filter((c) => !c.parent)
@@ -121,7 +125,7 @@ export default function FilterSidebar({ filters, setFilter }) {
 
       <PriceWidget filters={filters} setFilter={setFilter} />
 
-      <Widget title="Meet New Arrivals">
+      <Widget title={t('filters.newArrivals')}>
         <div className="space-y-[30px]">
           {newest?.products.map((p) => (
             <MiniProduct key={p._id} product={p} size="sm" />
@@ -129,7 +133,7 @@ export default function FilterSidebar({ filters, setFilter }) {
         </div>
       </Widget>
 
-      <Widget title="Product tags">
+      <Widget title={t('filters.tags')}>
         <div className="-mx-[5px] flex flex-wrap">
           {(options?.tags || []).map((t) => {
             const active = selectedTags.includes(t.name);

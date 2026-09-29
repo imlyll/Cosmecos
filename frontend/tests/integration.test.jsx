@@ -1,11 +1,13 @@
 /* Drives the storefront's real hooks against the real API (in-memory MongoDB, started in globalSetup). */
 import { beforeAll, describe, expect, inject, it } from 'vitest';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { api, http } from '../src/lib/api';
 import { useAuthStore } from '../src/store/auth';
 import { useUIStore } from '../src/store/ui';
-import { useChangePassword, useLogin, useLogout, useRegister } from '../src/hooks/useAuth';
+import { useChangePassword, useLogin, useLogout, useRegister, useResendOtp, useVerifyOtp } from '../src/hooks/useAuth';
+import i18n, { errorMessage } from '../src/i18n';
+import OtpForm from '../src/components/auth/OtpForm';
 import { useAddToCart, useCart, useRemoveCartItem, useUpdateCartItem } from '../src/hooks/useCart';
 import { useToggleWishlist, useWishlist } from '../src/hooks/useWishlist';
 import { useCancelOrder, useOrders, usePlaceOrder } from '../src/hooks/useOrders';
@@ -32,11 +34,26 @@ function setup(hook) {
   return { qc, ...renderHook(hook, { wrapper }) };
 }
 
+/** The code the API would have emailed (read from the test server's captured mail). */
+async function otpFor(email) {
+  const res = await fetch(`${backend.url}/__test__/otp/${encodeURIComponent(email)}`);
+  return (await res.json()).code;
+}
+
 let n = 0;
+const newEmail = () => `shopper${Date.now()}${n++}@test.com`;
+
+/** Registers, then verifies the emailed code, which signs the new customer in. */
 async function registerFresh() {
-  const email = `shopper${Date.now()}${n++}@test.com`;
-  const { result } = setup(() => useRegister());
-  await act(() => result.current.mutateAsync({ name: 'Shopper Test', email, password: 'Secret123' }));
+  const email = newEmail();
+  const { result } = setup(() => ({ register: useRegister(), verify: useVerifyOtp() }));
+  const pending = await act(() =>
+    result.current.register.mutateAsync({ name: 'Shopper Test', email, password: 'Secret123' })
+  );
+  expect(pending).toMatchObject({ requiresVerification: true, email });
+  expect(useAuthStore.getState().token).toBeNull();
+  const code = await otpFor(email);
+  await act(() => result.current.verify.mutateAsync({ email, code }));
   return email;
 }
 
@@ -118,6 +135,138 @@ describe('Auth flow', () => {
     await registerFresh();
     act(() => useUIStore.getState().runPendingAction());
     expect(ran).toBe(1);
+  });
+});
+
+describe('Email verification (OTP)', () => {
+  it('an unverified account cannot sign in; wrong codes fail; the right code signs in', async () => {
+    const email = newEmail();
+    const { result } = setup(() => ({
+      register: useRegister(),
+      login: useLogin(),
+      verify: useVerifyOtp(),
+      resend: useResendOtp(),
+    }));
+    const pending = await act(() =>
+      result.current.register.mutateAsync({ name: 'Pending User', email, password: 'Secret123' })
+    );
+    expect(pending.resendAvailableIn).toBeGreaterThan(0);
+    expect(useAuthStore.getState().token).toBeNull();
+
+    await expect(act(() => result.current.login.mutateAsync({ email, password: 'Secret123' }))).rejects.toMatchObject({
+      status: 403,
+      code: 'EMAIL_NOT_VERIFIED',
+      data: expect.objectContaining({ email }),
+    });
+    expect(useAuthStore.getState().token).toBeNull();
+
+    await expect(act(() => result.current.resend.mutateAsync({ email }))).rejects.toMatchObject({
+      status: 429,
+      code: 'OTP_COOLDOWN',
+    });
+
+    const code = await otpFor(email);
+    const wrong = code === '000000' ? '111111' : '000000';
+    let err;
+    try {
+      await act(() => result.current.verify.mutateAsync({ email, code: wrong }));
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toMatchObject({ status: 400, code: 'OTP_INVALID' });
+    expect(errorMessage(err)).toMatch(/^Incorrect code.*attempts left\.$/);
+
+    await new Promise((r) => setTimeout(r, 1100)); // test server cooldown is 1s
+    await act(() => result.current.resend.mutateAsync({ email }));
+    const fresh = await otpFor(email);
+    await act(() => result.current.verify.mutateAsync({ email, code: fresh }));
+    expect(useAuthStore.getState().user).toMatchObject({ email, isVerified: true });
+    expect((await api('/auth/me')).user.email).toBe(email);
+  });
+
+  it('OtpForm: pasting the code fills every box and submits it', async () => {
+    const email = newEmail();
+    await api('/auth/register', { method: 'POST', body: { name: 'Paste Test', email, password: 'Secret123' } });
+    const code = await otpFor(email);
+    let done = 0;
+    const qc = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+    render(
+      <QueryClientProvider client={qc}>
+        <OtpForm email={email} resendAvailableIn={30} onSuccess={() => done++} />
+      </QueryClientProvider>
+    );
+
+    const boxes = screen.getAllByRole('textbox');
+    expect(boxes).toHaveLength(6);
+    expect(screen.getByText(/Resend in 0:(30|29)/)).toBeTruthy();
+    fireEvent.paste(boxes[0], { clipboardData: { getData: () => ` ${code.slice(0, 3)}-${code.slice(3)} ` } });
+    expect(boxes.map((b) => b.value).join('')).toBe(code);
+    await waitFor(() => expect(done).toBe(1));
+    expect(useAuthStore.getState().user.email).toBe(email);
+  });
+
+  it('OtpForm: typing advances focus and a wrong code clears the boxes', async () => {
+    const email = newEmail();
+    await api('/auth/register', { method: 'POST', body: { name: 'Type Test', email, password: 'Secret123' } });
+    const code = await otpFor(email);
+    const wrong = code === '000000' ? '111111' : '000000';
+    const qc = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+    render(
+      <QueryClientProvider client={qc}>
+        <OtpForm email={email} onSuccess={() => {}} />
+      </QueryClientProvider>
+    );
+    const boxes = screen.getAllByRole('textbox');
+    for (let i = 0; i < 6; i++) {
+      expect(document.activeElement).toBe(boxes[i]);
+      fireEvent.change(boxes[i], { target: { value: wrong[i] } });
+    }
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    await waitFor(() => expect(boxes.map((b) => b.value).join('')).toBe(''));
+    expect(useAuthStore.getState().token).toBeNull();
+  });
+});
+
+describe('Translations', () => {
+  const keys = (obj, prefix = '') =>
+    Object.entries(obj).flatMap(([k, v]) => (typeof v === 'object' ? keys(v, `${prefix}${k}.`) : [`${prefix}${k}`]));
+  // Plural suffixes differ by language (Russian has _few/_many), so compare the base keys.
+  const base = (list) => [...new Set(list.map((k) => k.replace(/_(zero|one|two|few|many|other)$/, '')))].sort();
+
+  it('az, en and ru define the same keys', () => {
+    const [en, az, ru] = ['en', 'az', 'ru'].map((l) => base(keys(i18n.getResourceBundle(l, 'translation'))));
+    expect(az).toEqual(en);
+    expect(ru).toEqual(en);
+  });
+
+  it('switching language translates UI text and error codes and is remembered', async () => {
+    try {
+      await act(() => i18n.changeLanguage('ru'));
+      expect(i18n.t('common.addToCart')).toBe('В корзину');
+      expect(errorMessage({ code: 'OTP_EXPIRED', status: 400, message: 'x' })).toMatch(/истёк/);
+      expect(localStorage.getItem('cosmecos-lang')).toBe('ru');
+      expect(document.documentElement.lang).toBe('ru');
+      await act(() => i18n.changeLanguage('az'));
+      expect(i18n.t('nav.shop')).toBe('Mağaza');
+      expect(errorMessage({ status: 400, message: 'Server text' })).toBe('Server text');
+    } finally {
+      await act(() => i18n.changeLanguage('en'));
+    }
+  });
+
+  it('the email is requested in the current language', async () => {
+    const email = newEmail();
+    try {
+      await act(() => i18n.changeLanguage('az'));
+      const { result } = setup(() => useRegister());
+      await act(() => result.current.mutateAsync({ name: 'Dil Test', email, password: 'Secret123' }));
+    } finally {
+      await act(() => i18n.changeLanguage('en'));
+    }
+    const res = await fetch(`${backend.url}/__test__/otp/${encodeURIComponent(email)}`);
+    const mail = await res.json();
+    expect(mail.code).toMatch(/^\d{6}$/);
+    expect(mail.subject).toMatch(/Cosmecos təsdiq kodunuz/);
   });
 });
 

@@ -13,15 +13,16 @@ import { EmptyState, ErrorState, ProductCardSkeleton } from '../components/ui/Fe
 import { useCategories, useProducts } from '../hooks/useCatalog';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { EASE } from '../lib/motion';
+import { useTranslation } from 'react-i18next';
 
-// WooCommerce-style sort menu; "Default sorting" is alphabetical like the demo catalogue.
+// WooCommerce-style sort menu; "Default sorting" is alphabetical like the demo catalogue. Labels are translation keys.
 const SORT_OPTIONS = [
-  { value: 'name_asc', label: 'Default sorting' },
-  { value: 'best_selling', label: 'Sort by popularity' },
-  { value: 'rating', label: 'Sort by average rating' },
-  { value: 'newest', label: 'Sort by latest' },
-  { value: 'price_asc', label: 'Sort by price: low to high' },
-  { value: 'price_desc', label: 'Sort by price: high to low' },
+  { value: 'name_asc', label: 'shop.sort.default' },
+  { value: 'best_selling', label: 'shop.sort.popularity' },
+  { value: 'rating', label: 'shop.sort.rating' },
+  { value: 'newest', label: 'shop.sort.latest' },
+  { value: 'price_asc', label: 'shop.sort.priceAsc' },
+  { value: 'price_desc', label: 'shop.sort.priceDesc' },
 ];
 
 const FILTER_KEYS = ['category', 'search', 'minPrice', 'maxPrice', 'tags', 'onSale'];
@@ -79,6 +80,7 @@ function ProductRow({ product }) {
 }
 
 export default function Shop() {
+  const { t } = useTranslation();
   const [params, setParams] = useSearchParams();
   const [view, setView] = useState('grid');
   const { data: categories = [] } = useCategories();
@@ -109,7 +111,7 @@ export default function Shop() {
   };
 
   const category = categories.find((c) => c.slug === filters.category);
-  useDocumentTitle(category?.name || 'Shop');
+  useDocumentTitle(category?.name || t('nav.shop'));
 
   const hasFilters = FILTER_KEYS.some((k) => filters[k]);
   const clearAll = () => setParams(filters.sort ? { sort: filters.sort } : {}, { preventScrollReset: true });
@@ -122,7 +124,7 @@ export default function Shop() {
   return (
     <>
       <PageHero
-        title={category?.name || (filters.search ? 'Search Results' : 'Shop Catalog')}
+        title={category?.name || (filters.search ? t('shop.searchResults') : t('shop.title'))}
         image={HERO_IMAGES.beauty}
       />
 
@@ -134,15 +136,15 @@ export default function Shop() {
               <p className="font-serif text-sm font-bold tracking-[0.05em] text-ink uppercase" aria-live="polite">
                 {pagination?.total
                   ? pagination.total <= PAGE_SIZE && page === 1
-                    ? `Showing all ${pagination.total} results`
-                    : `Showing ${from}–${to} of ${pagination.total} results`
+                    ? t('shop.showingAll', { count: pagination.total })
+                    : t('shop.showingRange', { from, to, total: pagination.total })
                   : isLoading
-                    ? 'Loading…'
-                    : 'No results'}
+                    ? t('common.loading')
+                    : t('shop.noResults')}
               </p>
               <div className="flex items-center gap-10">
                 <label className="relative block">
-                  <span className="sr-only">Sort products</span>
+                  <span className="sr-only">{t('shop.sortLabel')}</span>
                   <select
                     value={sort}
                     onChange={(e) => setFilter('sort', e.target.value === 'name_asc' ? '' : e.target.value)}
@@ -150,7 +152,7 @@ export default function Shop() {
                   >
                     {SORT_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>
-                        {o.label}
+                        {t(o.label)}
                       </option>
                     ))}
                   </select>
@@ -159,7 +161,7 @@ export default function Shop() {
                     strokeWidth={1.5}
                   />
                 </label>
-                <div className="flex items-center gap-2" role="group" aria-label="View">
+                <div className="flex items-center gap-2" role="group" aria-label={t('shop.view')}>
                   {[
                     { id: 'grid', Icon: GridIcon },
                     { id: 'list', Icon: ListIcon },
@@ -169,7 +171,7 @@ export default function Shop() {
                       type="button"
                       onClick={() => setView(id)}
                       aria-pressed={view === id}
-                      aria-label={`${id} view`}
+                      aria-label={t(`shop.${id}View`)}
                       className={clsx('grid size-6 place-items-center', view === id ? 'text-ink' : 'text-[#b1b0b0] hover:text-ink')}
                     >
                       <Icon />
@@ -188,7 +190,7 @@ export default function Shop() {
                   exit={{ opacity: 0, height: 0 }}
                 >
                   <button type="button" onClick={clearAll} className="link-underline font-serif font-semibold text-rose uppercase">
-                    Clear filters
+                    {t('shop.clearFilters')}
                   </button>
                 </motion.p>
               )}
@@ -200,8 +202,8 @@ export default function Shop() {
               ) : !isLoading && products.length === 0 ? (
                 <EmptyState
                   icon={SearchX}
-                  title="No products found"
-                  text="Try adjusting your filters or search for something else."
+                  title={t('shop.emptyTitle')}
+                  text={t('shop.emptyText')}
                 />
               ) : view === 'grid' ? (
                 <ProductGrid products={products} loading={isLoading} columns={3} skeletons={9} />
@@ -217,7 +219,7 @@ export default function Shop() {
             {pagination && <Pagination page={pagination.page} pages={pagination.pages} onChange={goToPage} />}
           </div>
 
-          <aside aria-label="Shop sidebar">
+          <aside aria-label={t('filters.sidebar')}>
             <FilterSidebar filters={filters} setFilter={setFilter} />
           </aside>
         </div>
