@@ -18,7 +18,7 @@ export default function AboutSection() {
         src="/images/about-bg-1-2.jpg"
         alt=""
         aria-hidden
-        className="pointer-events-none absolute top-[230px] left-0 hidden w-[160px] lg:block dark:hidden"
+        className="pointer-events-none absolute top-[230px] left-0 hidden w-[160px] lg:block"
       />
       <div className="container-luxe grid items-center gap-16 lg:grid-cols-[570px_1fr] lg:gap-[126px]">
         <Reveal className="relative">

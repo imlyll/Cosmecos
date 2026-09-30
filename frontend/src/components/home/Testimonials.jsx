@@ -26,7 +26,7 @@ export default function Testimonials() {
 
   return (
     <section
-      className="bg-[#e9e9e9] bg-cover bg-right py-[100px] max-md:py-16 dark:bg-[#4a4541] dark:bg-blend-multiply"
+      className="bg-[#e9e9e9] bg-cover bg-right py-[100px] max-md:py-16"
       style={{ backgroundImage: 'url(/images/home1-bg-8.jpg)' }}
     >
       <div className="container-luxe">

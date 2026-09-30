@@ -34,10 +34,12 @@ export const http = axios.create({
 http.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
   if (token) config.headers.Authorization = `Bearer ${token}`;
-  // The API returns product/category text and error messages in this language. The admin panel
-  // always works on the original (English) fields, so it never sends one.
-  const inAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
-  if (!inAdmin) config.headers['X-Language'] = i18n.resolvedLanguage || i18n.language;
+  // The API answers error messages and product/category text in this language. The admin panel edits
+  // the original fields, so it asks for those; its messages still follow the chosen language.
+  config.headers['X-Language'] = i18n.resolvedLanguage || i18n.language;
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
+    config.headers['X-Content-Original'] = '1';
+  }
   return config;
 });
 

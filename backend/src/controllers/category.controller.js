@@ -17,7 +17,7 @@ async function listCategories(req, res) {
   const countMap = new Map(counts.map((c) => [String(c._id), c.count]));
   res.json({
     success: true,
-    categories: categories.map((c) => ({ ...localizeCategory(c, req.lang), productCount: countMap.get(String(c._id)) || 0 })),
+    categories: categories.map((c) => ({ ...localizeCategory(c, req.contentLang), productCount: countMap.get(String(c._id)) || 0 })),
   });
 }
 
@@ -25,7 +25,7 @@ async function listCategories(req, res) {
 async function getCategory(req, res) {
   const category = await findByIdOrSlug(req.validatedParams.idOrSlug);
   if (!category) throw ApiError.notFound('Category not found');
-  res.json({ success: true, category: localizeCategory(category, req.lang) });
+  res.json({ success: true, category: localizeCategory(category, req.contentLang) });
 }
 
 // POST /api/categories  (admin)

@@ -2,7 +2,8 @@
  * Azerbaijani and Russian versions of the API error messages that shoppers can see (toasts, form errors).
  * Errors are thrown in English throughout the code; the error handler translates them for the request's
  * language (req.lang). Messages not listed here, e.g. admin-only ones, stay in English.
- * Each entry: [English text or RegExp, az, ru]; for a RegExp, $1… refer to its capture groups.
+ * Each entry: [English text or RegExp, az, ru]; for a RegExp, $1… refer to its capture groups, or the
+ * translation is a function (match, statusTranslator) => string.
  */
 const MESSAGES = [
   ['Validation failed', 'Məlumatlar yanlışdır', 'Проверьте введённые данные'],
@@ -44,7 +45,41 @@ const MESSAGES = [
   ['Order not found', 'Sifariş tapılmadı', 'Заказ не найден'],
   ['Only pending or processing orders can be cancelled', 'Yalnız gözləmədə və ya hazırlanmaqda olan sifarişlər ləğv edilə bilər', 'Отменить можно только ожидающие или обрабатываемые заказы'],
   ['Internal server error', 'Serverdə xəta baş verdi', 'Внутренняя ошибка сервера'],
+
+  // Admin panel
+  ['User not found', 'İstifadəçi tapılmadı', 'Пользователь не найден'],
+  ['Category not found', 'Kateqoriya tapılmadı', 'Категория не найдена'],
+  ['Category does not exist', 'Belə kateqoriya yoxdur', 'Такой категории не существует'],
+  ['A category cannot be its own parent', 'Kateqoriya özünün ana kateqoriyası ola bilməz', 'Категория не может быть родителем самой себя'],
+  ['Image not found', 'Şəkil tapılmadı', 'Изображение не найдено'],
+  ['Coupon not found', 'Kupon tapılmadı', 'Промокод не найден'],
+  ['Message not found', 'Mesaj tapılmadı', 'Сообщение не найдено'],
+  ['You cannot change your own role or status', 'Öz rolunuzu və ya statusunuzu dəyişə bilməzsiniz', 'Нельзя изменить собственную роль или статус'],
+  ['Order was modified by someone else, please reload', 'Sifariş başqa biri tərəfindən dəyişdirilib, səhifəni yeniləyin', 'Заказ был изменён другим пользователем, обновите страницу'],
+  ['compareAtPrice must be greater than or equal to price', 'Köhnə qiymət cari qiymətdən az olmamalıdır', 'Старая цена должна быть не ниже текущей'],
+  [/^Order is already (\w+)$/, (m, s) => `Sifariş artıq "${s(m[1])}" statusundadır`, (m, s) => `Заказ уже в статусе «${s(m[1])}»`],
+  [
+    /^Cannot change status from (\w+) to (\w+)\. Allowed: (.+)$/,
+    (m, s) => `Status "${s(m[1])}" → "${s(m[2])}" dəyişdirilə bilməz. İcazə verilən: ${s.list(m[3])}`,
+    (m, s) => `Нельзя изменить статус «${s(m[1])}» на «${s(m[2])}». Допустимо: ${s.list(m[3])}`,
+  ],
+  [/^Unsupported file type: (\S+)\. Use JPEG, PNG, WebP or AVIF\.$/, 'Dəstəklənməyən fayl növü: $1. JPEG, PNG, WebP və ya AVIF istifadə edin.', 'Неподдерживаемый тип файла: $1. Используйте JPEG, PNG, WebP или AVIF.'],
+  ['Upload error: File too large', 'Yükləmə xətası: fayl 5 MB-dan böyükdür', 'Ошибка загрузки: файл больше 5 МБ'],
+  [/^Upload error: (.+)$/, 'Yükləmə xətası: $1', 'Ошибка загрузки: $1'],
 ];
+
+// Order statuses as they appear inside messages.
+const STATUS = {
+  az: { Pending: 'Gözləmədə', Processing: 'Hazırlanır', Shipped: 'Göndərilib', Delivered: 'Çatdırılıb', Cancelled: 'Ləğv edilib', none: 'yoxdur' },
+  ru: { Pending: 'Ожидает', Processing: 'В обработке', Shipped: 'Отправлен', Delivered: 'Доставлен', Cancelled: 'Отменён', none: 'нет' },
+};
+
+/** Status translator passed to function templates: s('Shipped'), s.list('Shipped, Cancelled'). */
+function statusHelper(lang) {
+  const s = (name) => STATUS[lang]?.[name] || name;
+  s.list = (text) => text.split(/,\s*/).map(s).join(', ');
+  return s;
+}
 
 const INDEX = { az: 1, ru: 2 };
 
@@ -58,7 +93,10 @@ function translateMessage(message, lang) {
       if (source === message) return entry[col];
     } else {
       const m = message.match(source);
-      if (m) return entry[col].replace(/\$(\d)/g, (_, n) => m[Number(n)] ?? '');
+      if (!m) continue;
+      const template = entry[col];
+      if (typeof template === 'function') return template(m, statusHelper(lang));
+      return template.replace(/\$(\d)/g, (_, n) => m[Number(n)] ?? '');
     }
   }
   return message;

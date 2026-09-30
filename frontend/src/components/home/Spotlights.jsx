@@ -52,7 +52,7 @@ export default function Spotlights() {
               <p className="font-serif text-xl leading-7 text-ink">Ann Gray</p>
               <p className="font-serif text-sm font-bold text-mute uppercase">{t('home.spotlights.founder')}</p>
             </div>
-            <img src="/images/sign-2.png" alt="" aria-hidden className="h-[60px] w-auto dark:invert" />
+            <img src="/images/sign-2.png" alt="" aria-hidden className="h-[60px] w-auto" />
           </Reveal>
         </div>
         <Reveal className="relative">

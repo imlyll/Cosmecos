@@ -53,8 +53,8 @@ export default function AuthPage({ mode }) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.6, ease: EASE }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent" />
-        <p className="absolute right-12 bottom-12 left-12 font-script text-5xl leading-tight text-[#fff]">
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent" />
+        <p className="absolute right-12 bottom-12 left-12 font-script text-5xl leading-tight text-white">
           {isLogin ? t('auth.quoteLogin') : t('auth.quoteRegister')}
         </p>
       </div>

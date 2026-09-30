@@ -59,7 +59,7 @@ export default function SidePanel() {
   return createPortal(
     <AnimatePresence>
       {panelOpen && (
-        <div className="theme-light fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label={t('a11y.information')}>
+        <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label={t('a11y.information')}>
           <motion.div
             className="absolute inset-0 bg-black/50"
             onClick={close}

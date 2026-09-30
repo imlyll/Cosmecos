@@ -1,6 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '../lib/api';
+import i18n from '../i18n';
 
 // Mirrors the API's allowed order status moves (backend admin.controller TRANSITIONS).
 export const ORDER_TRANSITIONS = {
@@ -76,29 +77,35 @@ export const useSaveProduct = () =>
   useAdminMutation(
     ({ id, body, onUploadProgress }) =>
       api(id ? `/products/${id}` : '/products', { method: id ? 'PUT' : 'POST', body, onUploadProgress }),
-    (_d, { id }) => (id ? 'Product updated successfully' : 'Product created successfully')
+    (_d, { id }) => i18n.t(id ? 'admin.toast.productUpdated' : 'admin.toast.productCreated')
   );
 
 export const useToggleProductActive = () =>
   useAdminMutation(
     ({ product }) => api(`/products/${product._id}`, { method: 'PUT', body: { isActive: !product.isActive } }),
-    (_d, { product }) => `${product.name} is now ${product.isActive ? 'hidden from' : 'visible in'} the shop`
+    (_d, { product }) => i18n.t(product.isActive ? 'admin.toast.nowHidden' : 'admin.toast.nowVisible', { name: product.name })
   );
 
 export const useDeleteProduct = () =>
-  useAdminMutation(({ id }) => api(`/products/${id}`, { method: 'DELETE' }), (_d, { name }) => `${name} deleted`);
+  useAdminMutation(
+    ({ id }) => api(`/products/${id}`, { method: 'DELETE' }),
+    (_d, { name }) => i18n.t('admin.toast.deleted', { name })
+  );
 
 export const useUpdateOrderStatus = () =>
   useAdminMutation(
     ({ id, ...body }) => api(`/admin/orders/${id}/status`, { method: 'PATCH', body }),
-    (d) => `Order ${d.order.orderNumber} marked ${d.order.status}`
+    (d) => i18n.t('admin.toast.orderStatus', { number: d.order.orderNumber, status: i18n.t(`orderStatus.${d.order.status}`) })
   );
 
 export const useUpdatePayment = () =>
   useAdminMutation(
     ({ id, isPaid }) => api(`/admin/orders/${id}/payment`, { method: 'PATCH', body: { isPaid } }),
-    (d) => `Order ${d.order.orderNumber} marked ${d.order.isPaid ? 'paid' : 'unpaid'}`
+    (d) => i18n.t(d.order.isPaid ? 'admin.toast.orderPaid' : 'admin.toast.orderUnpaid', { number: d.order.orderNumber })
   );
 
 export const useUpdateUser = () =>
-  useAdminMutation(({ id, ...body }) => api(`/admin/users/${id}`, { method: 'PATCH', body }), (d) => `${d.user.name} updated`);
+  useAdminMutation(
+    ({ id, ...body }) => api(`/admin/users/${id}`, { method: 'PATCH', body }),
+    (d) => i18n.t('admin.toast.userUpdated', { name: d.user.name })
+  );

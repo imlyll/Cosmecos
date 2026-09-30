@@ -2,20 +2,18 @@ import { Link } from 'react-router';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 
-/** The spaced "COSMECOS." wordmark: white on dark backgrounds, otherwise black (white in dark mode). */
+/** The spaced "COSMECOS." wordmark (dark, or white for dark backgrounds). */
 export function Logo({ light = false, className }) {
   const { t } = useTranslation();
-  const img = (src, cls) => <img src={src} alt="Cosmecos" width="143" height="15" className={clsx('h-[15px] w-[143px]', cls)} />;
   return (
     <Link to="/" aria-label={t('a11y.homeLink')} className={clsx('inline-flex shrink-0 items-center', className)}>
-      {light ? (
-        img('/images/logo_white.png')
-      ) : (
-        <>
-          {img('/images/logo_black.png', 'dark:hidden')}
-          {img('/images/logo_white.png', 'hidden dark:block')}
-        </>
-      )}
+      <img
+        src={light ? '/images/logo_white.png' : '/images/logo_black.png'}
+        alt="Cosmecos"
+        width="143"
+        height="15"
+        className="h-[15px] w-[143px]"
+      />
     </Link>
   );
 }

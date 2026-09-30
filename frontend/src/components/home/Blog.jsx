@@ -28,7 +28,7 @@ export default function Blog() {
                   className="aspect-[33/28] w-full object-cover transition-transform duration-[1.2s] ease-[var(--ease-luxe)] group-hover:scale-105"
                 />
               </div>
-              <span className="theme-light absolute top-[35px] left-0 bg-ink-soft px-[11px] font-sans text-sm leading-[30px] text-white uppercase">
+              <span className="absolute top-[35px] left-0 bg-ink-soft px-[11px] font-sans text-sm leading-[30px] text-white uppercase">
                 {t('home.blog.badge')}
               </span>
               <p className="mt-[30px] font-sans text-sm text-mute uppercase">

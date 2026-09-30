@@ -4,14 +4,14 @@ import clsx from 'clsx';
 import Reveal from '../ui/Reveal';
 
 /**
- * Dark "Find Your Beauty Guide" call to action (dark in both themes, so it keeps the light palette).
+ * Dark "Find Your Beauty Guide" call to action.
  * `boxed` (home) sits inside 30px side margins with the pink brush photo;
  * the full-width version closes the About page. `script` is a key under home.guide.
  */
 export default function BeautyGuide({ boxed = true, script = 'watermarkHome' }) {
   const { t } = useTranslation();
   return (
-    <section className={clsx('theme-light', boxed && 'px-4 sm:px-[30px]')}>
+    <section className={clsx(boxed && 'px-4 sm:px-[30px]')}>
       <div
         className={clsx(
           'relative overflow-hidden bg-[#2a2a2a] bg-no-repeat',

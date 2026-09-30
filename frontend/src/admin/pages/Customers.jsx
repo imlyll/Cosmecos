@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import Pagination from '../../components/ui/Pagination';
 import { ErrorState } from '../../components/ui/Feedback';
@@ -9,7 +10,9 @@ import { formatDate, formatPrice } from '../../lib/format';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 export default function Customers() {
-  useDocumentTitle('Customers · Admin');
+  const { t } = useTranslation();
+  const tc = (key, opts) => t(`admin.customers.${key}`, opts);
+  useDocumentTitle(t('admin.docTitle.customers'));
   const me = useAuthStore((s) => s.user);
   const [params, setParams] = useSearchParams();
   const q = { search: params.get('search') || '', role: params.get('role') || '', page: Number(params.get('page') || 1) };
@@ -27,18 +30,21 @@ export default function Customers() {
 
   return (
     <>
-      <PageHeader title="Customers" subtitle={data ? `${data.pagination.total} account${data.pagination.total === 1 ? '' : 's'}` : 'Loading…'} />
+      <PageHeader
+        title={tc('title')}
+        subtitle={data ? tc('count', { count: data.pagination.total }) : t('admin.common.loading')}
+      />
       <Card>
         <div className="grid gap-3 border-b border-line p-4 sm:grid-cols-[1fr_200px]">
-          <SearchInput value={q.search} onChange={(v) => set('search', v)} placeholder="Search name or email…" />
+          <SearchInput value={q.search} onChange={(v) => set('search', v)} placeholder={tc('searchPlaceholder')} />
           <Select
-            label="Role"
+            label={tc('role')}
             value={q.role}
             onChange={(v) => set('role', v)}
             options={[
-              { value: '', label: 'All roles' },
-              { value: 'user', label: 'Customers' },
-              { value: 'admin', label: 'Admins' },
+              { value: '', label: tc('allRoles') },
+              { value: 'user', label: tc('customersOption') },
+              { value: 'admin', label: tc('adminsOption') },
             ]}
           />
         </div>
@@ -49,19 +55,19 @@ export default function Customers() {
             <Table minWidth={820}>
               <thead>
                 <tr>
-                  <Th>Name</Th>
-                  <Th>Joined</Th>
-                  <Th className="text-right">Orders</Th>
-                  <Th className="text-right">Spent</Th>
-                  <Th>Role</Th>
-                  <Th>Account active</Th>
+                  <Th>{tc('col.name')}</Th>
+                  <Th>{tc('col.joined')}</Th>
+                  <Th className="text-right">{tc('col.orders')}</Th>
+                  <Th className="text-right">{tc('col.spent')}</Th>
+                  <Th>{tc('col.role')}</Th>
+                  <Th>{tc('col.active')}</Th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <SkeletonRows cols={6} />
                 ) : data.users.length === 0 ? (
-                  <EmptyRow cols={6}>No accounts found.</EmptyRow>
+                  <EmptyRow cols={6}>{tc('empty')}</EmptyRow>
                 ) : (
                   data.users.map((u) => {
                     const self = u._id === me?._id;
@@ -74,7 +80,7 @@ export default function Customers() {
                             </span>
                             <div className="min-w-0">
                               <p className="truncate font-medium">
-                                {u.name} {self && <span className="text-xs text-taupe">(you)</span>}
+                                {u.name} {self && <span className="text-xs text-taupe">{tc('you')}</span>}
                               </p>
                               <p className="truncate text-xs text-taupe">{u.email}</p>
                             </div>
@@ -85,29 +91,29 @@ export default function Customers() {
                         <Td className="text-right">{formatPrice(u.totalSpent)}</Td>
                         <Td>
                           {self ? (
-                            <Badge>Admin</Badge>
+                            <Badge tone="Admin" />
                           ) : (
                             <select
-                              aria-label={`Role for ${u.name}`}
+                              aria-label={tc('roleFor', { name: u.name })}
                               value={u.role}
                               disabled={busy(u._id)}
                               onChange={(e) => update.mutate({ id: u._id, role: e.target.value })}
                               className="h-9 border border-line bg-white px-2 text-sm outline-none focus:border-ink"
                             >
-                              <option value="user">Customer</option>
-                              <option value="admin">Admin</option>
+                              <option value="user">{tc('customer')}</option>
+                              <option value="admin">{tc('admin')}</option>
                             </select>
                           )}
                         </Td>
                         <Td>
                           <div className="flex items-center gap-3">
                             <Switch
-                              label={`${u.isActive ? 'Disable' : 'Enable'} ${u.name}`}
+                              label={tc(u.isActive ? 'disable' : 'enable', { name: u.name })}
                               checked={u.isActive}
                               disabled={self || busy(u._id)}
                               onChange={(isActive) => update.mutate({ id: u._id, isActive })}
                             />
-                            {!u.isActive && <Badge>Disabled</Badge>}
+                            {!u.isActive && <Badge tone="Disabled" />}
                           </div>
                         </Td>
                       </tr>

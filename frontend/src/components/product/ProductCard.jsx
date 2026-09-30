@@ -41,7 +41,7 @@ export function ProductImage({ product, to, size = 700, className, badge = true 
       </Link>
       <span className="frame-inset group-hover/img:inset-[22px]" aria-hidden />
       {badge && (onSale || !product.inStock) && (
-        <span className="theme-light pointer-events-none absolute top-[25px] left-0 bg-ink-soft px-3 font-serif text-[13px] leading-[30px] font-medium text-white uppercase">
+        <span className="pointer-events-none absolute top-[25px] left-0 bg-ink-soft px-3 font-serif text-[13px] leading-[30px] font-medium text-white uppercase">
           {product.inStock ? t('common.sale') : t('common.soldOut')}
         </span>
       )}

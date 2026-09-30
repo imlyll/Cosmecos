@@ -1,7 +1,9 @@
 /**
  * Catalog content localisation. English lives in the regular fields; Azerbaijani and Russian are optional
- * overrides in `translations.<lang>`. The storefront asks for a language with the `X-Language` header
- * (or `?lang=`); the admin panel sends none, so it always receives and edits the original fields.
+ * overrides in `translations.<lang>`. Clients send their UI language with the `X-Language` header
+ * (or `?lang=`). It picks the language of error messages (req.lang) and of catalog content
+ * (req.contentLang). The admin panel also sends `X-Content-Original: 1`, so it receives and edits the
+ * original fields while its messages still follow the admin's language.
  */
 const LANGS = ['en', 'az', 'ru'];
 const TRANSLATED_LANGS = ['az', 'ru'];
@@ -16,10 +18,11 @@ function requestLanguage(req) {
   return LANGS.includes(code) ? code : DEFAULT_LANG;
 }
 
-/** Sets req.lang for every request. */
+/** Sets req.lang (messages) and req.contentLang (catalog text) for every request. */
 function detectLanguage(req, res, next) {
   req.lang = requestLanguage(req);
-  res.vary('X-Language');
+  req.contentLang = /^(1|true)$/i.test(req.get('x-content-original') || '') ? DEFAULT_LANG : req.lang;
+  res.vary(['X-Language', 'X-Content-Original']);
   next();
 }
 

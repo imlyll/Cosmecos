@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { formatPrice } from '../lib/format';
+import { useTranslation } from 'react-i18next';
+import { formatDay, formatPrice } from '../lib/format';
 
 // Single-series magnitude chart. Bar colour validated with the dataviz palette checker
 // (lightness band, chroma floor, >= 3:1 against the white card surface).
@@ -34,9 +35,10 @@ function barPath(x, y, w, h) {
   return `M${x},${y + h} V${y + r} Q${x},${y} ${x + r},${y} H${x + w - r} Q${x + w},${y} ${x + w},${y + r} V${y + h} Z`;
 }
 
-const shortDate = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+const shortDate = (d) => formatDay(d, { year: false, utc: true });
 
 export default function SalesChart({ data = [], days = 30 }) {
+  const { t } = useTranslation();
   const wrapRef = useRef(null);
   const [width, setWidth] = useState(600);
   const [hover, setHover] = useState(null);
@@ -68,7 +70,7 @@ export default function SalesChart({ data = [], days = 30 }) {
   return (
     <div>
       <div ref={wrapRef} className="relative" onMouseLeave={() => setHover(null)}>
-        <svg width={width} height={HEIGHT} role="img" aria-label={`Daily revenue, last ${days} days. Total ${formatPrice(total)}.`}>
+        <svg width={width} height={HEIGHT} role="img" aria-label={t('admin.chart.aria', { days, total: formatPrice(total) })}>
           {ticks.map((t) => (
             <g key={t}>
               <line x1={PAD.left} x2={width - PAD.right} y1={y(t)} y2={y(t)} stroke={GRID} strokeWidth="1" />
@@ -111,24 +113,24 @@ export default function SalesChart({ data = [], days = 30 }) {
             className="pointer-events-none absolute top-0 -translate-x-1/2 border border-line bg-white px-3 py-2 text-xs shadow-lg"
             style={{ left: tipLeft }}
           >
-            <p className="text-taupe">{hovered.day.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })}</p>
+            <p className="text-taupe">{formatDay(hovered.day, { year: false, weekday: true, utc: true })}</p>
             <p className="mt-0.5 font-medium text-ink">{formatPrice(hovered.revenue)}</p>
             <p className="text-taupe">
-              {hovered.orders} order{hovered.orders === 1 ? '' : 's'}
+              {t('admin.chart.orders', { count: hovered.orders })}
             </p>
           </div>
         )}
       </div>
 
       <details className="mt-3 text-xs text-taupe">
-        <summary className="cursor-pointer select-none hover:text-ink">View as table</summary>
+        <summary className="cursor-pointer select-none hover:text-ink">{t('admin.chart.viewTable')}</summary>
         <div className="mt-2 max-h-60 overflow-y-auto">
           <table className="w-full text-left">
             <thead>
               <tr>
-                <th className="py-1 font-medium">Date</th>
-                <th className="py-1 text-right font-medium">Orders</th>
-                <th className="py-1 text-right font-medium">Revenue</th>
+                <th className="py-1 font-medium">{t('admin.chart.date')}</th>
+                <th className="py-1 text-right font-medium">{t('admin.chart.orders')}</th>
+                <th className="py-1 text-right font-medium">{t('admin.chart.revenue')}</th>
               </tr>
             </thead>
             <tbody>

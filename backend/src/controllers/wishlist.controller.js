@@ -7,7 +7,7 @@ const PRODUCT_FIELDS =
   'name slug brand price compareAtPrice images rating numReviews stock variants isActive translations.az.name translations.ru.name';
 
 async function sendWishlist(res, userId, extra = {}) {
-  const { lang } = res.req;
+  const lang = res.req.contentLang;
   const wishlist = await Wishlist.findOne({ user: userId }).populate({
     path: 'products',
     select: PRODUCT_FIELDS,

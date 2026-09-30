@@ -30,7 +30,7 @@ export function Drawer({ open, onClose, side = 'right', title, children, classNa
       {open && (
         <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label={title}>
           <motion.div
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -77,7 +77,7 @@ export function Modal({ open, onClose, children, className, label }) {
           aria-label={label}
         >
           <motion.div
-            className="absolute inset-0 bg-black/55 backdrop-blur-sm"
+            className="absolute inset-0 bg-ink/50 backdrop-blur-sm"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

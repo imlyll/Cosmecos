@@ -8,7 +8,7 @@ export default function AnnouncementBar() {
   if (pathname !== '/') return null;
 
   return (
-    <div className="theme-light bg-ink-soft px-4 text-white sm:px-6 lg:px-10">
+    <div className="bg-ink-soft px-4 text-white sm:px-6 lg:px-10">
       <p className="truncate py-[5px] font-serif text-[13px] leading-[30px] font-medium uppercase sm:text-[15px]">
         <span className="text-rose">{t('announcement.discount')}</span> {t('announcement.text')}{' '}
         <span className="text-rose">{t('announcement.code')}</span>

@@ -147,7 +147,7 @@ export default function Contacts() {
       <section className="container-luxe grid gap-14 py-[150px] text-center max-md:py-20 md:grid-cols-3">
         {info.map((item, i) => (
           <Reveal key={item.icon} delay={i * 0.1}>
-            <img src={item.icon} alt="" className="mx-auto h-[210px] w-[210px] object-contain dark:opacity-60" />
+            <img src={item.icon} alt="" className="mx-auto h-[210px] w-[210px] object-contain" />
             <h3 className="-mt-4 text-2xl font-normal">{item.title}</h3>
             <div className="mt-2">
               {item.lines.map((l) =>
@@ -164,12 +164,12 @@ export default function Contacts() {
         ))}
       </section>
 
-      <section aria-label={t('a11y.map')} className="h-[400px] bg-[#e2e2e2] md:h-[550px] dark:bg-beige">
+      <section aria-label={t('a11y.map')} className="h-[400px] bg-[#e2e2e2] md:h-[550px]">
         <iframe
           title={t('a11y.mapTitle')}
           src={`https://maps.google.com/maps?q=${mapQuery}&z=14&output=embed`}
           loading="lazy"
-          className="size-full border-0 grayscale dark:opacity-80 dark:invert-[0.9]"
+          className="size-full border-0 grayscale"
           referrerPolicy="no-referrer-when-downgrade"
         />
       </section>

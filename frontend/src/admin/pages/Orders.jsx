@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { Check, Eye } from 'lucide-react';
 import { Drawer } from '../../components/ui/Drawer';
@@ -9,12 +10,18 @@ import { ErrorState } from '../../components/ui/Feedback';
 import { Badge, Card, EmptyRow, PageHeader, SearchInput, Select, SkeletonRows, Switch, Table, Td, Th } from '../ui';
 import { ORDER_STATUSES, ORDER_TRANSITIONS, useAdminOrder, useAdminOrders, useUpdateOrderStatus, useUpdatePayment } from '../useAdmin';
 import { sizedImage } from '../../lib/api';
-import { formatDate, formatPrice } from '../../lib/format';
+import { formatDate, formatDateTime, formatPrice } from '../../lib/format';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
-const PAYMENT_LABELS = { cash_on_delivery: 'Cash on delivery', card: 'Card', paypal: 'PayPal' };
+/** Translated order status name. */
+function useStatusLabel() {
+  const { t } = useTranslation();
+  return (status) => t(`orderStatus.${status}`);
+}
 
 function StatusControl({ order }) {
+  const { t } = useTranslation();
+  const statusLabel = useStatusLabel();
   const next = ORDER_TRANSITIONS[order.status];
   const [status, setStatus] = useState(next[0] || '');
   const [note, setNote] = useState('');
@@ -27,7 +34,7 @@ function StatusControl({ order }) {
   }, [order.status]);
 
   if (!next.length) {
-    return <p className="text-sm text-taupe">This order is {order.status.toLowerCase()} — no further status changes are possible.</p>;
+    return <p className="text-sm text-taupe">{t('admin.orders.final', { status: statusLabel(order.status) })}</p>;
   }
 
   const submit = (e) => {
@@ -43,8 +50,8 @@ function StatusControl({ order }) {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
-        <p className="label-luxe">Move to</p>
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="New status">
+        <p className="label-luxe">{t('admin.orders.moveTo')}</p>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('admin.orders.newStatus')}>
           {next.map((s) => (
             <button
               key={s}
@@ -57,55 +64,73 @@ function StatusControl({ order }) {
                 status === s ? (s === 'Cancelled' ? 'border-danger bg-danger text-cream' : 'border-ink bg-ink text-cream') : 'border-line bg-white hover:border-ink'
               )}
             >
-              {status === s && <Check className="size-3.5" />} {s}
+              {status === s && <Check className="size-3.5" />} {statusLabel(s)}
             </button>
           ))}
         </div>
       </div>
       {status === 'Shipped' && (
         <label className="block">
-          <span className="label-luxe">Tracking number</span>
-          <input value={tracking} onChange={(e) => setTracking(e.target.value)} className="input-luxe" placeholder="e.g. 1Z999AA10123456784" />
+          <span className="label-luxe">{t('admin.orders.trackingNumber')}</span>
+          <input
+            value={tracking}
+            onChange={(e) => setTracking(e.target.value)}
+            className="input-luxe"
+            placeholder={t('admin.orders.trackingPlaceholder')}
+          />
         </label>
       )}
       <label className="block">
-        <span className="label-luxe">Note (optional)</span>
-        <input value={note} onChange={(e) => setNote(e.target.value)} className="input-luxe" maxLength={300} placeholder="Visible in the order history" />
+        <span className="label-luxe">{t('admin.orders.note')}</span>
+        <input
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          className="input-luxe"
+          maxLength={300}
+          placeholder={t('admin.orders.notePlaceholder')}
+        />
       </label>
-      {status === 'Cancelled' && <p className="text-xs text-danger">Cancelling returns all items to stock and releases any coupon use.</p>}
+      {status === 'Cancelled' && <p className="text-xs text-danger">{t('admin.orders.cancelWarning')}</p>}
       <Button type="submit" size="sm" loading={update.isPending} className="w-full">
-        Update status to {status}
+        {t('admin.orders.update', { status: statusLabel(status) })}
       </Button>
     </form>
   );
 }
 
 function OrderDrawer({ orderId, onClose }) {
+  const { t } = useTranslation();
+  const statusLabel = useStatusLabel();
   // Loaded by id (not from the list) so it stays open even if a status change moves it out of the current filter.
   const { data: order } = useAdminOrder(orderId);
   const payment = useUpdatePayment();
   return (
-    <Drawer open={Boolean(orderId)} onClose={onClose} title={order ? order.orderNumber : 'Loading…'} className="max-w-xl">
+    <Drawer
+      open={Boolean(orderId)}
+      onClose={onClose}
+      title={order ? order.orderNumber : t('admin.common.loading')}
+      className="max-w-xl"
+    >
       {order && (
         <div className="flex-1 space-y-8 overflow-y-auto px-6 py-6">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge>{order.status}</Badge>
-            <Badge>{order.isPaid ? 'Paid' : 'Unpaid'}</Badge>
-            <span className="text-sm text-taupe">Placed {formatDate(order.createdAt)}</span>
+            <Badge tone={order.status} />
+            <Badge tone={order.isPaid ? 'Paid' : 'Unpaid'} />
+            <span className="text-sm text-taupe">{t('admin.orders.placed', { date: formatDate(order.createdAt) })}</span>
           </div>
 
           <section>
-            <h3 className="label-luxe">Fulfilment</h3>
+            <h3 className="label-luxe">{t('admin.orders.fulfilment')}</h3>
             <StatusControl order={order} />
           </section>
 
           <section className="flex items-center justify-between gap-4 border-y border-line py-4">
             <div>
-              <p className="text-sm font-medium">Payment received</p>
-              <p className="text-xs text-taupe">{PAYMENT_LABELS[order.paymentMethod]}</p>
+              <p className="text-sm font-medium">{t('admin.orders.paymentReceived')}</p>
+              <p className="text-xs text-taupe">{t(`admin.orders.methods.${order.paymentMethod}`)}</p>
             </div>
             <Switch
-              label="Payment received"
+              label={t('admin.orders.paymentReceived')}
               checked={order.isPaid}
               disabled={payment.isPending}
               onChange={(isPaid) => payment.mutate({ id: order._id, isPaid })}
@@ -113,7 +138,7 @@ function OrderDrawer({ orderId, onClose }) {
           </section>
 
           <section>
-            <h3 className="label-luxe">Items</h3>
+            <h3 className="label-luxe">{t('admin.orders.items')}</h3>
             <ul className="divide-y divide-line border-y border-line">
               {order.items.map((item) => (
                 <li key={`${item.product}-${item.variantId}`} className="flex items-center gap-3 py-3">
@@ -130,23 +155,37 @@ function OrderDrawer({ orderId, onClose }) {
               ))}
             </ul>
             <dl className="mt-3 space-y-1 text-sm">
-              <div className="flex justify-between"><dt className="text-taupe">Subtotal</dt><dd>{formatPrice(order.itemsPrice)}</dd></div>
+              <div className="flex justify-between">
+                <dt className="text-taupe">{t('summary.subtotal')}</dt>
+                <dd>{formatPrice(order.itemsPrice)}</dd>
+              </div>
               {order.discount > 0 && (
-                <div className="flex justify-between text-rose"><dt>Discount ({order.couponCode})</dt><dd>−{formatPrice(order.discount)}</dd></div>
+                <div className="flex justify-between text-rose">
+                  <dt>
+                    {t('summary.discount')} ({order.couponCode})
+                  </dt>
+                  <dd>−{formatPrice(order.discount)}</dd>
+                </div>
               )}
-              <div className="flex justify-between"><dt className="text-taupe">Shipping</dt><dd>{order.shippingPrice ? formatPrice(order.shippingPrice) : 'Free'}</dd></div>
-              <div className="flex justify-between font-medium"><dt>Total</dt><dd>{formatPrice(order.totalPrice)}</dd></div>
+              <div className="flex justify-between">
+                <dt className="text-taupe">{t('summary.shipping')}</dt>
+                <dd>{order.shippingPrice ? formatPrice(order.shippingPrice) : t('summary.free')}</dd>
+              </div>
+              <div className="flex justify-between font-medium">
+                <dt>{t('summary.total')}</dt>
+                <dd>{formatPrice(order.totalPrice)}</dd>
+              </div>
             </dl>
           </section>
 
           <section className="grid gap-6 text-sm sm:grid-cols-2">
             <div>
-              <h3 className="label-luxe">Customer</h3>
-              <p className="font-medium">{order.user?.name || 'Deleted user'}</p>
+              <h3 className="label-luxe">{t('admin.orders.customer')}</h3>
+              <p className="font-medium">{order.user?.name || t('admin.orders.deletedUser')}</p>
               <p className="text-taupe">{order.user?.email}</p>
             </div>
             <div>
-              <h3 className="label-luxe">Ship to</h3>
+              <h3 className="label-luxe">{t('admin.orders.shipTo')}</h3>
               <p>{order.shippingAddress.fullName}</p>
               <p className="text-taupe">
                 {order.shippingAddress.line1}
@@ -162,24 +201,28 @@ function OrderDrawer({ orderId, onClose }) {
 
           {order.notes && (
             <section>
-              <h3 className="label-luxe">Customer note</h3>
+              <h3 className="label-luxe">{t('admin.orders.customerNote')}</h3>
               <p className="bg-beige p-3 text-sm">{order.notes}</p>
             </section>
           )}
 
           <section>
-            <h3 className="label-luxe">History</h3>
+            <h3 className="label-luxe">{t('admin.orders.history')}</h3>
             <ol className="relative space-y-4 border-l border-line pl-5">
               {[...order.statusHistory].reverse().map((h, i) => (
                 <li key={i} className="relative text-sm">
                   <span className="absolute top-1.5 -left-[25px] size-2.5 rounded-full bg-ink" />
-                  <p className="font-medium">{h.status}</p>
-                  <p className="text-xs text-taupe">{new Date(h.changedAt).toLocaleString()}</p>
+                  <p className="font-medium">{statusLabel(h.status)}</p>
+                  <p className="text-xs text-taupe">{formatDateTime(h.changedAt)}</p>
                   {h.note && <p className="mt-1 text-taupe">{h.note}</p>}
                 </li>
               ))}
             </ol>
-            {order.trackingNumber && <p className="mt-4 text-sm">Tracking: <span className="font-medium">{order.trackingNumber}</span></p>}
+            {order.trackingNumber && (
+              <p className="mt-4 text-sm">
+                {t('admin.orders.tracking')} <span className="font-medium">{order.trackingNumber}</span>
+              </p>
+            )}
           </section>
         </div>
       )}
@@ -188,7 +231,9 @@ function OrderDrawer({ orderId, onClose }) {
 }
 
 export default function Orders() {
-  useDocumentTitle('Orders · Admin');
+  const { t } = useTranslation();
+  const statusLabel = useStatusLabel();
+  useDocumentTitle(t('admin.docTitle.orders'));
   const [params, setParams] = useSearchParams();
   const [openId, setOpenId] = useState(null);
   const q = {
@@ -208,9 +253,12 @@ export default function Orders() {
 
   return (
     <>
-      <PageHeader title="Orders" subtitle={data ? `${data.pagination.total} order${data.pagination.total === 1 ? '' : 's'}` : 'Loading…'} />
+      <PageHeader
+        title={t('admin.orders.title')}
+        subtitle={data ? t('admin.orders.count', { count: data.pagination.total }) : t('admin.common.loading')}
+      />
 
-      <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Filter by status">
+      <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label={t('admin.orders.filterByStatus')}>
         {['', ...ORDER_STATUSES].map((s) => (
           <button
             key={s || 'all'}
@@ -223,19 +271,19 @@ export default function Orders() {
               q.status === s ? 'border-ink bg-ink text-cream' : 'border-line bg-white hover:border-ink'
             )}
           >
-            {s || 'All'}
+            {s ? statusLabel(s) : t('admin.orders.all')}
           </button>
         ))}
       </div>
 
       <Card>
         <div className="grid gap-3 border-b border-line p-4 sm:grid-cols-[1fr_200px]">
-          <SearchInput value={q.search} onChange={(v) => set('search', v)} placeholder="Search by order number…" />
+          <SearchInput value={q.search} onChange={(v) => set('search', v)} placeholder={t('admin.orders.searchPlaceholder')} />
           <Select
-            label="Status"
+            label={t('admin.orders.status')}
             value={q.status}
             onChange={(v) => set('status', v)}
-            options={[{ value: '', label: 'All statuses' }, ...ORDER_STATUSES.map((s) => ({ value: s, label: s }))]}
+            options={[{ value: '', label: t('admin.orders.allStatuses') }, ...ORDER_STATUSES.map((s) => ({ value: s, label: statusLabel(s) }))]}
           />
         </div>
 
@@ -246,21 +294,21 @@ export default function Orders() {
             <Table minWidth={860}>
               <thead>
                 <tr>
-                  <Th>Order</Th>
-                  <Th>Customer</Th>
-                  <Th>Date</Th>
-                  <Th className="text-right">Items</Th>
-                  <Th className="text-right">Total</Th>
-                  <Th>Payment</Th>
-                  <Th>Status</Th>
-                  <Th className="text-right">Manage</Th>
+                  <Th>{t('admin.orders.col.order')}</Th>
+                  <Th>{t('admin.orders.col.customer')}</Th>
+                  <Th>{t('admin.orders.col.date')}</Th>
+                  <Th className="text-right">{t('admin.orders.col.items')}</Th>
+                  <Th className="text-right">{t('admin.orders.col.total')}</Th>
+                  <Th>{t('admin.orders.col.payment')}</Th>
+                  <Th>{t('admin.orders.col.status')}</Th>
+                  <Th className="text-right">{t('admin.orders.col.manage')}</Th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <SkeletonRows cols={8} />
                 ) : data.orders.length === 0 ? (
-                  <EmptyRow cols={8}>No orders found.</EmptyRow>
+                  <EmptyRow cols={8}>{t('admin.orders.empty')}</EmptyRow>
                 ) : (
                   data.orders.map((o) => (
                     <tr key={o._id} className="cursor-pointer transition-colors hover:bg-cream" onClick={() => setOpenId(o._id)}>
@@ -273,10 +321,10 @@ export default function Orders() {
                       <Td className="text-right">{o.items.reduce((s, i) => s + i.quantity, 0)}</Td>
                       <Td className="text-right font-medium">{formatPrice(o.totalPrice)}</Td>
                       <Td>
-                        <Badge>{o.isPaid ? 'Paid' : 'Unpaid'}</Badge>
+                        <Badge tone={o.isPaid ? 'Paid' : 'Unpaid'} />
                       </Td>
                       <Td>
-                        <Badge>{o.status}</Badge>
+                        <Badge tone={o.status} />
                       </Td>
                       <Td className="text-right">
                         <button
@@ -287,7 +335,7 @@ export default function Orders() {
                           }}
                           className="inline-flex items-center gap-1.5 border border-line px-3 py-1.5 text-xs hover:border-ink"
                         >
-                          <Eye className="size-3.5" /> Manage
+                          <Eye className="size-3.5" /> {t('admin.orders.manage')}
                         </button>
                       </Td>
                     </tr>

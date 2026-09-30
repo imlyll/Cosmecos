@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import Framed from '../ui/Framed';
 import Reveal from '../ui/Reveal';
 
-// Colours are tuned to each photo, so they stay the same in both themes.
 const BANNERS = [
   { key: 'body', image: '/images/home1-banner-1-2.jpg', scriptColor: '#ffe5d5', titleColor: '#ffffff', to: '/shop?category=body-care' },
   { key: 'cosmetics', image: '/images/home1-banner-2-2.jpg', scriptColor: '#f7bb98', titleColor: '#1c1c1c', to: '/shop?category=cosmetics' },

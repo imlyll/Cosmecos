@@ -24,10 +24,11 @@ async function main() {
   const server = app.listen(0);
   const base = `http://127.0.0.1:${server.address().port}/api`;
 
-  const call = async (method, path, { token, body, form, lang } = {}) => {
+  const call = async (method, path, { token, body, form, lang, original } = {}) => {
     const headers = {};
     if (token) headers.Authorization = `Bearer ${token}`;
     if (lang) headers['X-Language'] = lang;
+    if (original) headers['X-Content-Original'] = '1';
     if (body) headers['Content-Type'] = 'application/json';
     const res = await fetch(base + path, { method, headers, body: form || (body && JSON.stringify(body)) });
     return { status: res.status, data: await res.json() };
@@ -282,6 +283,16 @@ async function main() {
     r = await call('GET', '/products?category=lips', { lang: 'xx' });
     assert.equal(r.data.products[0].name, 'Velvet Lipstick', 'unknown languages use English');
     step('catalog text is served in the requested language (X-Language), English otherwise');
+
+    // The admin panel: UI language for messages, original fields for editing.
+    r = await call('GET', `/products/${lipstick.slug}`, { token: adminToken, lang: 'az', original: true });
+    assert.equal(r.data.product.name, 'Velvet Lipstick');
+    assert.equal(r.data.product.translations.az.name, 'Məxməri dodaq boyası');
+    r = await call('PUT', `/products/${lipstick._id}`, { token: adminToken, lang: 'ru', original: true, body: { price: 10, compareAtPrice: 5 } });
+    assert.equal(r.status, 400);
+    assert.equal(r.data.message, 'Проверьте введённые данные');
+    assert.equal(r.data.errors[0].message, 'Старая цена должна быть не ниже текущей');
+    step('admin requests (X-Content-Original) get original fields with translated messages');
 
     r = await call('POST', '/auth/login', { body: { email: 'leyla@test.com', password: 'Wrong123' }, lang: 'ru' });
     assert.equal(r.data.message, 'Неверный e-mail или пароль');

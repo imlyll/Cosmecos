@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ImagePlus, Link2, UploadCloud, X } from 'lucide-react';
 import clsx from 'clsx';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { sizedImage } from '../lib/api';
 
 export const MAX_IMAGES = 8;
@@ -17,6 +18,7 @@ const TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
  *  files: new File uploads [{ id, file, preview }], urls: external image URLs [{ id, url }].
  */
 export default function ImageUploader({ existing = [], removedIds, onToggleRemove, files, setFiles, urls, setUrls }) {
+  const { t } = useTranslation();
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
   const [urlInput, setUrlInput] = useState('');
@@ -34,11 +36,11 @@ export default function ImageUploader({ existing = [], removedIds, onToggleRemov
     const accepted = [];
     for (const file of incoming) {
       if (!TYPES.includes(file.type)) {
-        toast.error(`${file.name}: use JPEG, PNG, WebP or AVIF`);
+        toast.error(t('admin.images.badType', { name: file.name }));
       } else if (file.size > MAX_SIZE) {
-        toast.error(`${file.name} is larger than 5 MB`);
+        toast.error(t('admin.images.tooLarge', { name: file.name }));
       } else if (count + accepted.length >= MAX_IMAGES) {
-        toast.error(`A product can have at most ${MAX_IMAGES} images`);
+        toast.error(t('admin.images.tooMany', { max: MAX_IMAGES }));
         break;
       } else {
         accepted.push({ id: uid(), file, preview: URL.createObjectURL(file) });
@@ -60,10 +62,10 @@ export default function ImageUploader({ existing = [], removedIds, onToggleRemov
       const u = new URL(value);
       if (!/^https?:$/.test(u.protocol)) throw new Error();
     } catch {
-      toast.error('Enter a valid http(s) image URL');
+      toast.error(t('admin.images.badUrl'));
       return;
     }
-    if (count >= MAX_IMAGES) return toast.error(`A product can have at most ${MAX_IMAGES} images`);
+    if (count >= MAX_IMAGES) return toast.error(t('admin.images.tooMany', { max: MAX_IMAGES }));
     setUrls((prev) => [...prev, { id: uid(), url: value }]);
     setUrlInput('');
   };
@@ -98,10 +100,10 @@ export default function ImageUploader({ existing = [], removedIds, onToggleRemov
       >
         <UploadCloud className="size-8 text-rose" strokeWidth={1.3} />
         <p className="mt-3 text-sm">
-          <span className="font-medium">Click to upload</span> or drag and drop
+          <span className="font-medium">{t('admin.images.click')}</span> {t('admin.images.orDrag')}
         </p>
         <p className="mt-1 text-xs text-taupe">
-          JPEG, PNG, WebP or AVIF · up to 5 MB each · {count}/{MAX_IMAGES} images
+          {t('admin.images.hint', { count, max: MAX_IMAGES })}
         </p>
         <input
           ref={inputRef}
@@ -118,7 +120,7 @@ export default function ImageUploader({ existing = [], removedIds, onToggleRemov
 
       <div className="mt-3 flex gap-2">
         <label className="relative flex-1">
-          <span className="sr-only">Image URL</span>
+          <span className="sr-only">{t('admin.images.urlLabel')}</span>
           <Link2 className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-taupe" />
           <input
             value={urlInput}
@@ -129,38 +131,48 @@ export default function ImageUploader({ existing = [], removedIds, onToggleRemov
                 addUrl();
               }
             }}
-            placeholder="…or paste a high-res image URL"
+            placeholder={t('admin.images.urlPlaceholder')}
             className="h-11 w-full border border-line bg-white pr-3 pl-9 text-sm outline-none focus:border-ink"
           />
         </label>
         <button type="button" onClick={addUrl} className="h-11 border border-ink px-4 text-xs tracking-[0.18em] uppercase hover:bg-ink hover:text-cream">
-          Add
+          {t('admin.images.add')}
         </button>
       </div>
 
       {tiles.length > 0 && (
         <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
           <AnimatePresence initial={false}>
-            {tiles.map((t, i) => (
+            {tiles.map((tile, i) => (
               <motion.li
-                key={t.key}
+                key={tile.key}
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="group relative aspect-square overflow-hidden bg-beige"
               >
-                <img src={t.src} alt={t.label || `Product image ${i + 1}`} className={clsx('size-full object-cover transition', t.removed && 'opacity-30 grayscale')} />
+                <img src={tile.src} alt={tile.label || t('admin.images.alt', { n: i + 1 })} className={clsx('size-full object-cover transition', tile.removed && 'opacity-30 grayscale')} />
                 <span className="absolute bottom-1.5 left-1.5 bg-cream/90 px-1.5 py-0.5 text-[10px] tracking-wider uppercase">
-                  {t.removed ? 'Removing' : t.kind === 'saved' ? (i === 0 ? 'Cover' : 'Saved') : t.kind === 'new' ? 'New' : 'URL'}
+                  {t(
+                    tile.removed
+                      ? 'admin.images.removing'
+                      : tile.kind === 'saved'
+                        ? i === 0
+                          ? 'admin.images.cover'
+                          : 'admin.images.saved'
+                        : tile.kind === 'new'
+                          ? 'admin.images.new'
+                          : 'admin.images.url'
+                  )}
                 </span>
                 <button
                   type="button"
-                  onClick={t.onRemove}
-                  aria-label={t.removed ? 'Keep this image' : 'Remove this image'}
+                  onClick={tile.onRemove}
+                  aria-label={t(tile.removed ? 'admin.images.keep' : 'admin.images.remove')}
                   className="absolute top-1.5 right-1.5 grid size-7 place-items-center rounded-full bg-cream/90 text-ink shadow transition-colors hover:bg-ink hover:text-cream"
                 >
-                  {t.removed ? <ImagePlus className="size-3.5" /> : <X className="size-3.5" />}
+                  {tile.removed ? <ImagePlus className="size-3.5" /> : <X className="size-3.5" />}
                 </button>
               </motion.li>
             ))}

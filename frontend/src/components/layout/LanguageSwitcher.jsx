@@ -12,15 +12,15 @@ function useLanguage() {
   return [current, (code) => i18n.changeLanguage(code)];
 }
 
-/** "AZE | ENG | RU" row of text buttons, used in the mobile menu and other light surfaces. */
-export function LanguageToggle({ className }) {
+/** "AZE | ENG | RU" row of text buttons; `dark` styles it for dark surfaces (admin sidebar). */
+export function LanguageToggle({ className, dark = false }) {
   const { t } = useTranslation();
   const [current, setLanguage] = useLanguage();
   return (
     <div role="group" aria-label={t('language.label')} className={clsx('flex items-center', className)}>
       {LANGUAGES.map((lang, i) => (
         <span key={lang.code} className="flex items-center">
-          {i > 0 && <span className="mx-3 h-3 w-px bg-line" aria-hidden />}
+          {i > 0 && <span className={clsx('mx-3 h-3 w-px', dark ? 'bg-cream/20' : 'bg-line')} aria-hidden />}
           <button
             type="button"
             lang={lang.code}
@@ -29,7 +29,7 @@ export function LanguageToggle({ className }) {
             title={lang.name}
             className={clsx(
               'relative py-1 font-serif text-[13px] font-bold tracking-[0.12em] uppercase transition-colors duration-300',
-              lang.code === current.code ? 'text-ink' : 'text-mute hover:text-rose'
+              lang.code === current.code ? (dark ? 'text-cream' : 'text-ink') : dark ? 'text-cream/50 hover:text-blush' : 'text-mute hover:text-rose'
             )}
           >
             {lang.label}
@@ -90,7 +90,7 @@ export default function LanguageSwitcher({ className }) {
           <motion.ul
             role="listbox"
             aria-label={t('language.label')}
-            className="theme-light absolute top-full right-0 z-20 w-[200px] bg-ink-soft py-4 shadow-[0_15px_40px_rgba(0,0,0,0.18)]"
+            className="absolute top-full right-0 z-20 w-[200px] bg-ink-soft py-4 shadow-[0_15px_40px_rgba(0,0,0,0.18)]"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 6 }}
             exit={{ opacity: 0, y: 12 }}

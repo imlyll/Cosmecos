@@ -54,10 +54,9 @@ function Slide({ slide }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.9, ease: 'easeInOut' }}
     >
-      {/* Background layer: pale textures in light mode, dimmed by a multiply blend in dark mode. */}
       <div
         aria-hidden
-        className={`absolute inset-0 dark:bg-[#27231f]! dark:bg-blend-multiply ${bg.desktopOnly ? 'max-lg:bg-none!' : ''}`}
+        className={`absolute inset-0 ${bg.desktopOnly ? 'max-lg:bg-none!' : ''}`}
         style={{
           backgroundColor: bg.color,
           backgroundImage: bg.image ? `url(${bg.image})` : undefined,
@@ -77,7 +76,7 @@ function Slide({ slide }) {
           <img
             src={picture.src}
             alt=""
-            className={`absolute top-0 h-full w-auto max-w-none dark:brightness-[0.85] ${picture.side === 'right' ? 'left-0' : 'right-0'}`}
+            className={`absolute top-0 h-full w-auto max-w-none ${picture.side === 'right' ? 'left-0' : 'right-0'}`}
           />
         </motion.div>
       )}
@@ -159,7 +158,7 @@ export default function Hero() {
     <section
       aria-roledescription="carousel"
       aria-label={t('a11y.carousel')}
-      className="relative h-[500px] overflow-hidden bg-[#fbf9f7] lg:h-[810px] dark:bg-[#1a1714]"
+      className="relative h-[500px] overflow-hidden bg-[#fbf9f7] lg:h-[810px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

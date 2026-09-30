@@ -149,7 +149,7 @@ export default function ProductDetails() {
             name={product.name}
             badge={
               (onSale || soldOut) && (
-                <span className="theme-light absolute top-[37px] left-[5px] bg-ink-soft px-3 font-serif text-[13px] leading-[30px] font-medium text-white uppercase">
+                <span className="absolute top-[37px] left-[5px] bg-ink-soft px-3 font-serif text-[13px] leading-[30px] font-medium text-white uppercase">
                   {soldOut ? t('common.soldOut') : t('common.sale')}
                 </span>
               )

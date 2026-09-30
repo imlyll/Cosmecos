@@ -1,40 +1,13 @@
-const nodemailer = require('nodemailer');
 const { mail, isProd, nodeEnv } = require('../config/env');
+const { getTransport, smtpEnabled, fromAddressWarning } = require('../config/nodemailer');
 
 /**
- * Email delivery.
+ * Email delivery through the transport in config/nodemailer.js.
  *  - With SMTP credentials (SMTP_* or EMAIL_USER/EMAIL_PASS), mail is sent through that server (e.g. Gmail).
  *  - Without them, development/test render the message but don't deliver it: it is printed to the
  *    console and kept in `outbox` (tests read codes from there). Production refuses to send.
  */
 const outbox = [];
-let transport;
-
-// Values copied from .env.example ("your_email@gmail.com", "your_app_password") are not real credentials.
-const isPlaceholder = (v) => !v || /your_|app_password|example\.com/i.test(v);
-const smtpEnabled = Boolean(mail.host) && !isPlaceholder(mail.user) && !isPlaceholder(mail.pass);
-
-function getTransport() {
-  if (transport) return transport;
-  if (smtpEnabled) {
-    transport = nodemailer.createTransport({
-      host: mail.host,
-      port: mail.port,
-      secure: mail.secure,
-      // On 587, refuse to send credentials over an unencrypted connection.
-      requireTLS: !mail.secure,
-      auth: { user: mail.user, pass: mail.pass },
-      tls: { rejectUnauthorized: mail.rejectUnauthorized },
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 20_000,
-    });
-  } else {
-    if (isProd) throw new Error('SMTP is not configured: set SMTP_HOST, SMTP_USER and SMTP_PASS');
-    transport = nodemailer.createTransport({ jsonTransport: true });
-  }
-  return transport;
-}
 
 /** Human-readable cause for common SMTP failures, for logs and development error responses. */
 function describeMailError(err) {
@@ -80,6 +53,8 @@ async function verifyMailer() {
   try {
     await getTransport().verify();
     console.log(`[mail] SMTP ready: ${mail.user} via ${mail.host}:${mail.port}`);
+    const warning = fromAddressWarning();
+    if (warning) console.warn(`[mail] ${warning}`);
     return true;
   } catch (err) {
     console.error(`[mail] SMTP check failed: ${describeMailError(err)}`);

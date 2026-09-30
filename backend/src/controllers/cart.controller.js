@@ -4,7 +4,7 @@ const ApiError = require('../utils/ApiError');
 const { getOrCreateCart, buildCartView } = require('../services/cart.service');
 
 const sendCart = async (res, cart, status = 200) =>
-  res.status(status).json({ success: true, cart: await buildCartView(cart, res.req.lang) });
+  res.status(status).json({ success: true, cart: await buildCartView(cart, res.req.contentLang) });
 
 /** Loads an active product and validates the variant choice against it. */
 async function loadPurchasable(productId, variantId) {

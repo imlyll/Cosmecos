@@ -45,64 +45,13 @@
   }
 }
 
-/*
- * Dark mode is class-based: ThemeProvider puts `.dark` on <html> (Tailwind v4's equivalent of
- * `darkMode: 'class'`). The palette tokens are redefined below, so every bg-/text-/border- utility
- * follows the theme without per-component dark: classes; those are only used for photo sections.
- */
-@custom-variant dark (&:where(.dark, .dark *));
-
-@layer base {
-  :root {
-    color-scheme: light;
-  }
-  .dark {
-    color-scheme: dark;
-    --color-ink: #efe6dc; /* headings, text, frames and primary buttons: warm ivory */
-    --color-ink-soft: #0b0b0b; /* footer, side panel, menus */
-    --color-cream: #121212; /* page */
-    --color-white: #1c1c1c; /* raised surfaces: header, cards, inputs, modals */
-    --color-beige: #202020;
-    --color-nude: #2a221c;
-    --color-sand: #2c2520;
-    --color-blush: #4d392d;
-    --color-rose: #d6aa7c; /* muted gold / nude accent */
-    --color-taupe: #a59c94;
-    --color-body: #c4bbb2;
-    --color-mute: #867e77;
-    --color-line: #302f2e;
-    --color-success: #8fb996;
-    --color-danger: #e7806f;
-  }
-  /* Blocks that are dark in both themes (footer, side panel, dropdown menus…) and the admin panel
-     keep the light palette, so their white text and dark fills stay as designed. */
-  .theme-light {
-    color-scheme: light;
-    --color-ink: #232323;
-    --color-ink-soft: #1e1e1e;
-    --color-cream: #ffffff;
-    --color-white: #ffffff;
-    --color-beige: #f3f4f8;
-    --color-nude: #fff6ef;
-    --color-sand: #f5e0d2;
-    --color-blush: #ffd3b9;
-    --color-rose: #eaaa85;
-    --color-taupe: #737373;
-    --color-body: #616161;
-    --color-mute: #969696;
-    --color-line: #e0e0e0;
-    --color-success: #5f7d62;
-    --color-danger: #c0493f;
-  }
-}
-
 @layer base {
   html {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-cream font-sans text-body antialiased transition-colors duration-500;
+    @apply bg-cream font-sans text-body antialiased;
     font-size: 16px;
     line-height: 30px;
     font-variant-numeric: lining-nums;

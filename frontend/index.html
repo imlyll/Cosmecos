@@ -14,16 +14,6 @@
     />
     <link rel="preload" href="/fonts/Quentin.woff2" as="font" type="font/woff2" crossorigin />
     <title>Cosmecos – Cosmetics &amp; Beauty Shop</title>
-    <script>
-      // Apply the saved (or system) theme before first paint to avoid a light flash; ThemeProvider takes over after.
-      (function () {
-        try {
-          var saved = localStorage.getItem('cosmecos-theme');
-          var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (dark) document.documentElement.classList.add('dark');
-        } catch (e) {}
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>

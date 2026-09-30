@@ -86,7 +86,7 @@ function Achievements() {
             <img
               src={`/images/icons/counter-${i}.png`}
               alt=""
-              className="absolute inset-0 size-full object-contain dark:opacity-40"
+              className="absolute inset-0 size-full object-contain"
             />
             <div className="relative text-center">
               <p className="font-script text-[64px] leading-none text-ink">
@@ -150,7 +150,7 @@ function Team() {
         src="/images/bg-pricing-section-3-2.png"
         alt=""
         aria-hidden
-        className="pointer-events-none absolute top-[240px] right-0 hidden w-[180px] xl:block dark:hidden"
+        className="pointer-events-none absolute top-[240px] right-0 hidden w-[180px] xl:block"
       />
       <div className="container-luxe">
         <div className="mb-[70px] flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -168,7 +168,7 @@ function Team() {
           {TEAM.map((m, i) => (
             <Reveal key={m.name} delay={i * 0.08} className="text-center">
               <Framed>
-                <div className="overflow-hidden bg-[#f8f5f3] dark:bg-beige">
+                <div className="overflow-hidden bg-[#f8f5f3]">
                   <img
                     src={m.image}
                     alt={m.name}

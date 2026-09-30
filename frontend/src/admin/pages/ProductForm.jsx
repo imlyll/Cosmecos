@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import Field, { applyServerErrors } from '../../components/ui/Field';
 import Button from '../../components/ui/Button';
 import { ErrorState, Skeleton } from '../../components/ui/Feedback';
@@ -17,25 +18,26 @@ import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 const SKIN_TYPES = ['all', 'dry', 'oily', 'combination', 'normal', 'sensitive'];
 // Optional number: '' stays '' (unset). Required number: '' is treated as missing, not 0.
-const num = (msg) => z.union([z.literal(''), z.coerce.number({ invalid_type_error: msg }).min(0, 'Must be 0 or more')]);
+const num = (msg) => z.union([z.literal(''), z.coerce.number({ invalid_type_error: msg }).min(0, 'admin.form.errors.min0')]);
 const requiredNum = (msg) => z.preprocess((v) => (v === '' || v == null ? undefined : v), z.coerce.number({ invalid_type_error: msg }));
 
 const variantSchema = z.object({
   _id: z.string().optional(),
-  name: z.string().trim().min(1, 'Name is required'),
+  name: z.string().trim().min(1, 'admin.form.errors.variantName'),
   shade: z.string().trim().optional(),
   colorHex: z
     .string()
     .trim()
-    .refine((v) => !v || /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v), 'Use a hex colour like #C08081')
+    .refine((v) => !v || /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v), 'admin.form.errors.hex')
     .optional(),
   size: z.string().trim().optional(),
   sku: z.string().trim().optional(),
-  price: num('Enter a price'),
-  stock: requiredNum('Enter stock').pipe(z.number().int('Whole numbers only').min(0, 'Must be 0 or more')),
+  price: num('admin.form.errors.price'),
+  stock: requiredNum('admin.form.errors.stock').pipe(z.number().int('admin.form.errors.whole').min(0, 'admin.form.errors.min0')),
 });
 
 // Azerbaijani / Russian versions of the text fields; blanks fall back to English in the shop.
+// Language names are shown in their own language, whatever the admin UI language is.
 const TRANSLATION_LANGS = [
   { code: 'az', label: 'Azərbaycan (AZE)' },
   { code: 'ru', label: 'Русский (RU)' },
@@ -52,18 +54,18 @@ const emptyTranslation = () => Object.fromEntries(TEXT_FIELDS.map((f) => [f, '']
 
 const schema = z
   .object({
-    name: z.string().trim().min(2, 'Name must be at least 2 characters').max(150),
+    name: z.string().trim().min(2, 'admin.form.errors.name').max(150),
     translations: z.object({ az: translationSchema, ru: translationSchema }),
     brand: z.string().trim().max(60),
-    category: z.string().min(1, 'Choose a category'),
-    shortDescription: z.string().trim().max(300, 'Keep it under 300 characters'),
-    description: z.string().trim().min(10, 'Description must be at least 10 characters'),
+    category: z.string().min(1, 'admin.form.errors.category'),
+    shortDescription: z.string().trim().max(300, 'admin.form.errors.shortMax'),
+    description: z.string().trim().min(10, 'admin.form.errors.description'),
     ingredients: z.string().trim().max(5000),
     howToUse: z.string().trim().max(3000),
-    price: requiredNum('Enter a price').pipe(z.number().min(0, 'Must be 0 or more')),
-    compareAtPrice: num('Enter a number'),
+    price: requiredNum('admin.form.errors.price').pipe(z.number().min(0, 'admin.form.errors.min0')),
+    compareAtPrice: num('admin.form.errors.number'),
     sku: z.string().trim().max(60),
-    stock: requiredNum('Enter stock').pipe(z.number().int('Whole numbers only').min(0, 'Must be 0 or more')),
+    stock: requiredNum('admin.form.errors.stock').pipe(z.number().int('admin.form.errors.whole').min(0, 'admin.form.errors.min0')),
     tags: z.string(),
     skinTypes: z.array(z.string()),
     isFeatured: z.boolean(),
@@ -71,7 +73,7 @@ const schema = z
     variants: z.array(variantSchema),
   })
   .refine((v) => v.compareAtPrice === '' || v.compareAtPrice >= v.price, {
-    message: 'Must be higher than the price (it’s the “was” price)',
+    message: 'admin.form.errors.compareAt',
     path: ['compareAtPrice'],
   });
 
@@ -159,20 +161,28 @@ function buildFormData(values, { isEdit, files, urls, removedIds }) {
   return fd;
 }
 
+/** Translated validation message: form errors are translation keys, server errors arrive translated. */
+function useErr() {
+  const { t } = useTranslation();
+  return (e) => e?.message && t(e.message);
+}
+
 function Textarea({ label, error, rows = 4, ...props }) {
   return <Field as="textarea" label={label} error={error} rows={rows} {...props} />;
 }
 
 /** AZE / RU tabs with the translatable text fields. */
 function TranslationsCard({ register, errors }) {
+  const { t } = useTranslation();
+  const err = useErr();
   const [lang, setLang] = useState(TRANSLATION_LANGS[0].code);
   const e = errors.translations?.[lang] || {};
   const field = (name) => register(`translations.${lang}.${name}`);
   return (
     <Card
-      title="Translations"
+      title={t('admin.form.translations')}
       action={
-        <div className="flex gap-1" role="tablist" aria-label="Translation language">
+        <div className="flex gap-1" role="tablist" aria-label={t('admin.form.translationLanguage')}>
           {TRANSLATION_LANGS.map((l) => (
             <button
               key={l.code}
@@ -193,23 +203,24 @@ function TranslationsCard({ register, errors }) {
     >
       <div key={lang} className="grid gap-5 p-5 sm:grid-cols-2">
         <p className="text-sm text-taupe sm:col-span-2">
-          {TRANSLATION_LANGS.find((l) => l.code === lang).label}: shown when shoppers choose this language. Leave a field
-          blank to show the English text.
+          {t('admin.form.translationHint', { language: TRANSLATION_LANGS.find((l) => l.code === lang).label })}
         </p>
-        <Field className="sm:col-span-2" label="Product name" error={e.name?.message} {...field('name')} />
-        <Field className="sm:col-span-2" label="Short description" error={e.shortDescription?.message} {...field('shortDescription')} />
-        <Textarea className="sm:col-span-2" label="Description" rows={5} error={e.description?.message} {...field('description')} />
-        <Textarea label="Ingredients" error={e.ingredients?.message} {...field('ingredients')} />
-        <Textarea label="How to use" error={e.howToUse?.message} {...field('howToUse')} />
+        <Field className="sm:col-span-2" label={t('admin.form.trName')} error={err(e.name)} {...field('name')} />
+        <Field className="sm:col-span-2" label={t('admin.form.trShort')} error={err(e.shortDescription)} {...field('shortDescription')} />
+        <Textarea className="sm:col-span-2" label={t('admin.form.trDescription')} rows={5} error={err(e.description)} {...field('description')} />
+        <Textarea label={t('admin.form.ingredients')} error={err(e.ingredients)} {...field('ingredients')} />
+        <Textarea label={t('admin.form.howToUse')} error={err(e.howToUse)} {...field('howToUse')} />
       </div>
     </Card>
   );
 }
 
 export default function ProductForm() {
+  const { t } = useTranslation();
+  const err = useErr();
   const { id } = useParams();
   const isEdit = Boolean(id);
-  useDocumentTitle(isEdit ? 'Edit product · Admin' : 'New product · Admin');
+  useDocumentTitle(t(isEdit ? 'admin.docTitle.editProduct' : 'admin.docTitle.newProduct'));
   const navigate = useNavigate();
   const { data: categories = [] } = useCategories();
   const { data: product, isLoading, isError, error, refetch } = useAdminProduct(id);
@@ -245,7 +256,7 @@ export default function ProductForm() {
   const onSubmit = (values) => {
     const existingCount = (product?.images || []).filter((i) => !removedIds.includes(i._id)).length;
     if (existingCount + files.length + urls.length === 0) {
-      setError('root', { message: 'Add at least one product image.' });
+      setError('root', { message: 'admin.form.needImage' });
       return;
     }
     setProgress(0);
@@ -275,18 +286,18 @@ export default function ProductForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <Link to="/admin/products" className="group mb-6 inline-flex items-center gap-2 text-xs tracking-[0.2em] text-taupe uppercase hover:text-ink">
-        <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" /> All products
+        <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" /> {t('admin.form.back')}
       </Link>
       <PageHeader
-        title={isEdit ? 'Edit product' : 'Add new product'}
-        subtitle={isEdit ? product?.name : 'Fill in the details below. Fields marked * are required.'}
+        title={t(isEdit ? 'admin.form.editTitle' : 'admin.form.newTitle')}
+        subtitle={isEdit ? product?.name : t('admin.form.newSubtitle')}
         actions={
           <>
             <Button to="/admin/products" variant="outline">
-              Cancel
+              {t('admin.common.cancel')}
             </Button>
             <Button type="submit" loading={save.isPending} disabled={isEdit && !isDirty && !imageChanges}>
-              {isEdit ? 'Save changes' : 'Create product'}
+              {t(isEdit ? 'admin.form.save' : 'admin.form.create')}
             </Button>
           </>
         }
@@ -301,41 +312,41 @@ export default function ProductForm() {
             exit={{ opacity: 0, height: 0 }}
             className="mb-6 border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
           >
-            {errors.root?.message || save.error.message}
+            {errors.root ? t(errors.root.message) : save.error.message}
           </motion.p>
         )}
       </AnimatePresence>
 
       <div className="grid items-start gap-6 xl:grid-cols-[1fr_380px]">
         <div className="space-y-6">
-          <Card title="Basic information">
+          <Card title={t('admin.form.basic')}>
             <div className="grid gap-5 p-5 sm:grid-cols-2">
-              <Field className="sm:col-span-2" label="Product name *" error={errors.name?.message} {...register('name')} />
-              <Field label="Brand" error={errors.brand?.message} {...register('brand')} />
+              <Field className="sm:col-span-2" label={t('admin.form.name')} error={err(errors.name)} {...register('name')} />
+              <Field label={t('admin.form.brand')} error={err(errors.brand)} {...register('brand')} />
               <div>
                 <label htmlFor="category" className="label-luxe">
-                  Category *
+                  {t('admin.form.category')}
                 </label>
                 <select id="category" aria-invalid={errors.category ? 'true' : undefined} className="input-luxe" {...register('category')}>
-                  <option value="">Choose a category…</option>
+                  <option value="">{t('admin.form.chooseCategory')}</option>
                   {categories.map((c) => (
                     <option key={c._id} value={c._id}>
                       {c.parent ? `— ${c.name}` : c.name}
                     </option>
                   ))}
                 </select>
-                {errors.category && <p className="mt-1.5 text-xs text-danger">{errors.category.message}</p>}
+                {errors.category && <p className="mt-1.5 text-xs text-danger">{err(errors.category)}</p>}
               </div>
-              <Field className="sm:col-span-2" label="Short description" error={errors.shortDescription?.message} {...register('shortDescription')} />
-              <Textarea className="sm:col-span-2" label="Description *" rows={5} error={errors.description?.message} {...register('description')} />
-              <Textarea label="Ingredients" error={errors.ingredients?.message} {...register('ingredients')} />
-              <Textarea label="How to use" error={errors.howToUse?.message} {...register('howToUse')} />
+              <Field className="sm:col-span-2" label={t('admin.form.shortDescription')} error={err(errors.shortDescription)} {...register('shortDescription')} />
+              <Textarea className="sm:col-span-2" label={t('admin.form.description')} rows={5} error={err(errors.description)} {...register('description')} />
+              <Textarea label={t('admin.form.ingredients')} error={err(errors.ingredients)} {...register('ingredients')} />
+              <Textarea label={t('admin.form.howToUse')} error={err(errors.howToUse)} {...register('howToUse')} />
             </div>
           </Card>
 
           <TranslationsCard register={register} errors={errors} />
 
-          <Card title="Images *">
+          <Card title={t('admin.form.images')}>
             <div className="p-5">
               <ImageUploader
                 existing={product?.images || []}
@@ -352,21 +363,21 @@ export default function ProductForm() {
           </Card>
 
           <Card
-            title={`Variants${hasVariants ? ` (${variantFields.length})` : ''}`}
+            title={hasVariants ? t('admin.form.variantsCount', { count: variantFields.length }) : t('admin.form.variants')}
             action={
               <button
                 type="button"
                 onClick={() => append({ name: '', shade: '', colorHex: '', size: '', sku: '', price: '', stock: 0 })}
                 className="flex items-center gap-1.5 text-xs tracking-[0.15em] uppercase hover:text-rose"
               >
-                <Plus className="size-4" /> Add variant
+                <Plus className="size-4" /> {t('admin.form.addVariant')}
               </button>
             }
           >
             <div className="p-5">
               {!hasVariants ? (
                 <p className="text-sm text-taupe">
-                  No variants. Add shades or sizes if customers should choose one — stock is then tracked per variant.
+                  {t('admin.form.noVariants')}
                 </p>
               ) : (
                 <ul className="space-y-4">
@@ -383,25 +394,25 @@ export default function ProductForm() {
                           exit={{ opacity: 0, height: 0 }}
                           className="grid gap-3 border border-line p-4 sm:grid-cols-6"
                         >
-                          <Field className="sm:col-span-2" label="Name *" placeholder="Rose Nude / 50ml" error={e.name?.message} {...register(`variants.${i}.name`)} />
-                          <Field label="Shade" error={e.shade?.message} {...register(`variants.${i}.shade`)} />
+                          <Field className="sm:col-span-2" label={t('admin.form.variantName')} placeholder={t('admin.form.variantNamePlaceholder')} error={err(e.name)} {...register(`variants.${i}.name`)} />
+                          <Field label={t('admin.form.shade')} error={err(e.shade)} {...register(`variants.${i}.shade`)} />
                           <div>
-                            <Field label="Colour hex" placeholder="#C08081" error={e.colorHex?.message} {...register(`variants.${i}.colorHex`)} />
+                            <Field label={t('admin.form.colorHex')} placeholder="#C08081" error={err(e.colorHex)} {...register(`variants.${i}.colorHex`)} />
                             {hex && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex) && (
                               <span className="mt-1.5 inline-block size-4 rounded-full ring-1 ring-line" style={{ backgroundColor: hex }} />
                             )}
                           </div>
-                          <Field label="Size" placeholder="30ml" error={e.size?.message} {...register(`variants.${i}.size`)} />
-                          <Field label="SKU" error={e.sku?.message} {...register(`variants.${i}.sku`)} />
-                          <Field className="sm:col-span-2" label="Price (blank = product price)" type="number" step="0.01" min="0" error={e.price?.message} {...register(`variants.${i}.price`)} />
-                          <Field className="sm:col-span-2" label="Stock *" type="number" min="0" error={e.stock?.message} {...register(`variants.${i}.stock`)} />
+                          <Field label={t('admin.form.size')} placeholder={t('admin.form.sizePlaceholder')} error={err(e.size)} {...register(`variants.${i}.size`)} />
+                          <Field label={t('admin.form.sku')} error={err(e.sku)} {...register(`variants.${i}.sku`)} />
+                          <Field className="sm:col-span-2" label={t('admin.form.variantPrice')} type="number" step="0.01" min="0" error={err(e.price)} {...register(`variants.${i}.price`)} />
+                          <Field className="sm:col-span-2" label={t('admin.form.stockRequired')} type="number" min="0" error={err(e.stock)} {...register(`variants.${i}.stock`)} />
                           <div className="flex items-end justify-end sm:col-span-2">
                             <button
                               type="button"
                               onClick={() => remove(i)}
                               className="flex h-12 items-center gap-2 px-3 text-xs tracking-[0.15em] text-taupe uppercase hover:text-danger"
                             >
-                              <Trash2 className="size-4" /> Remove
+                              <Trash2 className="size-4" /> {t('admin.form.remove')}
                             </button>
                           </div>
                         </motion.li>
@@ -415,11 +426,11 @@ export default function ProductForm() {
         </div>
 
         <div className="space-y-6 xl:sticky xl:top-8">
-          <Card title="Visibility">
+          <Card title={t('admin.form.visibility')}>
             <div className="divide-y divide-line">
               {[
-                { name: 'isActive', label: 'Active', hint: 'Visible in the shop' },
-                { name: 'isFeatured', label: 'Featured', hint: 'Shown in featured collections' },
+                { name: 'isActive', label: t('admin.form.active'), hint: t('admin.form.activeHint') },
+                { name: 'isFeatured', label: t('admin.form.featured'), hint: t('admin.form.featuredHint') },
               ].map((s) => (
                 <div key={s.name} className="flex items-center justify-between gap-4 px-5 py-4">
                   <div>
@@ -436,35 +447,35 @@ export default function ProductForm() {
             </div>
           </Card>
 
-          <Card title="Pricing & inventory">
+          <Card title={t('admin.form.pricing')}>
             <div className="grid gap-5 p-5 sm:grid-cols-2 xl:grid-cols-1">
-              <Field label="Price (USD) *" type="number" step="0.01" min="0" error={errors.price?.message} {...register('price')} />
+              <Field label={t('admin.form.price')} type="number" step="0.01" min="0" error={err(errors.price)} {...register('price')} />
               <Field
-                label="Compare-at price (was)"
+                label={t('admin.form.compareAt')}
                 type="number"
                 step="0.01"
                 min="0"
-                placeholder="Leave blank if not on sale"
-                error={errors.compareAtPrice?.message}
+                placeholder={t('admin.form.compareAtPlaceholder')}
+                error={err(errors.compareAtPrice)}
                 {...register('compareAtPrice')}
               />
-              <Field label="SKU" error={errors.sku?.message} {...register('sku')} />
+              <Field label={t('admin.form.sku')} error={err(errors.sku)} {...register('sku')} />
               {hasVariants ? (
                 <div>
-                  <p className="label-luxe">Stock</p>
-                  <p className="border border-line bg-cream px-4 py-3.5 text-sm">{variantStock} (sum of variants)</p>
+                  <p className="label-luxe">{t('admin.form.stock')}</p>
+                  <p className="border border-line bg-cream px-4 py-3.5 text-sm">{t('admin.form.stockSum', { count: variantStock })}</p>
                 </div>
               ) : (
-                <Field label="Stock *" type="number" min="0" error={errors.stock?.message} {...register('stock')} />
+                <Field label={t('admin.form.stockRequired')} type="number" min="0" error={err(errors.stock)} {...register('stock')} />
               )}
             </div>
           </Card>
 
-          <Card title="Organisation">
+          <Card title={t('admin.form.organisation')}>
             <div className="space-y-5 p-5">
-              <Field label="Tags" placeholder="serum, vitamin c, new" error={errors.tags?.message} {...register('tags')} />
+              <Field label={t('admin.form.tags')} placeholder={t('admin.form.tagsPlaceholder')} error={err(errors.tags)} {...register('tags')} />
               <fieldset>
-                <legend className="label-luxe">Skin types</legend>
+                <legend className="label-luxe">{t('admin.form.skinTypes')}</legend>
                 <div className="flex flex-wrap gap-2">
                   {SKIN_TYPES.map((s) => {
                     const on = skinTypes.includes(s);
@@ -477,11 +488,11 @@ export default function ProductForm() {
                           setValue('skinTypes', on ? skinTypes.filter((x) => x !== s) : [...skinTypes, s], { shouldDirty: true })
                         }
                         className={clsx(
-                          'border px-3 py-1.5 text-xs capitalize transition-colors',
+                          'border px-3 py-1.5 text-xs transition-colors',
                           on ? 'border-ink bg-ink text-cream' : 'border-line bg-white hover:border-ink'
                         )}
                       >
-                        {s}
+                        {t(`admin.form.skin.${s}`)}
                       </button>
                     );
                   })}
@@ -493,7 +504,7 @@ export default function ProductForm() {
           <AnimatePresence>
             {save.isPending && files.length > 0 && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="border border-line bg-white p-5">
-                <p className="text-xs text-taupe">Uploading images… {progress}%</p>
+                <p className="text-xs text-taupe">{t('admin.form.uploading', { progress })}</p>
                 <div className="mt-2 h-1 bg-line">
                   <motion.div className="h-full bg-rose" animate={{ width: `${progress}%` }} />
                 </div>
@@ -502,7 +513,7 @@ export default function ProductForm() {
           </AnimatePresence>
 
           <Button type="submit" size="lg" className="w-full" loading={save.isPending} disabled={isEdit && !isDirty && !imageChanges}>
-            {isEdit ? 'Save changes' : 'Create product'}
+            {t(isEdit ? 'admin.form.save' : 'admin.form.create')}
           </Button>
         </div>
       </div>

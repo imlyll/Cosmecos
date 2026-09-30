@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { Pencil, Plus, Trash2, ExternalLink, ImageOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import Button from '../../components/ui/Button';
 import Pagination from '../../components/ui/Pagination';
@@ -12,28 +13,32 @@ import { sizedImage } from '../../lib/api';
 import { formatPrice, priceRange } from '../../lib/format';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
+// Option labels are translation keys.
 const SORTS = [
-  { value: 'newest', label: 'Newest first' },
-  { value: 'name_asc', label: 'Name A–Z' },
-  { value: 'price_asc', label: 'Price low–high' },
-  { value: 'price_desc', label: 'Price high–low' },
-  { value: 'best_selling', label: 'Best selling' },
+  { value: 'newest', key: 'admin.products.sorts.newest' },
+  { value: 'name_asc', key: 'admin.products.sorts.nameAsc' },
+  { value: 'price_asc', key: 'admin.products.sorts.priceAsc' },
+  { value: 'price_desc', key: 'admin.products.sorts.priceDesc' },
+  { value: 'best_selling', key: 'admin.products.sorts.bestSelling' },
 ];
 
 const STATUS = [
-  { value: '', label: 'All statuses' },
-  { value: 'true', label: 'Active' },
-  { value: 'false', label: 'Hidden' },
+  { value: '', key: 'admin.products.allStatuses' },
+  { value: 'true', key: 'admin.badge.active' },
+  { value: 'false', key: 'admin.badge.hidden' },
 ];
 
 const STOCK = [
-  { value: '', label: 'Any stock' },
-  { value: 'true', label: 'In stock' },
-  { value: 'false', label: 'Out of stock' },
+  { value: '', key: 'admin.products.anyStock' },
+  { value: 'true', key: 'admin.products.inStock' },
+  { value: 'false', key: 'admin.products.outOfStock' },
 ];
 
 export default function Products() {
-  useDocumentTitle('Products · Admin');
+  const { t } = useTranslation();
+  const tp = (key, opts) => t(`admin.products.${key}`, opts);
+  const options = (list) => list.map(({ value, key }) => ({ value, label: t(key) }));
+  useDocumentTitle(t('admin.docTitle.products'));
   const [params, setParams] = useSearchParams();
   const [toDelete, setToDelete] = useState(null);
   const { data: categories = [] } = useCategories();
@@ -70,27 +75,27 @@ export default function Products() {
   return (
     <>
       <PageHeader
-        title="Products"
-        subtitle={isLoading ? 'Loading…' : `${total} product${total === 1 ? '' : 's'}`}
+        title={tp('title')}
+        subtitle={isLoading ? t('admin.common.loading') : tp('count', { count: total })}
         actions={
           <Button to="/admin/products/new">
-            <Plus className="size-4" /> Add new product
+            <Plus className="size-4" /> {tp('add')}
           </Button>
         }
       />
 
       <Card>
         <div className="grid gap-3 border-b border-line p-4 sm:grid-cols-2 lg:grid-cols-[1fr_190px_150px_150px_170px]">
-          <SearchInput value={q.search} onChange={(v) => set('search', v)} placeholder="Search name, brand or tag…" />
+          <SearchInput value={q.search} onChange={(v) => set('search', v)} placeholder={tp('searchPlaceholder')} />
           <Select
-            label="Category"
+            label={tp('category')}
             value={q.category}
             onChange={(v) => set('category', v)}
-            options={[{ value: '', label: 'All categories' }, ...categories.map((c) => ({ value: c.slug, label: c.parent ? `— ${c.name}` : c.name }))]}
+            options={[{ value: '', label: tp('allCategories') }, ...categories.map((c) => ({ value: c.slug, label: c.parent ? `— ${c.name}` : c.name }))]}
           />
-          <Select label="Status" value={q.active} onChange={(v) => set('active', v)} options={STATUS} />
-          <Select label="Stock" value={q.inStock} onChange={(v) => set('inStock', v)} options={STOCK} />
-          <Select label="Sort" value={q.sort} onChange={(v) => set('sort', v === 'newest' ? '' : v)} options={SORTS} />
+          <Select label={tp('status')} value={q.active} onChange={(v) => set('active', v)} options={options(STATUS)} />
+          <Select label={tp('stock')} value={q.inStock} onChange={(v) => set('inStock', v)} options={options(STOCK)} />
+          <Select label={tp('sort')} value={q.sort} onChange={(v) => set('sort', v === 'newest' ? '' : v)} options={options(SORTS)} />
         </div>
 
         {isError ? (
@@ -100,20 +105,20 @@ export default function Products() {
             <Table minWidth={880}>
               <thead>
                 <tr>
-                  <Th>Product</Th>
-                  <Th>Category</Th>
-                  <Th className="text-right">Price</Th>
-                  <Th className="text-right">Stock</Th>
-                  <Th className="text-right">Sold</Th>
-                  <Th>Visible</Th>
-                  <Th className="text-right">Actions</Th>
+                  <Th>{tp('col.product')}</Th>
+                  <Th>{tp('col.category')}</Th>
+                  <Th className="text-right">{tp('col.price')}</Th>
+                  <Th className="text-right">{tp('col.stock')}</Th>
+                  <Th className="text-right">{tp('col.sold')}</Th>
+                  <Th>{tp('col.visible')}</Th>
+                  <Th className="text-right">{tp('col.actions')}</Th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <SkeletonRows cols={7} />
                 ) : data.products.length === 0 ? (
-                  <EmptyRow cols={7}>No products match these filters.</EmptyRow>
+                  <EmptyRow cols={7}>{tp('empty')}</EmptyRow>
                 ) : (
                   data.products.map((p) => {
                     const { min, max } = priceRange(p);
@@ -133,8 +138,8 @@ export default function Products() {
                                 {p.name}
                               </Link>
                               <p className="text-xs text-taupe">
-                                {p.variants?.length ? `${p.variants.length} variants` : p.sku || p.brand}
-                                {p.isFeatured && ' · Featured'}
+                                {p.variants?.length ? tp('variants', { count: p.variants.length }) : p.sku || p.brand}
+                                {p.isFeatured && ` · ${tp('featured')}`}
                               </p>
                             </div>
                           </div>
@@ -147,18 +152,18 @@ export default function Products() {
                           )}
                         </Td>
                         <Td className={clsx('text-right', p.stock === 0 ? 'text-danger' : p.stock <= 5 && 'text-rose')}>
-                          {p.stock === 0 ? 'Out' : p.stock}
+                          {p.stock === 0 ? tp('out') : p.stock}
                         </Td>
                         <Td className="text-right text-taupe">{p.sold}</Td>
                         <Td>
                           <div className="flex items-center gap-3">
                             <Switch
                               checked={p.isActive}
-                              label={`${p.isActive ? 'Hide' : 'Show'} ${p.name}`}
+                              label={tp(p.isActive ? 'hide' : 'show', { name: p.name })}
                               disabled={toggle.isPending && toggle.variables?.product._id === p._id}
                               onChange={() => toggle.mutate({ product: p })}
                             />
-                            <Badge>{p.isActive ? 'Active' : 'Hidden'}</Badge>
+                            <Badge tone={p.isActive ? 'Active' : 'Hidden'} />
                           </div>
                         </Td>
                         <Td>
@@ -167,14 +172,14 @@ export default function Products() {
                               href={`/product/${p.slug}`}
                               target="_blank"
                               rel="noreferrer"
-                              aria-label={`View ${p.name} in store`}
+                              aria-label={tp('viewInStore', { name: p.name })}
                               className="grid size-9 place-items-center text-taupe hover:text-ink"
                             >
                               <ExternalLink className="size-4" />
                             </a>
                             <Link
                               to={`/admin/products/${p._id}/edit`}
-                              aria-label={`Edit ${p.name}`}
+                              aria-label={tp('edit', { name: p.name })}
                               className="grid size-9 place-items-center text-taupe hover:text-ink"
                             >
                               <Pencil className="size-4" />
@@ -182,7 +187,7 @@ export default function Products() {
                             <button
                               type="button"
                               onClick={() => setToDelete(p)}
-                              aria-label={`Delete ${p.name}`}
+                              aria-label={tp('delete', { name: p.name })}
                               className="grid size-9 place-items-center text-taupe hover:text-danger"
                             >
                               <Trash2 className="size-4" />
@@ -208,8 +213,8 @@ export default function Products() {
         onClose={() => setToDelete(null)}
         onConfirm={confirmDelete}
         loading={remove.isPending}
-        title="Delete product?"
-        text={`“${toDelete?.name}” will be permanently removed, along with its images, and taken out of customers’ carts and wishlists. Past orders keep their records.`}
+        title={tp('deleteTitle')}
+        text={tp('deleteText', { name: toDelete?.name })}
       />
     </>
   );

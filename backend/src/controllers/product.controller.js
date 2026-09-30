@@ -97,7 +97,7 @@ async function listProducts(req, res) {
 
   res.json({
     success: true,
-    products: products.map((p) => localizeProduct(p, req.lang)),
+    products: products.map((p) => localizeProduct(p, req.contentLang)),
     pagination: paginate({ page: q.page, limit: q.limit, total }),
   });
 }
@@ -152,8 +152,8 @@ async function getProduct(req, res) {
 
   res.json({
     success: true,
-    product: localizeProduct(product, req.lang),
-    related: related.map((p) => localizeProduct(p, req.lang)),
+    product: localizeProduct(product, req.contentLang),
+    related: related.map((p) => localizeProduct(p, req.contentLang)),
   });
 }
 

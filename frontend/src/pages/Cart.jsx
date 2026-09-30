@@ -14,8 +14,8 @@ import { useTranslation } from 'react-i18next';
 /** WooCommerce-style info notice: outlined box with an "i" icon. */
 export function Notice({ children }) {
   return (
-    <p className="flex items-center gap-4 border-2 border-[#5c8fd6] px-[26px] py-[15px] text-taupe dark:border-[#6f93c4]">
-      <Info className="size-[22px] shrink-0 text-[#5c8fd6] dark:text-[#8fb0dc]" strokeWidth={1.5} />
+    <p className="flex items-center gap-4 border-2 border-[#5c8fd6] px-[26px] py-[15px] text-taupe">
+      <Info className="size-[22px] shrink-0 text-[#5c8fd6]" strokeWidth={1.5} />
       {children}
     </p>
   );

@@ -20,8 +20,7 @@ export default function PageHero({ title, subtitle, image = HERO_IMAGES.polish, 
     <section className="relative flex h-[300px] items-center overflow-hidden bg-beige md:h-[499px]">
       <motion.div
         aria-hidden
-        // Pale photos are multiplied down in dark mode so the title stays readable.
-        className="absolute inset-0 bg-cover bg-center dark:bg-[#4a4541] dark:bg-blend-multiply"
+        className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${image})` }}
         initial={{ scale: 1.08 }}
         animate={{ scale: 1 }}
@@ -48,7 +47,7 @@ export default function PageHero({ title, subtitle, image = HERO_IMAGES.polish, 
       {decoration && (
         <motion.span
           aria-hidden
-          className="pointer-events-none absolute bottom-[-40px] left-[42%] font-script text-[110px] leading-[220px] whitespace-nowrap text-sand select-none dark:text-[#3a302a] md:-bottom-[84px] md:left-[50%] md:text-[200px]"
+          className="pointer-events-none absolute bottom-[-40px] left-[42%] font-script text-[110px] leading-[220px] whitespace-nowrap text-sand select-none md:-bottom-[84px] md:left-[50%] md:text-[200px]"
           initial={{ opacity: 0, x: 60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.4, ease: EASE, delay: 0.2 }}

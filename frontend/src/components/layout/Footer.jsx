@@ -87,7 +87,7 @@ function Watermark({ className }) {
 function HomeFooter() {
   const { t } = useTranslation();
   return (
-    <footer className="theme-light relative mt-[90px] bg-ink-soft text-[#b1b0b0]">
+    <footer className="relative mt-[90px] bg-ink-soft text-[#b1b0b0]">
       <a
         href="https://instagram.com"
         target="_blank"
@@ -143,7 +143,7 @@ function PageFooter() {
   const { t } = useTranslation();
   const rows = [...useContactRows(), { text: STORE_INFO.phone2, href: telHref(STORE_INFO.phone2) }];
   return (
-    <footer className="theme-light relative overflow-hidden bg-ink-soft text-[#b1b0b0]">
+    <footer className="relative overflow-hidden bg-ink-soft text-[#b1b0b0]">
       <Watermark className="-top-4 right-[8%] hidden w-[340px] lg:block" />
       <div className="container-luxe relative grid gap-12 pt-[100px] pb-[90px] sm:grid-cols-2 lg:grid-cols-4">
         <Reveal>

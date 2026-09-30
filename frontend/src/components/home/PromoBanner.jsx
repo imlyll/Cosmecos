@@ -9,15 +9,14 @@ export default function PromoBanner() {
   const { t } = useTranslation();
   return (
     <section
-      // In dark mode the pale photo is multiplied down so the light text stays readable.
-      className="relative bg-[#e8e8ea] bg-cover bg-center dark:bg-[#4a4541] dark:bg-blend-multiply"
+      className="relative bg-[#e8e8ea] bg-cover bg-center"
       style={{ backgroundImage: 'url(/images/home1-bg-9.jpg)' }}
     >
       <div className="container-luxe relative py-[130px] max-md:py-20">
         <div className="max-w-[580px]">
           <Reveal className="relative inline-block">
             <img src="/images/home1-bg-text-new.png" alt="" aria-hidden className="absolute inset-0 size-full" />
-            <span className="relative block px-6 py-2 font-script text-[54px] leading-[1.3] text-[#fff] md:text-[70px]">
+            <span className="relative block px-6 py-2 font-script text-[54px] leading-[1.3] text-white md:text-[70px]">
               {t('home.promo.script')}
             </span>
           </Reveal>
@@ -34,7 +33,7 @@ export default function PromoBanner() {
           </Reveal>
         </div>
         <motion.span
-          className="absolute top-[140px] left-[580px] hidden size-[110px] place-items-center rounded-full bg-[#f5b996] font-serif text-[40px] font-light text-[#fff] lg:grid"
+          className="absolute top-[140px] left-[580px] hidden size-[110px] place-items-center rounded-full bg-[#f5b996] font-serif text-[40px] font-light text-white lg:grid"
           initial={{ scale: 0, rotate: -30 }}
           whileInView={{ scale: 1, rotate: 0 }}
           viewport={{ once: true }}

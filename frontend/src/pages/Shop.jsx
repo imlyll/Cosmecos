@@ -172,7 +172,7 @@ export default function Shop() {
                       onClick={() => setView(id)}
                       aria-pressed={view === id}
                       aria-label={t(`shop.${id}View`)}
-                      className={clsx('grid size-6 place-items-center', view === id ? 'text-ink' : 'text-mute hover:text-ink')}
+                      className={clsx('grid size-6 place-items-center', view === id ? 'text-ink' : 'text-[#b1b0b0] hover:text-ink')}
                     >
                       <Icon />
                     </button>

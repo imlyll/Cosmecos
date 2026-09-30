@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, ChevronDown, Search } from 'lucide-react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '../components/ui/Drawer';
 import Button from '../components/ui/Button';
 import { EASE } from '../lib/motion';
@@ -47,16 +48,32 @@ const STATUS_STYLES = {
   Disabled: 'bg-danger/10 text-danger',
 };
 
-// Status colour is never the only signal: the label text always travels with it.
-export function Badge({ children, tone }) {
+// Label keys for the non-order tones; order statuses use orderStatus.<status>.
+const TONE_LABELS = {
+  Active: 'admin.badge.active',
+  Hidden: 'admin.badge.hidden',
+  Paid: 'admin.badge.paid',
+  Unpaid: 'admin.badge.unpaid',
+  Admin: 'admin.badge.admin',
+  Customer: 'admin.badge.customer',
+  Disabled: 'admin.badge.disabled',
+};
+
+/**
+ * Coloured status label. `tone` is the English status (e.g. "Shipped", "Paid"), which picks the colour and the
+ * translated label. Status colour is never the only signal: the label text always travels with it.
+ */
+export function Badge({ tone, children }) {
+  const { t } = useTranslation();
+  const label = children ?? t(TONE_LABELS[tone] || `orderStatus.${tone}`);
   return (
     <span
       className={clsx(
         'inline-flex items-center px-2.5 py-1 text-[11px] font-medium tracking-wide whitespace-nowrap',
-        STATUS_STYLES[tone || children] || 'bg-beige text-ink'
+        STATUS_STYLES[tone] || 'bg-beige text-ink'
       )}
     >
-      {children}
+      {label}
     </span>
   );
 }
@@ -85,7 +102,9 @@ export function Switch({ checked, onChange, label, disabled }) {
 }
 
 /** Search box that reports its value after the user pauses typing. */
-export function SearchInput({ value, onChange, placeholder = 'Search…', className }) {
+export function SearchInput({ value, onChange, placeholder, className }) {
+  const { t } = useTranslation();
+  const text = placeholder || t('admin.common.search');
   const [local, setLocal] = useState(value || '');
   useEffect(() => setLocal(value || ''), [value]);
   useEffect(() => {
@@ -96,13 +115,13 @@ export function SearchInput({ value, onChange, placeholder = 'Search…', classN
 
   return (
     <label className={clsx('relative block', className)}>
-      <span className="sr-only">{placeholder}</span>
+      <span className="sr-only">{text}</span>
       <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-taupe" />
       <input
         type="search"
         value={local}
         onChange={(e) => setLocal(e.target.value)}
-        placeholder={placeholder}
+        placeholder={text}
         className="h-11 w-full border border-line bg-white pr-3 pl-10 text-sm outline-none transition-colors focus:border-ink"
       />
     </label>
@@ -177,7 +196,8 @@ export function EmptyRow({ cols, children }) {
   );
 }
 
-export function ConfirmDialog({ open, onClose, onConfirm, title, text, confirmLabel = 'Delete', loading }) {
+export function ConfirmDialog({ open, onClose, onConfirm, title, text, confirmLabel, loading }) {
+  const { t } = useTranslation();
   return (
     <Modal open={open} onClose={onClose} className="max-w-md" label={title}>
       <div className="p-8">
@@ -188,10 +208,10 @@ export function ConfirmDialog({ open, onClose, onConfirm, title, text, confirmLa
         <p className="mt-2 text-sm text-taupe">{text}</p>
         <div className="mt-8 flex justify-end gap-3">
           <Button variant="outline" size="sm" onClick={onClose}>
-            Cancel
+            {t('admin.common.cancel')}
           </Button>
           <Button size="sm" className="bg-danger hover:bg-ink" onClick={onConfirm} loading={loading}>
-            {confirmLabel}
+            {confirmLabel || t('admin.common.delete')}
           </Button>
         </div>
       </div>

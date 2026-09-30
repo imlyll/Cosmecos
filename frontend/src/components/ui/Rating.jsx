@@ -8,7 +8,7 @@ export default function Rating({ value = 0, count, size = 'sm', className }) {
   return (
     <div className={clsx('flex items-center gap-2', className)}>
       <div className="relative flex" aria-label={t('a11y.rated', { value: value.toFixed(1) })} role="img">
-        <div className="flex gap-[4px] text-[#d4d4d4] dark:text-[#3d3a37]">
+        <div className="flex gap-[4px] text-[#d4d4d4]">
           {Array.from({ length: 5 }, (_, i) => (
             <Star key={i} className={clsx(px, 'fill-current')} aria-hidden />
           ))}
