@@ -17,7 +17,8 @@ const {
 } = require('./seed-content');
 
 // Product photos live in backend/uploads/demo and are served by the API at /uploads/demo/*.
-const demoImage = (file) => `/uploads/demo/${file}`;
+// YENİ HALI:
+const demoImage = (file) => `https://cosmecos.vercel.app/uploads/demo/${file}`;
 
 const CATEGORIES = [
   { name: 'Awesome Soap', description: 'Handmade soaps and cleansing bars.' },
