@@ -6,14 +6,14 @@ require('dotenv').config({ quiet: true });
 process.env.MONGO_URI = process.env.MONGO_URI || 'unused';
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'unused';
 const { mail } = require('../config/env');
-const { sendMail, verifyMailer, describeMailError, smtpEnabled } = require('../utils/mailer');
+const { sendMail, verifyMailer, describeMailError, smtpEnabled, brevoEnabled } = require('../utils/mailer');
 const { verificationEmail } = require('../utils/emailTemplates');
 
 async function main() {
   const [to, lang = 'en'] = process.argv.slice(2);
   if (!to) throw new Error('Usage: npm run mail:check -- you@example.com [az|en|ru]');
-  if (!smtpEnabled) {
-    throw new Error('SMTP is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER and SMTP_PASS in backend/.env');
+  if (!smtpEnabled && !brevoEnabled) {
+    throw new Error('Mail is not configured. Set BREVO_API_KEY, or SMTP_HOST, SMTP_PORT, SMTP_USER and SMTP_PASS in backend/.env');
   }
   if (!(await verifyMailer())) process.exit(1);
   const message = verificationEmail({ name: 'Cosmecos tester', code: '123456', minutes: 10, lang });

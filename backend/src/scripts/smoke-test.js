@@ -11,6 +11,7 @@ async function main() {
   process.env.NODE_ENV = 'test';
   process.env.CLOUDINARY_CLOUD_NAME = ''; // force local disk storage
   process.env.SMTP_HOST = ''; // capture emails in memory
+  process.env.BREVO_API_KEY = '';
   process.env.OTP_RESEND_COOLDOWN_SECONDS = '2';
 
   const mongoose = require('mongoose');

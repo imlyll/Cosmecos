@@ -30,6 +30,8 @@ function smtpConfig() {
     from: e.MAIL_FROM || (user ? `Cosmecos <${user}>` : 'Cosmecos <no-reply@cosmecos.com>'),
     // Only for local/self-signed relays; leave unset for Gmail and other public providers.
     rejectUnauthorized: e.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false',
+    // When set, email goes through Brevo's HTTP API instead of SMTP (for hosts that block SMTP ports, e.g. Render).
+    brevoApiKey: (e.BREVO_API_KEY || '').trim(),
   };
 }
 

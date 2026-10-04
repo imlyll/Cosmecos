@@ -37,6 +37,7 @@ async function main() {
     MONGO_URI: mongo.getUri('cosmecos-mail-test'),
     JWT_SECRET: 'mail-test-secret',
     NODE_ENV: 'test',
+    BREVO_API_KEY: '', // this test covers SMTP
     SMTP_HOST: '127.0.0.1',
     SMTP_PORT: String(smtp.server.address().port),
     SMTP_SECURE: 'false',

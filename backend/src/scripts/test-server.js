@@ -12,6 +12,7 @@ async function main() {
   process.env.CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
   process.env.CLOUDINARY_CLOUD_NAME = '';
   process.env.SMTP_HOST = ''; // capture emails in memory
+  process.env.BREVO_API_KEY = '';
   process.env.OTP_RESEND_COOLDOWN_SECONDS = '1';
 
   const express = require('express');
