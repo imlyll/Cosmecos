@@ -40,7 +40,7 @@ const VIDEO_URL = 'https://www.youtube.com/embed/NbVAgoJUb04?autoplay=1&rel=0';
 function Intro() {
   const { t } = useTranslation();
   return (
-    <section className="container-luxe grid items-center gap-16 py-[150px] max-md:py-20 lg:grid-cols-[470px_1fr] lg:gap-[115px]">
+    <section className="container-luxe grid items-center gap-16 overflow-x-clip py-[150px] max-md:py-20 lg:grid-cols-[470px_1fr] lg:gap-[115px]">
       <Reveal className="relative">
         <Framed>
           <img src="/images/about-image-1.jpg" alt={t('about.introAlt')} className="h-[420px] w-full object-cover sm:h-[480px]" />
