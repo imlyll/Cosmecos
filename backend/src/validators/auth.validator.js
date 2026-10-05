@@ -51,6 +51,9 @@ const resetPassword = z.object({
   password,
 });
 
+// The ID token returned by Google Identity Services.
+const googleLogin = z.object({ credential: z.string().min(1).max(5000) });
+
 const updateProfile = z
   .object({
     name: z.string().trim().min(2).max(80).optional(),
@@ -69,4 +72,14 @@ const changePassword = z
     path: ['newPassword'],
   });
 
-module.exports = { register, login, verifyOtp, resendOtp, forgotPassword, resetPassword, updateProfile, changePassword };
+module.exports = {
+  register,
+  login,
+  verifyOtp,
+  resendOtp,
+  forgotPassword,
+  resetPassword,
+  googleLogin,
+  updateProfile,
+  changePassword,
+};

@@ -5,9 +5,28 @@ import { test, expect } from '@playwright/test';
 
 const api = () => JSON.parse(process.env.AUDIT_API);
 
+// Google's sign-in script is replaced by a stand-in with the same two calls the app uses, so the tests
+// never reach Google. Its button hands our callback `window.__googleToken` (see withGoogle below).
+const FAKE_GIS = `
+  window.google = { accounts: { id: {
+    initialize(config) { window.__gisConfig = config; },
+    renderButton(el, options) {
+      window.__gisOptions = options;
+      el.innerHTML = '';
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = 'Continue with Google';
+      b.onclick = () => window.__gisConfig.callback({ credential: window.__googleToken });
+      el.append(b);
+    },
+  } } };`;
+
 // English UI for stable selectors.
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('cosmecos-lang', 'en'));
+  await page.route('https://accounts.google.com/gsi/client', (route) =>
+    route.fulfill({ contentType: 'text/javascript', body: FAKE_GIS })
+  );
 });
 
 async function login(page, email, password, path = '/login') {
@@ -173,4 +192,69 @@ test('forgot password is reachable from the sign-in modal', async ({ page }) => 
   await page.getByRole('button', { name: /sign in/i }).first().click();
   await page.getByRole('dialog').getByRole('button', { name: 'Forgot password?' }).click();
   await expect(page.getByRole('dialog').getByRole('button', { name: 'Send code' })).toBeVisible();
+});
+
+// --- Sign in with Google --------------------------------------------------------------------------
+// The ID token is signed by the test API's fake Google (backend/tests/server.js), so everything after
+// Google (our API's token check, the session, the redirect) runs for real.
+
+async function withGoogle(page, request, claims, options = {}) {
+  const { token } = await (await request.post(`${api().url}/__audit__/google-token`, { data: { claims, ...options } })).json();
+  await page.addInitScript((t) => (window.__googleToken = t), token);
+}
+
+const googleId = () => {
+  const id = `${Date.now()}${Math.floor(Math.random() * 1000)}`;
+  return { sub: `g${id}`, email: `g${id}@gmail.com`, name: 'Gül Google' };
+};
+
+test('Google: sign up from /register, no code needed, lands signed in', async ({ page, request }) => {
+  const claims = googleId();
+  await withGoogle(page, request, claims);
+  await page.goto('/register');
+  await expect(page.getByText(/^or$/i)).toBeVisible();
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/profile/);
+  await expect(page.getByText(claims.email).first()).toBeVisible();
+  expect(await page.evaluate(() => window.__gisOptions.locale)).toBe('en');
+});
+
+test('Google: an account registered with the same email is reused', async ({ page, request }) => {
+  const { url } = api();
+  const claims = googleId();
+  await request.post(`${url}/api/auth/register`, { data: { name: 'Gül', email: claims.email, password: 'Passw0rd1' } });
+  const { code } = await (await request.get(`${url}/__audit__/otp/${claims.email}`)).json();
+  const registered = await (await request.post(`${url}/api/auth/verify-otp`, { data: { email: claims.email, code } })).json();
+
+  await withGoogle(page, request, claims);
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/profile/);
+  const session = await page.evaluate(() => JSON.parse(localStorage.getItem('cosmecos-auth')).state.user);
+  expect(session._id).toBe(registered.user._id);
+});
+
+test('Google: works from the sign-in modal', async ({ page, request }) => {
+  await withGoogle(page, request, googleId());
+  await page.goto('/');
+  await page.getByRole('button', { name: /sign in/i }).first().click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => Boolean(JSON.parse(localStorage.getItem('cosmecos-auth'))?.state?.token))).toBe(true);
+});
+
+test('Google: a rejected token shows an error and stays signed out', async ({ page, request }) => {
+  await withGoogle(page, request, { ...googleId(), aud: 'another-app.apps.googleusercontent.com' });
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page.getByText('Google sign-in failed. Please try again.')).toBeVisible();
+  await expect(page).toHaveURL(/\/login/);
+});
+
+test('Google: the button follows the site language', async ({ page, request }) => {
+  await withGoogle(page, request, googleId());
+  await page.addInitScript(() => localStorage.setItem('cosmecos-lang', 'az'));
+  await page.goto('/login');
+  await expect(page.getByText('və ya')).toBeVisible();
+  expect(await page.evaluate(() => window.__gisOptions.locale)).toBe('az');
 });

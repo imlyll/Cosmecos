@@ -42,6 +42,8 @@ module.exports = {
   mongoUri: process.env.MONGO_URI,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  // OAuth client id for "Sign in with Google" (Google Cloud Console → Credentials). Empty disables it.
+  googleClientId: (process.env.GOOGLE_CLIENT_ID || '').trim(),
   clientUrls: (process.env.CLIENT_URL || 'http://localhost:5173')
     .split(',')
     .map((s) => s.trim())

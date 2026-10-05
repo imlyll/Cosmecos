@@ -53,6 +53,9 @@ export function useForgotPassword() {
 /** Sets a new password with the emailed code; on success the user is signed in. */
 export const useResetPassword = () => useAuthMutation('/auth/reset-password', 'toast.passwordReset');
 
+/** Signs in (or up) with the ID token from Google Identity Services: { credential }. */
+export const useGoogleLogin = () => useAuthMutation('/auth/google', 'toast.welcome');
+
 export function useLogout() {
   const logout = useAuthStore((s) => s.logout);
   const qc = useQueryClient();

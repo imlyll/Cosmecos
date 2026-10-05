@@ -2,7 +2,10 @@ const User = require('../models/User');
 const ApiError = require('../utils/ApiError');
 const { signToken } = require('../utils/token');
 const { issueOtp, verifyOtp: checkOtp, resendAvailableIn } = require('../services/otp.service');
-const { otp: otpConfig } = require('../config/env');
+const { OAuth2Client } = require('google-auth-library');
+const { otp: otpConfig, googleClientId } = require('../config/env');
+
+const googleClient = new OAuth2Client();
 
 const sendAuth = (res, status, user) =>
   res.status(status).json({ success: true, token: signToken(user), user });
@@ -111,6 +114,9 @@ async function updateMe(req, res) {
 // PATCH /api/auth/me/password
 async function changePassword(req, res) {
   const user = await User.findById(req.user._id).select('+password');
+  if (!user.password) {
+    throw ApiError.badRequest('This account has no password yet. Use "Forgot password" to set one.');
+  }
   // 400, not 401: the session is valid, and clients treat 401 as "signed out".
   if (!(await user.comparePassword(req.body.currentPassword))) {
     throw ApiError.badRequest('Current password is incorrect', [
@@ -168,4 +174,59 @@ async function resetPassword(req, res) {
   sendAuth(res, 200, user);
 }
 
-module.exports = { register, verifyOtp, resendOtp, login, me, updateMe, changePassword, forgotPassword, resetPassword };
+// POST /api/auth/google
+// Signs in with a Google ID token from Google Identity Services. Google has verified the email,
+// so no code is needed. An existing account with the same email is linked rather than duplicated.
+async function googleLogin(req, res) {
+  if (!googleClientId) throw new ApiError(503, 'Google sign-in is not available');
+
+  let payload;
+  try {
+    // Checks the signature against Google's keys, the audience (our client id), issuer and expiry.
+    const ticket = await googleClient.verifyIdToken({ idToken: req.body.credential, audience: googleClientId });
+    payload = ticket.getPayload();
+  } catch (err) {
+    // Library messages can include the whole token; keep just the reason.
+    console.warn(`[auth] Google token rejected: ${err.message.split(':')[0]}`);
+    throw ApiError.unauthorized('Google sign-in failed. Please try again.');
+  }
+  if (!payload.email || !payload.email_verified) {
+    throw ApiError.unauthorized('Your Google email address is not verified');
+  }
+
+  const email = payload.email.toLowerCase();
+  let user = (await User.findOne({ googleId: payload.sub })) || (await User.findOne({ email }));
+  if (!user) {
+    user = await User.create({
+      name: (payload.name || email.split('@')[0]).slice(0, 80),
+      email,
+      googleId: payload.sub,
+      isVerified: true,
+    });
+  } else if (!user.googleId) {
+    user.googleId = payload.sub;
+    if (!user.isVerified) {
+      // Nobody proved they own this email when the password was set (it may not even be the owner's),
+      // so it is dropped. The owner can set one with "forgot password".
+      user.password = undefined;
+      user.isVerified = true;
+    }
+    await user.save();
+  }
+
+  if (!user.isActive) throw ApiError.forbidden('This account has been disabled');
+  sendAuth(res, 200, user);
+}
+
+module.exports = {
+  register,
+  verifyOtp,
+  resendOtp,
+  login,
+  me,
+  updateMe,
+  changePassword,
+  forgotPassword,
+  resetPassword,
+  googleLogin,
+};

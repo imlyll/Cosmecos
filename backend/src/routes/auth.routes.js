@@ -23,6 +23,7 @@ router.post('/verify-otp', authLimiter, validate({ body: v.verifyOtp }), ctrl.ve
 router.post('/resend-otp', authLimiter, validate({ body: v.resendOtp }), ctrl.resendOtp);
 router.post('/forgot-password', authLimiter, validate({ body: v.forgotPassword }), ctrl.forgotPassword);
 router.post('/reset-password', authLimiter, validate({ body: v.resetPassword }), ctrl.resetPassword);
+router.post('/google', authLimiter, validate({ body: v.googleLogin }), ctrl.googleLogin);
 
 router.get('/me', protect, ctrl.me);
 router.patch('/me', protect, validate({ body: v.updateProfile }), ctrl.updateMe);

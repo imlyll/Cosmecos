@@ -561,7 +561,9 @@
       "letter": "Ən azı bir hərf daxil edin",
       "number": "Ən azı bir rəqəm daxil edin",
       "mismatch": "Şifrələr uyğun gəlmir"
-    }
+    },
+    "or": "və ya",
+    "googleUnavailable": "Google ilə giriş yüklənmədi. E-poçt və şifrənizlə daxil olun."
   },
   "otp": {
     "eyebrow": "Son addım",

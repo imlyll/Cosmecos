@@ -18,6 +18,7 @@ async function main() {
   process.env.SMTP_HOST = '';
   process.env.SMTP_USER = '';
   process.env.CLOUDINARY_CLOUD_NAME = '';
+  process.env.GOOGLE_CLIENT_ID = 'test-client-id.apps.googleusercontent.com';
 
   const express = require('express');
   const mongoose = require('mongoose');
@@ -64,6 +65,35 @@ async function main() {
   // Test-only routes so the tests can read what would otherwise need direct DB access.
   const app = express();
   app.get('/__audit__/brevo', (_req, res) => res.json(brevoCalls));
+
+  // Fake Google: ID tokens are signed with a local key, which google-auth-library is handed in place of
+  // Google's published certificates. Everything else in the verification (signature, audience, issuer,
+  // expiry) runs for real. POST { claims, expiresIn, untrustedKey } to get a token.
+  const crypto = require('crypto');
+  const jwt = require('jsonwebtoken');
+  const { OAuth2Client } = require('google-auth-library');
+  const keyPair = () => crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
+  const google = keyPair();
+  const untrusted = keyPair();
+  const publicPem = google.publicKey.export({ type: 'spki', format: 'pem' });
+  OAuth2Client.prototype.getFederatedSignonCertsAsync = async () => ({ certs: { 'test-kid': publicPem }, format: 'PEM' });
+  app.post('/__audit__/google-token', express.json(), (req, res) => {
+    const { claims = {}, expiresIn = 3600, untrustedKey = false } = req.body;
+    const token = jwt.sign(
+      {
+        iss: 'https://accounts.google.com',
+        aud: process.env.GOOGLE_CLIENT_ID,
+        sub: '1000',
+        email: 'google.user@gmail.com',
+        email_verified: true,
+        name: 'Google User',
+        ...claims,
+      },
+      (untrustedKey ? untrusted : google).privateKey,
+      { algorithm: 'RS256', keyid: 'test-kid', expiresIn }
+    );
+    res.json({ token });
+  });
   app.get('/__audit__/otp/:email', (req, res) => {
     const mail = lastMailTo(req.params.email);
     res.json({ code: mail?.code || null, subject: mail?.subject || null });

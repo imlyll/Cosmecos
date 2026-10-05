@@ -561,7 +561,9 @@
       "letter": "Include at least one letter",
       "number": "Include at least one number",
       "mismatch": "Passwords do not match"
-    }
+    },
+    "or": "or",
+    "googleUnavailable": "Google sign-in could not be loaded. Please use your email and password."
   },
   "otp": {
     "eyebrow": "One last step",

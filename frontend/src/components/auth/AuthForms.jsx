@@ -12,6 +12,7 @@ import clsx from 'clsx';
 import { useForgotPassword, useLogin, useRegister, useResetPassword } from '../../hooks/useAuth';
 import { errorMessage } from '../../i18n';
 import { formatTime, useCountdown } from './OtpForm';
+import GoogleButton from './GoogleButton';
 
 // Messages are translation keys, resolved when rendered so they follow the current language.
 const loginSchema = z.object({
@@ -118,6 +119,7 @@ export function LoginForm({ onSuccess, onSwitch, onVerify, onForgot }) {
       <Button type="submit" className="w-full" loading={login.isPending}>
         {t('common.signIn')}
       </Button>
+      <GoogleButton onSuccess={onSuccess} />
       {onSwitch && (
         <p className="text-center text-sm text-taupe">
           {t('auth.newHere')}{' '}
@@ -130,8 +132,11 @@ export function LoginForm({ onSuccess, onSwitch, onVerify, onForgot }) {
   );
 }
 
-/** Registration step 1. `onVerify({ email, resendAvailableIn, expiresInMinutes })` moves on to the code screen. */
-export function RegisterForm({ onVerify, onSwitch }) {
+/**
+ * Registration step 1. `onVerify({ email, resendAvailableIn, expiresInMinutes })` moves on to the code screen.
+ * Signing up with Google needs no code and calls `onSuccess`.
+ */
+export function RegisterForm({ onVerify, onSwitch, onSuccess }) {
   const { t } = useTranslation();
   const fieldError = useFieldError();
   const registerUser = useRegister();
@@ -174,6 +179,7 @@ export function RegisterForm({ onVerify, onSwitch }) {
       <Button type="submit" className="w-full" loading={registerUser.isPending}>
         {t('auth.createAccount')}
       </Button>
+      <GoogleButton onSuccess={onSuccess} />
       {onSwitch && (
         <p className="text-center text-sm text-taupe">
           {t('auth.haveAccount')}{' '}

@@ -82,7 +82,7 @@ export default function AuthPage({ mode }) {
               onForgot={() => switchTo('/forgot-password')}
             />
           ) : (
-            <RegisterForm onVerify={setVerification} onSwitch={() => switchTo('/login')} />
+            <RegisterForm onSuccess={onSuccess} onVerify={setVerification} onSwitch={() => switchTo('/login')} />
           )}
         </motion.div>
       </div>

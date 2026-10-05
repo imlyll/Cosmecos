@@ -21,7 +21,17 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 80 },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true, minlength: 8, select: false },
+    // Accounts created with Google have no password until the user sets one via "forgot password".
+    password: {
+      type: String,
+      required() {
+        return !this.googleId;
+      },
+      minlength: 8,
+      select: false,
+    },
+    // Google account id ("sub" in the ID token), set once the user signs in with Google.
+    googleId: { type: String, unique: true, sparse: true },
     role: { type: String, enum: ROLES, default: 'user' },
     phone: { type: String, trim: true },
     avatar: { url: String, publicId: String },
@@ -36,12 +46,14 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre('save', async function hashPassword() {
-  if (!this.isModified('password')) return;
+  if (!this.isModified('password') || !this.password) return;
   this.password = await bcrypt.hash(this.password, 12);
   if (!this.isNew) this.passwordChangedAt = new Date(Date.now() - 1000);
 });
 
-userSchema.methods.comparePassword = function comparePassword(candidate) {
+// False (never an error) for accounts without a password, e.g. created with Google.
+userSchema.methods.comparePassword = async function comparePassword(candidate) {
+  if (!this.password) return false;
   return bcrypt.compare(candidate, this.password);
 };
 
