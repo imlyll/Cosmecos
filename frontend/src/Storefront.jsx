@@ -25,6 +25,7 @@ const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
 const Wishlist = lazy(() => import('./pages/Wishlist'));
 const Profile = lazy(() => import('./pages/Profile'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
+const Privacy = lazy(() => import('./pages/Privacy'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 const guard = (el) => <ProtectedRoute>{el}</ProtectedRoute>;
@@ -63,6 +64,7 @@ export default function Storefront() {
               <Route path="/shop" element={<Shop />} />
               <Route path="/product/:slug" element={<ProductDetails />} />
               <Route path="/contacts" element={<Contacts />} />
+              <Route path="/privacy" element={<Privacy />} />
               <Route path="/cart" element={guard(<Cart />)} />
               <Route path="/checkout" element={guard(<Checkout />)} />
               <Route path="/order-success/:id" element={guard(<OrderSuccess />)} />

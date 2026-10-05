@@ -68,7 +68,15 @@ function FooterMenu() {
 
 function Copyright() {
   const { t } = useTranslation();
-  return <p className="mt-8 text-center text-sm text-[#8b8b8b]">{t('footer.copyright', { year: new Date().getFullYear() })}</p>;
+  return (
+    <p className="mt-8 text-center text-sm text-[#8b8b8b]">
+      {t('footer.copyright', { year: new Date().getFullYear() })}
+      <span aria-hidden="true"> · </span>
+      <Link to="/privacy" className="transition-colors hover:text-rose">
+        {t('footer.privacy')}
+      </Link>
+    </p>
+  );
 }
 
 /** Big faint brush "C" watermark. */

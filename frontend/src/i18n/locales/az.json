@@ -528,7 +528,8 @@
       "brushes": "Makiyaj fırçalarını necə təmizləməli",
       "foundation": "Doğru tonal krem"
     },
-    "copyright": "© {{year}} Cosmecos. Bütün hüquqlar qorunur."
+    "copyright": "© {{year}} Cosmecos. Bütün hüquqlar qorunur.",
+    "privacy": "Məxfilik siyasəti"
   },
   "sidePanel": {
     "text": "Gözlərimiz ilahi nisbəti dərhal sezir və onu gözəlliklə əlaqələndirir.",
@@ -936,5 +937,53 @@
       "customer": "Müştəri",
       "admin": "Admin"
     }
+  },
+  "privacy": {
+    "title": "Məxfilik siyasəti",
+    "updated": "Son yenilənmə: 5 oktyabr 2026",
+    "intro": "Bu səhifədə Cosmecos-un mağazadan istifadə etdiyiniz zaman hansı məlumatları topladığı, onlardan nə üçün istifadə etdiyi və onları necə sildirə biləcəyiniz izah olunur.",
+    "sections": [
+      {
+        "title": "Hansı məlumatları toplayırıq",
+        "paragraphs": [
+          "Hesabınız: adınız, e-poçt ünvanınız və şifrəniz. Şifrə yalnız şifrələnmiş (hash) şəkildə saxlanılır, ona görə onu heç kim, hətta biz də oxuya bilmirik.",
+          "Sifarişləriniz: aldığınız məhsullar, çatdırılma ünvanınız, telefon nömrəniz və sifariş tarixçəniz.",
+          "Profilinizə əlavə etdiyiniz digər məlumatlar, məsələn, telefon nömrəsi və ya yadda saxlanmış ünvan."
+        ]
+      },
+      {
+        "title": "Google ilə giriş",
+        "paragraphs": [
+          "Google ilə daxil olduqda yalnız adınızı və e-poçt ünvanınızı, həmçinin növbəti dəfə sizi tanımaq üçün Google-un hesab identifikatorunu alırıq. Google şifrənizi heç vaxt görmürük və Gmail-inizə, kontaktlarınıza və ya Google hesabınızdakı digər məlumatlara çıxışımız yoxdur."
+        ]
+      },
+      {
+        "title": "Məlumatlardan necə istifadə edirik",
+        "paragraphs": [
+          "Məlumatlarınızdan yalnız hesabınızın işləməsi, sifarişlərinizin emalı və çatdırılması, həmçinin təsdiq və şifrə bərpa kodları kimi mağazanın göndərməli olduğu e-poçtlar üçün istifadə edirik."
+        ]
+      },
+      {
+        "title": "Məlumatları kimlə bölüşürük",
+        "paragraphs": [
+          "Şəxsi məlumatlarınızı heç vaxt satmırıq və reklam məqsədilə bölüşmürük.",
+          "Məlumatlar yalnız mağazanın işləməsi üçün lazım olan xidmətlərdə — sayt hostinqi, verilənlər bazası və e-poçt göndərilməsi — və yalnız bu məqsədlə saxlanılır və emal olunur."
+        ]
+      },
+      {
+        "title": "Brauzeriniz",
+        "paragraphs": [
+          "Giriş sessiyanızı və dil seçiminizi brauzerinizin yerli yaddaşında (local storage) saxlayırıq. Reklam və izləmə cookie-lərindən istifadə etmirik."
+        ]
+      },
+      {
+        "title": "Hesabın silinməsi",
+        "paragraphs": [
+          "İstənilən vaxt hesabınızın və şəxsi məlumatlarınızın silinməsini tələb edə bilərsiniz. Hesabınızın e-poçt ünvanından aşağıdakı ünvana yazın — hesabı siləcək və bunu e-poçtla təsdiqləyəcəyik."
+        ]
+      }
+    ],
+    "contactTitle": "Əlaqə",
+    "contactText": "Hesabın silinməsi və ya məlumatlarınızla bağlı istənilən sual üçün yazın:"
   }
 }

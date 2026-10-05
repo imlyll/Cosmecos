@@ -36,7 +36,7 @@ async function login(page, email, password, path = '/login') {
   await page.locator('form button[type="submit"]').first().click();
 }
 
-const PAGES = ['/', '/about-us', '/shop', '/product/SLUG', '/contacts', '/login', '/register', '/cart', '/checkout', '/profile', '/wishlist'];
+const PAGES = ['/', '/about-us', '/shop', '/product/SLUG', '/contacts', '/privacy', '/login', '/register', '/cart', '/checkout', '/profile', '/wishlist'];
 
 test.describe('pages', () => {
   for (const p of PAGES) {
@@ -257,4 +257,20 @@ test('Google: the button follows the site language', async ({ page, request }) =
   await page.goto('/login');
   await expect(page.getByText('və ya')).toBeVisible();
   expect(await page.evaluate(() => window.__gisOptions.locale)).toBe('az');
+});
+
+test('privacy policy: footer link, contact email and translations', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('contentinfo').getByRole('link', { name: 'Privacy policy' }).click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole('heading', { name: 'Signing in with Google' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'leylamustafayeva555@gmail.com' })).toHaveAttribute(
+    'href',
+    'mailto:leylamustafayeva555@gmail.com'
+  );
+
+  await page.addInitScript(() => localStorage.setItem('cosmecos-lang', 'az'));
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Google ilə giriş' })).toBeVisible();
+  await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Məxfilik siyasəti' })).toBeVisible();
 });

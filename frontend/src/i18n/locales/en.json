@@ -528,7 +528,8 @@
       "brushes": "How to Clean Makeup Brushes",
       "foundation": "The Right Foundation"
     },
-    "copyright": "© {{year}} Cosmecos. All rights reserved."
+    "copyright": "© {{year}} Cosmecos. All rights reserved.",
+    "privacy": "Privacy policy"
   },
   "sidePanel": {
     "text": "Our eyes are intrinsically trained to spot divine proportion and immediately associate it with beauty.",
@@ -936,5 +937,53 @@
       "customer": "Customer",
       "admin": "Admin"
     }
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "updated": "Last updated: 5 October 2026",
+    "intro": "This page explains what information Cosmecos collects when you use our shop, what we use it for, and how you can have it deleted.",
+    "sections": [
+      {
+        "title": "What we collect",
+        "paragraphs": [
+          "Your account: your name, email address and password. The password is stored only in encrypted (hashed) form, so nobody can read it — not even us.",
+          "Your orders: the products you buy, your delivery address and phone number, and your order history.",
+          "Anything else you add to your profile, such as a phone number or a saved address."
+        ]
+      },
+      {
+        "title": "Signing in with Google",
+        "paragraphs": [
+          "If you sign in with Google, we receive only your name and email address, plus an account identifier from Google so we can recognise you the next time. We never see your Google password and get no access to your Gmail, contacts or anything else in your Google account."
+        ]
+      },
+      {
+        "title": "How we use it",
+        "paragraphs": [
+          "We use your information only to run your account, to process and deliver your orders, and to send you the emails the shop needs, such as verification and password reset codes."
+        ]
+      },
+      {
+        "title": "Who we share it with",
+        "paragraphs": [
+          "We never sell your personal information or share it for advertising.",
+          "It is stored and processed only by the services we need to run the shop — website hosting, our database and email delivery — and only for that purpose."
+        ]
+      },
+      {
+        "title": "Your browser",
+        "paragraphs": [
+          "We keep your sign-in session and your language choice in your browser’s local storage. We do not use advertising or tracking cookies."
+        ]
+      },
+      {
+        "title": "Deleting your account",
+        "paragraphs": [
+          "You can ask us to delete your account and your personal information at any time. Write to the address below from the email of your account, and we will delete it and confirm by email."
+        ]
+      }
+    ],
+    "contactTitle": "Contact",
+    "contactText": "For account deletion or any question about your data, write to"
   }
 }
