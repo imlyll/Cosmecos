@@ -579,6 +579,22 @@
     "attemptsLeft_one": "{{count}} attempt left.",
     "attemptsLeft_other": "{{count}} attempts left."
   },
+  "forgot": {
+    "link": "Forgot password?",
+    "eyebrow": "No worries",
+    "title": "Reset your password",
+    "intro": "Enter the email you signed up with and we'll send you a 6-digit code to set a new password.",
+    "sendCode": "Send code",
+    "codeSent": "If this email is registered, a code is on its way",
+    "sentTo": "If {{email}} is registered with us, we've sent it a 6-digit code. Enter it below with your new password.",
+    "code": "Code from the email",
+    "newPassword": "New password",
+    "submit": "Save new password",
+    "backToSignIn": "Back to sign in",
+    "errors": {
+      "code": "Enter the 6-digit code"
+    }
+  },
   "toast": {
     "welcomeBack": "Welcome back, {{name}}",
     "welcome": "Welcome to Cosmecos, {{name}}",
@@ -598,7 +614,8 @@
     "codeSent": "Verification code sent to {{email}}",
     "codeResent": "A new code is on its way",
     "verified": "Email verified — welcome to Cosmecos, {{name}}!",
-    "verifyFirst": "Please verify your email to sign in"
+    "verifyFirst": "Please verify your email to sign in",
+    "passwordReset": "Your password has been changed. Welcome back, {{name}}!"
   },
   "errors": {
     "network": "Unable to reach the server. Please check your connection.",

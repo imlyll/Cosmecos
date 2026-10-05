@@ -579,6 +579,22 @@
     "attemptsLeft_one": "{{count}} cəhd qalıb.",
     "attemptsLeft_other": "{{count}} cəhd qalıb."
   },
+  "forgot": {
+    "link": "Şifrəmi unutdum",
+    "eyebrow": "Narahat olmayın",
+    "title": "Şifrəni bərpa edin",
+    "intro": "Qeydiyyatdan keçdiyiniz e-poçtu yazın, yeni şifrə təyin etmək üçün sizə 6 rəqəmli kod göndərək.",
+    "sendCode": "Kodu göndər",
+    "codeSent": "Bu e-poçt qeydiyyatdadırsa, kod göndərildi",
+    "sentTo": "{{email}} qeydiyyatdadırsa, ona 6 rəqəmli kod göndərdik. Kodu və yeni şifrənizi aşağıda daxil edin.",
+    "code": "E-poçtdakı kod",
+    "newPassword": "Yeni şifrə",
+    "submit": "Yeni şifrəni saxla",
+    "backToSignIn": "Girişə qayıt",
+    "errors": {
+      "code": "6 rəqəmli kodu daxil edin"
+    }
+  },
   "toast": {
     "welcomeBack": "Yenidən xoş gəldiniz, {{name}}",
     "welcome": "Cosmecos-a xoş gəldiniz, {{name}}",
@@ -598,7 +614,8 @@
     "codeSent": "Təsdiq kodu {{email}} ünvanına göndərildi",
     "codeResent": "Yeni kod göndərildi",
     "verified": "E-poçt təsdiqləndi — Cosmecos-a xoş gəldiniz, {{name}}!",
-    "verifyFirst": "Daxil olmaq üçün e-poçtunuzu təsdiqləyin"
+    "verifyFirst": "Daxil olmaq üçün e-poçtunuzu təsdiqləyin",
+    "passwordReset": "Şifrəniz dəyişdirildi. Xoş gəldiniz, {{name}}!"
   },
   "errors": {
     "network": "Serverə qoşulmaq mümkün olmadı. İnternet bağlantınızı yoxlayın.",

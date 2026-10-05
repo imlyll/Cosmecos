@@ -127,3 +127,50 @@ test('admin flow: login → new product → visible in shop', async ({ page }) =
   await page.goto('/shop');
   await expect(page.getByText('E2E Night Cream').first()).toBeVisible();
 });
+
+test('forgot password: login → "Forgot password?" → code → new password → signed in', async ({ page, request }) => {
+  const { url } = api();
+  const email = `reset${Date.now()}@test.com`;
+  // A verified account, created through the API.
+  await request.post(`${url}/api/auth/register`, { data: { name: 'Reset User', email, password: 'OldPassw0rd' } });
+  const { code: signupCode } = await (await request.get(`${url}/__audit__/otp/${email}`)).json();
+  await request.post(`${url}/api/auth/verify-otp`, { data: { email, code: signupCode } });
+
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Forgot password?' }).click();
+  await expect(page).toHaveURL(/\/forgot-password/);
+  // Wait for the page transition, so the email goes into the new form and not the outgoing one.
+  await expect(page.getByRole('heading', { name: 'Reset your password' })).toBeVisible();
+  await expect(page.locator('input[name="email"]')).toHaveCount(1);
+  await page.locator('input[name="email"]').fill(email);
+  await page.getByRole('button', { name: 'Send code' }).click();
+  await expect(page.locator('input[name="code"]')).toBeVisible();
+
+  // The email is sent in the background; wait for the reset code to arrive.
+  let code;
+  await expect(async () => {
+    const mail = await (await request.get(`${url}/__audit__/otp/${email}`)).json();
+    expect(mail.subject).toContain('password reset');
+    code = mail.code;
+  }).toPass({ timeout: 10_000 });
+
+  await page.locator('input[name="code"]').fill(code);
+  await page.locator('input[name="password"]').fill('NewPassw0rd');
+  await page.locator('input[name="confirm"]').fill('NewPassw0rd');
+  await page.getByRole('button', { name: 'Save new password' }).click();
+  await expect(page).toHaveURL(/\/profile/, { timeout: 15_000 });
+
+  // Signed out, the new password works and the old one does not.
+  await page.evaluate(() => localStorage.removeItem('cosmecos-auth'));
+  await login(page, email, 'OldPassw0rd');
+  await expect(page.getByRole('alert')).toBeVisible();
+  await login(page, email, 'NewPassw0rd');
+  await expect(page).not.toHaveURL(/\/login/);
+});
+
+test('forgot password is reachable from the sign-in modal', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /sign in/i }).first().click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Forgot password?' }).click();
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Send code' })).toBeVisible();
+});

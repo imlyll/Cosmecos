@@ -7,6 +7,11 @@ const COPY = {
     intro: 'Thank you for joining Cosmecos. Use the code below to verify your email address:',
     expires: (m) => `This code expires in ${m} minutes.`,
     ignore: "If you didn't create a Cosmecos account, you can safely ignore this email.",
+    reset: {
+      subject: (code) => `${code} is your Cosmecos password reset code`,
+      intro: 'We received a request to reset your Cosmecos password. Use the code below to choose a new one:',
+      ignore: "If you didn't ask to reset your password, you can safely ignore this email. Your password won't change.",
+    },
   },
   az: {
     subject: (code) => `${code} — Cosmecos təsdiq kodunuz`,
@@ -14,6 +19,11 @@ const COPY = {
     intro: 'Cosmecos-a qoşulduğunuz üçün təşəkkür edirik. E-poçt ünvanınızı təsdiqləmək üçün aşağıdakı koddan istifadə edin:',
     expires: (m) => `Bu kodun etibarlılıq müddəti ${m} dəqiqədir.`,
     ignore: 'Əgər Cosmecos hesabı yaratmamısınızsa, bu məktubu nəzərə almayın.',
+    reset: {
+      subject: (code) => `${code} — Cosmecos şifrə bərpa kodunuz`,
+      intro: 'Cosmecos şifrənizi bərpa etmək üçün sorğu aldıq. Yeni şifrə təyin etmək üçün aşağıdakı koddan istifadə edin:',
+      ignore: 'Əgər şifrəni bərpa etmək istəməmisinizsə, bu məktubu nəzərə almayın. Şifrəniz dəyişməyəcək.',
+    },
   },
   ru: {
     subject: (code) => `${code} — ваш код подтверждения Cosmecos`,
@@ -21,15 +31,21 @@ const COPY = {
     intro: 'Спасибо, что присоединились к Cosmecos. Используйте этот код, чтобы подтвердить адрес электронной почты:',
     expires: (m) => `Код действителен ${m} минут.`,
     ignore: 'Если вы не создавали аккаунт Cosmecos, просто проигнорируйте это письмо.',
+    reset: {
+      subject: (code) => `${code} — код для сброса пароля Cosmecos`,
+      intro: 'Мы получили запрос на сброс пароля Cosmecos. Используйте этот код, чтобы задать новый пароль:',
+      ignore: 'Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо. Ваш пароль не изменится.',
+    },
   },
 };
 
 const escapeHtml = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-/** Branded verification email with the 6-digit code, in the shopper's language. */
-function verificationEmail({ name, code, minutes, lang = 'en' }) {
-  const c = COPY[LANGS.includes(lang) ? lang : 'en'];
+/** Branded email with the 6-digit code, in the shopper's language. `purpose` picks the wording (see models/Otp.js). */
+function verificationEmail({ name, code, minutes, lang = 'en', purpose = 'register' }) {
+  const copy = COPY[LANGS.includes(lang) ? lang : 'en'];
+  const c = purpose === 'reset_password' ? { ...copy, ...copy.reset } : copy;
   const safeName = escapeHtml(name);
   const digits = code
     .split('')

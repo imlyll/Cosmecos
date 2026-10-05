@@ -43,6 +43,14 @@ const verifyOtp = z.object({
 
 const resendOtp = z.object({ email, lang });
 
+const forgotPassword = z.object({ email, lang });
+
+const resetPassword = z.object({
+  email,
+  code: z.string().trim().regex(/^\d{6}$/, 'Enter the 6-digit code'),
+  password,
+});
+
 const updateProfile = z
   .object({
     name: z.string().trim().min(2).max(80).optional(),
@@ -61,4 +69,4 @@ const changePassword = z
     path: ['newPassword'],
   });
 
-module.exports = { register, login, verifyOtp, resendOtp, updateProfile, changePassword };
+module.exports = { register, login, verifyOtp, resendOtp, forgotPassword, resetPassword, updateProfile, changePassword };

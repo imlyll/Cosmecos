@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '../ui/Drawer';
-import { LoginForm, RegisterForm } from './AuthForms';
+import { ForgotPasswordForm, LoginForm, RegisterForm } from './AuthForms';
 import OtpForm from './OtpForm';
 import { useUIStore } from '../../store/ui';
 import { sizedImage } from '../../lib/api';
@@ -35,6 +35,7 @@ export default function AuthModal() {
   const [eyebrow, title] = {
     login: [t('auth.welcomeBack'), t('auth.signIn')],
     register: [t('auth.joinUs'), t('auth.createAccount')],
+    forgot: [t('forgot.eyebrow'), t('forgot.title')],
     verify: [t('otp.eyebrow'), t('otp.title')],
   }[step];
 
@@ -61,8 +62,15 @@ export default function AuthModal() {
               <h2 className="mt-3 mb-8 text-4xl">{title}</h2>
               {step === 'verify' ? (
                 <OtpForm {...verification} onSuccess={onSuccess} onBack={() => switchTo('register')} />
+              ) : step === 'forgot' ? (
+                <ForgotPasswordForm onSuccess={onSuccess} onBack={() => switchTo('login')} />
               ) : step === 'login' ? (
-                <LoginForm onSuccess={onSuccess} onVerify={setVerification} onSwitch={() => switchTo('register')} />
+                <LoginForm
+                  onSuccess={onSuccess}
+                  onVerify={setVerification}
+                  onSwitch={() => switchTo('register')}
+                  onForgot={() => switchTo('forgot')}
+                />
               ) : (
                 <RegisterForm onVerify={setVerification} onSwitch={() => switchTo('login')} />
               )}

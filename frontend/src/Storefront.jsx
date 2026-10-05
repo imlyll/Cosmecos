@@ -70,6 +70,7 @@ export default function Storefront() {
               <Route path="/profile" element={guard(<Profile />)} />
               <Route path="/login" element={<AuthPage mode="login" />} />
               <Route path="/register" element={<AuthPage mode="register" />} />
+              <Route path="/forgot-password" element={<AuthPage mode="forgot" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

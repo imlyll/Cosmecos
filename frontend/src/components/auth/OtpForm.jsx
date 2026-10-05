@@ -11,10 +11,10 @@ import { errorMessage } from '../../i18n';
 const LENGTH = 6;
 const EMPTY = Array(LENGTH).fill('');
 
-const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+export const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
 /** Counts down from `seconds`; restart by passing a new value to `restart`. */
-function useCountdown(initial) {
+export function useCountdown(initial) {
   const [left, setLeft] = useState(initial);
   useEffect(() => {
     if (left <= 0) return undefined;

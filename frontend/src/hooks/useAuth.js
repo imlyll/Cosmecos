@@ -43,6 +43,16 @@ export function useResendOtp() {
   });
 }
 
+/** Asks for a password reset code. The API answers the same whether or not the email is registered. */
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: ({ email }) => api('/auth/forgot-password', { method: 'POST', body: withLang({ email }) }),
+  });
+}
+
+/** Sets a new password with the emailed code; on success the user is signed in. */
+export const useResetPassword = () => useAuthMutation('/auth/reset-password', 'toast.passwordReset');
+
 export function useLogout() {
   const logout = useAuthStore((s) => s.logout);
   const qc = useQueryClient();

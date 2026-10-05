@@ -64,7 +64,10 @@ async function main() {
   // Test-only routes so the tests can read what would otherwise need direct DB access.
   const app = express();
   app.get('/__audit__/brevo', (_req, res) => res.json(brevoCalls));
-  app.get('/__audit__/otp/:email', (req, res) => res.json({ code: lastMailTo(req.params.email)?.code || null }));
+  app.get('/__audit__/otp/:email', (req, res) => {
+    const mail = lastMailTo(req.params.email);
+    res.json({ code: mail?.code || null, subject: mail?.subject || null });
+  });
   app.get('/__audit__/user/:email', async (req, res) => {
     const u = await User.findOne({ email: req.params.email }).select('+password');
     res.json({ role: u?.role, hashPrefix: u?.password.slice(0, 7) });

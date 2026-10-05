@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { LoginForm, RegisterForm } from '../components/auth/AuthForms';
+import { ForgotPasswordForm, LoginForm, RegisterForm } from '../components/auth/AuthForms';
 import OtpForm from '../components/auth/OtpForm';
 import { useAuthStore } from '../store/auth';
 import { sizedImage } from '../lib/api';
@@ -14,14 +14,14 @@ const IMAGES = {
   register: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&q=80',
 };
 
-/** Dedicated /login and /register pages (the modal covers in-context sign-in). */
+/** Dedicated /login, /register and /forgot-password pages (the modal covers in-context sign-in). */
 export default function AuthPage({ mode }) {
   const { t } = useTranslation();
   const token = useAuthStore((s) => s.token);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || '/profile';
-  const isLogin = mode === 'login';
+  const isLogin = mode === 'login' || mode === 'forgot';
   // Set once registration (or login to an unverified account) has emailed a code.
   const [verification, setVerification] = useState(null);
   const step = verification ? 'verify' : mode;
@@ -29,6 +29,7 @@ export default function AuthPage({ mode }) {
   const [eyebrow, title] = {
     login: [t('auth.welcomeBack'), t('auth.signIn')],
     register: [t('auth.joinCosmecos'), t('auth.createAccount')],
+    forgot: [t('forgot.eyebrow'), t('forgot.title')],
     verify: [t('otp.eyebrow'), t('otp.title')],
   }[step];
   useDocumentTitle(title);
@@ -45,8 +46,8 @@ export default function AuthPage({ mode }) {
     <div className="grid min-h-[calc(100svh-7.5rem)] lg:grid-cols-2">
       <div className="relative hidden overflow-hidden lg:block">
         <motion.img
-          key={mode}
-          src={sizedImage(IMAGES[mode], 1400)}
+          key={isLogin ? 'login' : 'register'}
+          src={sizedImage(IMAGES[isLogin ? 'login' : 'register'], 1400)}
           alt=""
           className="absolute inset-0 size-full object-cover"
           initial={{ scale: 1.15, opacity: 0 }}
@@ -71,8 +72,15 @@ export default function AuthPage({ mode }) {
           <h1 className="mt-3 mb-10 text-[40px] leading-tight font-extralight md:text-[56px]">{title}</h1>
           {step === 'verify' ? (
             <OtpForm {...verification} onSuccess={onSuccess} onBack={() => switchTo('/register')} />
+          ) : mode === 'forgot' ? (
+            <ForgotPasswordForm onSuccess={onSuccess} onBack={() => switchTo('/login')} />
           ) : isLogin ? (
-            <LoginForm onSuccess={onSuccess} onVerify={setVerification} onSwitch={() => switchTo('/register')} />
+            <LoginForm
+              onSuccess={onSuccess}
+              onVerify={setVerification}
+              onSwitch={() => switchTo('/register')}
+              onForgot={() => switchTo('/forgot-password')}
+            />
           ) : (
             <RegisterForm onVerify={setVerification} onSwitch={() => switchTo('/login')} />
           )}

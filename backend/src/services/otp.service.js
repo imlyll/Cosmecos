@@ -48,7 +48,7 @@ async function issueOtp(user, { purpose = 'register', lang, force = false } = {}
     { upsert: true, setDefaultsOnInsert: true }
   );
 
-  const message = verificationEmail({ name: user.name, code, minutes: config.ttlMinutes, lang });
+  const message = verificationEmail({ name: user.name, code, minutes: config.ttlMinutes, lang, purpose });
   try {
     await sendMail({ to: email, ...message, preview: { code } });
   } catch (err) {

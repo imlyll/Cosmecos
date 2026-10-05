@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const PURPOSES = ['register'];
+const PURPOSES = ['register', 'reset_password'];
 
 /**
  * A one-time code emailed to a user. Only a hash of the code is stored.

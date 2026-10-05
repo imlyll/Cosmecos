@@ -23,6 +23,7 @@ const MESSAGES = [
   [/^Please wait (\d+)s before requesting a new code$/, 'Yeni kod tələb etmək üçün $1 saniyə gözləyin', 'Подождите $1 с, прежде чем запросить новый код'],
   ['This email is already verified. Please sign in.', 'Bu e-poçt artıq təsdiqlənib. Zəhmət olmasa daxil olun.', 'Эта почта уже подтверждена. Пожалуйста, войдите.'],
   ['We could not send the verification email. Please try again shortly.', 'Təsdiq məktubunu göndərə bilmədik. Bir azdan yenidən cəhd edin.', 'Не удалось отправить письмо с кодом. Попробуйте чуть позже.'],
+  ['If this email is registered, we sent a code to reset your password', 'Bu e-poçt qeydiyyatdadırsa, şifrəni bərpa etmək üçün kod göndərdik', 'Если этот адрес зарегистрирован, мы отправили код для сброса пароля'],
   ['Too many attempts, please try again later', 'Çox sayda cəhd. Bir az sonra yenidən cəhd edin', 'Слишком много попыток, попробуйте позже'],
   ['Authentication token missing', 'Davam etmək üçün daxil olun', 'Войдите, чтобы продолжить'],
   ['Token expired, please log in again', 'Sessiyanın müddəti bitib, yenidən daxil olun', 'Сеанс истёк, войдите снова'],

@@ -123,4 +123,49 @@ async function changePassword(req, res) {
   sendAuth(res, 200, user);
 }
 
-module.exports = { register, verifyOtp, resendOtp, login, me, updateMe, changePassword };
+/** Emails a password reset code if the account exists and no code went out moments ago. */
+async function sendResetCode(email, lang) {
+  const user = await User.findOne({ email });
+  if (!user || !user.isActive) return;
+  if ((await resendAvailableIn(email, 'reset_password')) > 0) return;
+  await issueOtp(user, { purpose: 'reset_password', lang });
+}
+
+// POST /api/auth/forgot-password
+// Always the same answer, sent straight away: neither the response nor its timing reveals whether
+// the email is registered. The lookup and the email run in the background.
+async function forgotPassword(req, res) {
+  const { email, lang } = req.body;
+  sendResetCode(email, lang).catch((err) => {
+    // Failed sends are already logged by the OTP service; a cooldown just means two requests raced.
+    if (!['EMAIL_SEND_FAILED', 'OTP_COOLDOWN'].includes(err.code)) {
+      console.error(`[auth] Password reset for ${email} failed:`, err);
+    }
+  });
+  res.json({
+    success: true,
+    message: 'If this email is registered, we sent a code to reset your password',
+    expiresInMinutes: otpConfig.ttlMinutes,
+    resendAvailableIn: otpConfig.resendCooldownSeconds,
+  });
+}
+
+// POST /api/auth/reset-password
+// The emailed code proves the email belongs to the user: set the new password and sign them in.
+async function resetPassword(req, res) {
+  const { email, code, password } = req.body;
+  const user = await User.findOne({ email });
+  // Same error as a wrong or expired code, so unknown emails can't be told apart.
+  if (!user) {
+    throw ApiError.badRequest('This code has expired. Please request a new one.', undefined, { code: 'OTP_EXPIRED' });
+  }
+  await checkOtp(email, code, 'reset_password');
+  if (!user.isActive) throw ApiError.forbidden('This account has been disabled');
+  user.password = password;
+  user.isVerified = true;
+  await user.save();
+  // Older tokens stop working (passwordChangedAt); this one is fresh.
+  sendAuth(res, 200, user);
+}
+
+module.exports = { register, verifyOtp, resendOtp, login, me, updateMe, changePassword, forgotPassword, resetPassword };

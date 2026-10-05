@@ -21,6 +21,8 @@ router.post('/register', authLimiter, validate({ body: v.register }), ctrl.regis
 router.post('/login', authLimiter, validate({ body: v.login }), ctrl.login);
 router.post('/verify-otp', authLimiter, validate({ body: v.verifyOtp }), ctrl.verifyOtp);
 router.post('/resend-otp', authLimiter, validate({ body: v.resendOtp }), ctrl.resendOtp);
+router.post('/forgot-password', authLimiter, validate({ body: v.forgotPassword }), ctrl.forgotPassword);
+router.post('/reset-password', authLimiter, validate({ body: v.resetPassword }), ctrl.resetPassword);
 
 router.get('/me', protect, ctrl.me);
 router.patch('/me', protect, validate({ body: v.updateProfile }), ctrl.updateMe);
