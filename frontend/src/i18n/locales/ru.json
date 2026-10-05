@@ -20,7 +20,8 @@
     "profile": "Профиль",
     "menu": "Меню",
     "adminPanel": "Админ-панель",
-    "signInRegister": "Вход / Регистрация"
+    "signInRegister": "Вход / Регистрация",
+    "privacy": "Политика конфиденциальности"
   },
   "header": {
     "signIn": "Войти",

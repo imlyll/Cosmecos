@@ -9,6 +9,7 @@ export const NAV_LINKS = [
       { label: 'nav.aboutUs', to: '/about-us' },
       { label: 'nav.wishlist', to: '/wishlist' },
       { label: 'nav.myAccount', to: '/profile' },
+      { label: 'nav.privacy', to: '/privacy' },
     ],
   },
   {

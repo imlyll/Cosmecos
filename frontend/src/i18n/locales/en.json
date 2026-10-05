@@ -20,7 +20,8 @@
     "profile": "Profile",
     "menu": "Menu",
     "adminPanel": "Admin panel",
-    "signInRegister": "Sign in / Register"
+    "signInRegister": "Sign in / Register",
+    "privacy": "Privacy Policy"
   },
   "header": {
     "signIn": "Sign in",

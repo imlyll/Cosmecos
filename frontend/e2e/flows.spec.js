@@ -333,3 +333,41 @@ test('delete account: the button is not offered to admins', async ({ page }) => 
   await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Delete account' })).toHaveCount(0);
 });
+
+// --- Privacy link in the main menu ---------------------------------------------------------------
+
+test('menu: "Privacy Policy" is the last item under Pages and marks Pages active (desktop)', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  const mainNav = page.getByRole('navigation', { name: 'Main' });
+  const pages = mainNav.getByRole('link', { name: 'Pages' });
+  await pages.hover();
+  const items = mainNav.locator('ul ul a');
+  await expect(items.last()).toHaveText('Privacy Policy');
+  await items.last().click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole('heading', { name: 'Privacy policy', level: 1 })).toBeVisible();
+  // Same rule as the other pages in the dropdown: the Pages item gets the underline.
+  await expect(pages.locator('span.bg-ink')).toHaveCount(1);
+  await expect(mainNav.getByRole('link', { name: 'Shop' }).locator('span.bg-ink')).toHaveCount(0);
+});
+
+test('menu: "Privacy Policy" in the mobile menu at 375px', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  const mobileNav = page.getByRole('navigation', { name: 'Mobile' });
+  await mobileNav.getByRole('link', { name: 'Privacy Policy' }).click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole('heading', { name: 'Privacy policy', level: 1 })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+});
+
+test('menu: the item is translated (AZ)', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('cosmecos-lang', 'az'));
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  const mainNav = page.getByRole('navigation', { name: 'Əsas menyu' });
+  await mainNav.getByRole('link', { name: 'Səhifələr' }).hover();
+  await expect(mainNav.locator('ul ul a').last()).toHaveText('Məxfilik siyasəti');
+});
