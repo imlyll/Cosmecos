@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router';
-import { motion } from 'framer-motion';
+import { motion, useIsPresent } from 'framer-motion';
 import { useAuthStore } from '../../store/auth';
 import { useTranslation } from 'react-i18next';
 
@@ -26,9 +26,16 @@ export function SessionLoader() {
 export default function ProtectedRoute({ children, role, redirectTo = '/login', forbiddenTo = '/' }) {
   const { token, user, sessionChecked } = useAuthStore();
   const location = useLocation();
+  // False while the page plays its exit transition after navigating away.
+  const isPresent = useIsPresent();
 
   if (token && !sessionChecked) return <SessionLoader />;
-  if (!token) return <Navigate to={redirectTo} replace state={{ from: location.pathname + location.search }} />;
+  if (!token) {
+    // A page on its way out must not redirect: that would override where the user just went
+    // (e.g. home after deleting their account).
+    if (!isPresent) return null;
+    return <Navigate to={redirectTo} replace state={{ from: location.pathname + location.search }} />;
+  }
   if (role && user?.role !== role) return <Navigate to={forbiddenTo} replace />;
   return children;
 }

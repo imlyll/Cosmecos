@@ -126,7 +126,7 @@ async function listMyOrders(req, res) {
 async function getOrder(req, res) {
   const order = await Order.findById(req.validatedParams.id).populate('user', 'name email');
   // 404 rather than 403 so order ids of other customers can't be probed.
-  if (!order || (req.user.role !== 'admin' && String(order.user._id) !== String(req.user._id))) {
+  if (!order || (req.user.role !== 'admin' && String(order.user?._id) !== String(req.user._id))) {
     throw ApiError.notFound('Order not found');
   }
   res.json({ success: true, order });

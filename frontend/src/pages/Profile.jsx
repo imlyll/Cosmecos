@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Heart, KeyRound, LogOut, Package, UserRound } from 'lucide-react';
+import { ChevronDown, Heart, KeyRound, LogOut, Package, Trash2, UserRound } from 'lucide-react';
 import clsx from 'clsx';
 import PageHero from '../components/ui/PageHero';
 import Button from '../components/ui/Button';
@@ -12,7 +12,8 @@ import Field, { applyServerErrors } from '../components/ui/Field';
 import Pagination from '../components/ui/Pagination';
 import { EmptyState, Skeleton } from '../components/ui/Feedback';
 import { useAuthStore } from '../store/auth';
-import { useChangePassword, useLogout, useUpdateProfile } from '../hooks/useAuth';
+import { useChangePassword, useDeleteAccount, useLogout, useUpdateProfile } from '../hooks/useAuth';
+import { Modal } from '../components/ui/Drawer';
 import { useCancelOrder, useOrders } from '../hooks/useOrders';
 import { sizedImage } from '../lib/api';
 import { formatDate, formatPrice } from '../lib/format';
@@ -301,6 +302,90 @@ function PasswordTab() {
   );
 }
 
+/**
+ * "Delete account" at the bottom of the profile, with a confirmation dialog: password accounts enter
+ * their password, Google accounts type the confirmation word (they may have no password).
+ */
+function DeleteAccount() {
+  const { t, i18n } = useTranslation();
+  const err = (e) => e?.message && t(e.message);
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const deleteAccount = useDeleteAccount();
+  const [open, setOpen] = useState(false);
+  const usesWord = Boolean(user?.googleId);
+  const word = t('profile.delete.word');
+  const upper = (s) => s.trim().toLocaleUpperCase(i18n.resolvedLanguage);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors },
+  } = useForm();
+
+  const close = () => {
+    setOpen(false);
+    reset();
+    deleteAccount.reset();
+  };
+
+  // Admin accounts can't delete themselves (the API refuses too).
+  if (user?.role === 'admin') return null;
+
+  const field = usesWord ? 'confirm' : 'password';
+  const onSubmit = (values) =>
+    deleteAccount.mutate(usesWord ? { confirm: 'DELETE' } : { password: values.password }, {
+      // Home signs the user out once it is shown (see Storefront).
+      onSuccess: () => navigate('/', { replace: true, state: { accountDeleted: true } }),
+      onError: (e) => {
+        if (!applyServerErrors(e, setError)) setError(field, { message: e.message });
+      },
+    });
+
+  return (
+    <div className="mt-16 border-t border-line pt-8">
+      <p className="max-w-xl text-sm leading-relaxed text-taupe">{t('profile.delete.zoneText')}</p>
+      <Button variant="danger" size="sm" className="mt-5" onClick={() => setOpen(true)}>
+        <Trash2 className="size-4" strokeWidth={1.5} /> {t('profile.delete.button')}
+      </Button>
+
+      <Modal open={open} onClose={close} className="max-w-lg" label={t('profile.delete.dialogTitle')}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-8 sm:p-10" noValidate>
+          <h2 className="pr-8 text-3xl">{t('profile.delete.dialogTitle')}</h2>
+          <p className="text-sm leading-relaxed text-body">{t('profile.delete.dialogText')}</p>
+          {usesWord ? (
+            <Field
+              label={t('profile.delete.wordLabel', { word })}
+              autoComplete="off"
+              error={err(errors.confirm)}
+              {...register('confirm', {
+                validate: (v) => upper(v) === upper(word) || 'profile.delete.wordMismatch',
+              })}
+            />
+          ) : (
+            <Field
+              label={t('profile.delete.passwordLabel')}
+              type="password"
+              autoComplete="current-password"
+              error={err(errors.password)}
+              {...register('password', { required: 'auth.errors.passwordRequired' })}
+            />
+          )}
+          <div className="flex flex-wrap justify-end gap-3 pt-2">
+            <Button type="button" variant="outline" size="sm" onClick={close}>
+              {t('profile.delete.cancel')}
+            </Button>
+            <Button type="submit" variant="danger" size="sm" loading={deleteAccount.isPending}>
+              {t('profile.delete.confirmButton')}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}
+
 export default function Profile() {
   const { t } = useTranslation();
   useDocumentTitle(t('nav.myAccount'));
@@ -364,6 +449,7 @@ export default function Profile() {
               {tab === 'password' && <PasswordTab />}
             </motion.div>
           </AnimatePresence>
+          <DeleteAccount />
         </section>
       </div>
     </>

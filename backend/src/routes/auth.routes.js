@@ -28,5 +28,6 @@ router.post('/google', authLimiter, validate({ body: v.googleLogin }), ctrl.goog
 router.get('/me', protect, ctrl.me);
 router.patch('/me', protect, validate({ body: v.updateProfile }), ctrl.updateMe);
 router.patch('/me/password', protect, validate({ body: v.changePassword }), ctrl.changePassword);
+router.delete('/me', protect, authLimiter, validate({ body: v.deleteAccount }), ctrl.deleteMe);
 
 module.exports = router;

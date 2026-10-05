@@ -9,6 +9,7 @@ const VARIANTS = {
   outline: 'border border-ink text-ink hover:bg-ink hover:text-white',
   light: 'border border-white text-white hover:bg-white hover:text-ink',
   ghost: 'text-ink hover:text-rose',
+  danger: 'border border-danger text-danger hover:bg-danger hover:text-white',
 };
 
 const SIZES = {

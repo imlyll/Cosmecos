@@ -103,6 +103,20 @@ async function main() {
     res.json({ role: u?.role, hashPrefix: u?.password.slice(0, 7) });
   });
   app.get('/__audit__/stock/:id', async (req, res) => res.json({ stock: (await Product.findById(req.params.id)).stock }));
+  // What is still stored for a user id / email (account deletion tests).
+  app.get('/__audit__/leftovers/:id/:email', async (req, res) => {
+    const { id, email } = req.params;
+    const count = (name, filter) => mongoose.model(name).countDocuments(filter);
+    res.json({
+      users: await count('User', { _id: id }),
+      carts: await count('Cart', { user: id }),
+      wishlists: await count('Wishlist', { user: id }),
+      otps: await count('Otp', { email }),
+      messages: await count('ContactMessage', { $or: [{ user: id }, { email }] }),
+      orders: await count('Order', { user: id }),
+      ordersMentioningUser: await count('Order', { 'statusHistory.changedBy': id }),
+    });
+  });
   app.use(api);
 
   // Prints the "Mail: ..." startup line, as server.js does.

@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react';
-import { Route, Routes, useLocation } from 'react-router';
+import { lazy, Suspense, useEffect } from 'react';
+import { Route, Routes, useLocation, useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import AnnouncementBar from './components/layout/AnnouncementBar';
 import Header from './components/layout/Header';
@@ -13,6 +13,7 @@ import ProtectedRoute, { SessionLoader } from './components/auth/ProtectedRoute'
 import { EASE } from './lib/motion';
 import { useTranslation } from 'react-i18next';
 import Home from './pages/Home';
+import { useFinishAccountDeletion } from './hooks/useAuth';
 
 // Home ships in the main bundle; other pages load on demand.
 const About = lazy(() => import('./pages/About'));
@@ -34,6 +35,16 @@ const guard = (el) => <ProtectedRoute>{el}</ProtectedRoute>;
 export default function Storefront() {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
+  const finishAccountDeletion = useFinishAccountDeletion();
+
+  // After deleting their account the user is sent home first and signed out here, once home is shown:
+  // signing out while the profile page is still current would make it redirect to /login instead.
+  useEffect(() => {
+    if (!location.state?.accountDeleted) return;
+    finishAccountDeletion();
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location, navigate, finishAccountDeletion]);
 
   return (
     <>

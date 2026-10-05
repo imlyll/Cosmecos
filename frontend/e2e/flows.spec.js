@@ -274,3 +274,62 @@ test('privacy policy: footer link, contact email and translations', async ({ pag
   await expect(page.getByRole('heading', { name: 'Google ilə giriş' })).toBeVisible();
   await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Məxfilik siyasəti' })).toBeVisible();
 });
+
+// --- Delete account -------------------------------------------------------------------------------
+
+test('delete account: password confirmation, then signed out on the home page', async ({ page, request }) => {
+  const { url } = api();
+  const email = `bye${Date.now()}@test.com`;
+  await request.post(`${url}/api/auth/register`, { data: { name: 'Bye User', email, password: 'Passw0rd1' } });
+  const { code } = await (await request.get(`${url}/__audit__/otp/${email}`)).json();
+  await request.post(`${url}/api/auth/verify-otp`, { data: { email, code } });
+
+  await login(page, email, 'Passw0rd1');
+  await expect(page).not.toHaveURL(/\/login/);
+  await page.goto('/profile');
+  await page.getByRole('button', { name: 'Delete account' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Delete your account?' });
+  await expect(dialog).toBeVisible();
+
+  await dialog.getByLabel('Enter your password to confirm').fill('WrongPass1');
+  await dialog.getByRole('button', { name: 'Delete for good' }).click();
+  await expect(dialog.getByText('Password is incorrect')).toBeVisible();
+
+  await dialog.getByLabel('Enter your password to confirm').fill('Passw0rd1');
+  await dialog.getByRole('button', { name: 'Delete for good' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('Your account has been deleted')).toBeVisible();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('cosmecos-auth')).state.token)).toBeNull();
+
+  await login(page, email, 'Passw0rd1');
+  await expect(page.getByRole('alert')).toBeVisible();
+});
+
+test('delete account: a Google account types the word (Azerbaijani: SİL)', async ({ page, request }) => {
+  await withGoogle(page, request, googleId());
+  await page.addInitScript(() => localStorage.setItem('cosmecos-lang', 'az'));
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/profile/);
+
+  await page.getByRole('button', { name: 'Hesabı sil' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByLabel('Təsdiq üçün SİL yazın')).toBeVisible();
+  await dialog.getByLabel('Təsdiq üçün SİL yazın').fill('sl');
+  await dialog.getByRole('button', { name: 'Həmişəlik sil' }).click();
+  await expect(dialog.getByText('Sözü göstərildiyi kimi yazın')).toBeVisible();
+
+  // Lowercase is fine: "sil" upper-cases to "SİL" in Azerbaijani.
+  await dialog.getByLabel('Təsdiq üçün SİL yazın').fill('sil');
+  await dialog.getByRole('button', { name: 'Həmişəlik sil' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText('Hesabınız silindi')).toBeVisible();
+});
+
+test('delete account: the button is not offered to admins', async ({ page }) => {
+  await login(page, 'admin@a.com', 'Admin1234');
+  await expect(page).not.toHaveURL(/\/login/);
+  await page.goto('/profile');
+  await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Delete account' })).toHaveCount(0);
+});

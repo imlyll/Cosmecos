@@ -46,7 +46,8 @@ const statusEntrySchema = new mongoose.Schema(
 const orderSchema = new mongoose.Schema(
   {
     orderNumber: { type: String, unique: true },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    // Empty once the customer deletes their account: the order stays for reporting, anonymised.
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
     items: {
       type: [orderItemSchema],
       validate: [(v) => v.length > 0, 'Order must contain at least one item'],

@@ -56,6 +56,24 @@ export const useResetPassword = () => useAuthMutation('/auth/reset-password', 't
 /** Signs in (or up) with the ID token from Google Identity Services: { credential }. */
 export const useGoogleLogin = () => useAuthMutation('/auth/google', 'toast.welcome');
 
+/** Deletes the signed-in account: { password } or, for Google accounts, { confirm: 'DELETE' }. */
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: (body) => api('/auth/me', { method: 'DELETE', body }),
+  });
+}
+
+/** Ends the session of a deleted account (run once the user has left the profile page, see Storefront). */
+export function useFinishAccountDeletion() {
+  const logout = useAuthStore((s) => s.logout);
+  const qc = useQueryClient();
+  return () => {
+    logout();
+    qc.clear();
+    toast.success(i18n.t('toast.accountDeleted'));
+  };
+}
+
 export function useLogout() {
   const logout = useAuthStore((s) => s.logout);
   const qc = useQueryClient();

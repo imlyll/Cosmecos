@@ -1,4 +1,9 @@
 const User = require('../models/User');
+const Order = require('../models/Order');
+const Cart = require('../models/Cart');
+const Wishlist = require('../models/Wishlist');
+const Otp = require('../models/Otp');
+const ContactMessage = require('../models/ContactMessage');
 const ApiError = require('../utils/ApiError');
 const { signToken } = require('../utils/token');
 const { issueOtp, verifyOtp: checkOtp, resendAvailableIn } = require('../services/otp.service');
@@ -218,7 +223,55 @@ async function googleLogin(req, res) {
   sendAuth(res, 200, user);
 }
 
+// Stands in for the customer's details on orders kept after their account is deleted.
+const ANONYMOUS_ADDRESS = {
+  fullName: 'Deleted user',
+  phone: '-',
+  line1: '-',
+  city: '-',
+  postalCode: '-',
+  country: '-',
+};
+
+// DELETE /api/auth/me
+// Deletes the account with its cart, wishlist, codes and contact messages. Orders stay for the shop's
+// reports but lose the link to the user and every personal detail. Confirmed with the password, or
+// for accounts linked to Google, with confirm: 'DELETE' (they may have no password).
+async function deleteMe(req, res) {
+  const user = await User.findById(req.user._id).select('+password');
+  if (user.role === 'admin') throw ApiError.forbidden('Admin accounts cannot be deleted here');
+
+  const { password, confirm } = req.body;
+  const confirmed = (password && (await user.comparePassword(password))) || (user.googleId && confirm === 'DELETE');
+  if (!confirmed) {
+    const [field, message] = user.googleId
+      ? ['confirm', 'Type the confirmation word to delete your account']
+      : ['password', 'Password is incorrect'];
+    throw ApiError.badRequest(message, [{ field, message }]);
+  }
+
+  // History entries the customer made themselves (e.g. cancelling) point at them too.
+  await Order.updateMany(
+    { user: user._id, 'statusHistory.changedBy': user._id },
+    { $unset: { 'statusHistory.$[byCustomer].changedBy': 1 } },
+    { arrayFilters: [{ 'byCustomer.changedBy': user._id }] }
+  );
+  await Order.updateMany(
+    { user: user._id },
+    { $set: { user: null, shippingAddress: ANONYMOUS_ADDRESS }, $unset: { notes: 1 } }
+  );
+  await Promise.all([
+    Cart.deleteOne({ user: user._id }),
+    Wishlist.deleteOne({ user: user._id }),
+    Otp.deleteMany({ email: user.email }),
+    ContactMessage.deleteMany({ $or: [{ user: user._id }, { email: user.email }] }),
+  ]);
+  await user.deleteOne();
+  res.json({ success: true, message: 'Your account has been deleted' });
+}
+
 module.exports = {
+  deleteMe,
   register,
   verifyOtp,
   resendOtp,

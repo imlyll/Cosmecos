@@ -323,6 +323,18 @@
     "updatePassword": "Update password",
     "errors": {
       "currentPassword": "Enter your current password"
+    },
+    "delete": {
+      "zoneText": "Deleting your account removes your profile, bag and wishlist for good. Your past orders stay in our records without your name or contact details.",
+      "button": "Delete account",
+      "dialogTitle": "Delete your account?",
+      "dialogText": "This cannot be undone. Your account, bag, wishlist and messages will be deleted. Your orders stay in the shop’s records, but your name, email, phone and address are removed from them.",
+      "passwordLabel": "Enter your password to confirm",
+      "word": "DELETE",
+      "wordLabel": "Type {{word}} to confirm",
+      "wordMismatch": "Type the word exactly as shown",
+      "cancel": "Keep my account",
+      "confirmButton": "Delete for good"
     }
   },
   "orderSuccess": {
@@ -618,7 +630,8 @@
     "codeResent": "A new code is on its way",
     "verified": "Email verified — welcome to Cosmecos, {{name}}!",
     "verifyFirst": "Please verify your email to sign in",
-    "passwordReset": "Your password has been changed. Welcome back, {{name}}!"
+    "passwordReset": "Your password has been changed. Welcome back, {{name}}!",
+    "accountDeleted": "Your account has been deleted"
   },
   "errors": {
     "network": "Unable to reach the server. Please check your connection.",
@@ -979,7 +992,9 @@
       {
         "title": "Deleting your account",
         "paragraphs": [
-          "You can ask us to delete your account and your personal information at any time. Write to the address below from the email of your account, and we will delete it and confirm by email."
+          "You can delete your account yourself at any time: open your profile and choose “Delete account”. Your account, bag, wishlist and messages are deleted straight away.",
+          "Orders you placed stay in our records for accounting, but your name, email, phone number and address are removed from them, so they no longer identify you.",
+          "If you can no longer sign in, write to the address below from the email of your account, and we will delete it for you."
         ]
       }
     ],

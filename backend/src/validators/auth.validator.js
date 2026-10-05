@@ -54,6 +54,12 @@ const resetPassword = z.object({
 // The ID token returned by Google Identity Services.
 const googleLogin = z.object({ credential: z.string().min(1).max(5000) });
 
+// Account deletion: the password, or confirm: 'DELETE' for accounts linked to Google.
+const deleteAccount = z.object({
+  password: z.string().max(128).optional(),
+  confirm: z.string().max(20).optional(),
+});
+
 const updateProfile = z
   .object({
     name: z.string().trim().min(2).max(80).optional(),
@@ -80,6 +86,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   googleLogin,
+  deleteAccount,
   updateProfile,
   changePassword,
 };

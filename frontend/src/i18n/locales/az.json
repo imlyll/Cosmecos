@@ -323,6 +323,18 @@
     "updatePassword": "Şifrəni yenilə",
     "errors": {
       "currentPassword": "Cari şifrənizi daxil edin"
+    },
+    "delete": {
+      "zoneText": "Hesabı sildikdə profiliniz, səbətiniz və istək siyahınız həmişəlik silinir. Keçmiş sifarişləriniz adınız və əlaqə məlumatlarınız olmadan qeydlərimizdə qalır.",
+      "button": "Hesabı sil",
+      "dialogTitle": "Hesabınızı silmək istəyirsiniz?",
+      "dialogText": "Bu əməliyyat geri qaytarıla bilməz. Hesabınız, səbətiniz, istək siyahınız və mesajlarınız silinəcək. Sifarişləriniz mağazanın qeydlərində qalır, lakin onlardan adınız, e-poçtunuz, telefonunuz və ünvanınız silinir.",
+      "passwordLabel": "Təsdiq üçün şifrənizi daxil edin",
+      "word": "SİL",
+      "wordLabel": "Təsdiq üçün {{word}} yazın",
+      "wordMismatch": "Sözü göstərildiyi kimi yazın",
+      "cancel": "Hesabımı saxla",
+      "confirmButton": "Həmişəlik sil"
     }
   },
   "orderSuccess": {
@@ -618,7 +630,8 @@
     "codeResent": "Yeni kod göndərildi",
     "verified": "E-poçt təsdiqləndi — Cosmecos-a xoş gəldiniz, {{name}}!",
     "verifyFirst": "Daxil olmaq üçün e-poçtunuzu təsdiqləyin",
-    "passwordReset": "Şifrəniz dəyişdirildi. Xoş gəldiniz, {{name}}!"
+    "passwordReset": "Şifrəniz dəyişdirildi. Xoş gəldiniz, {{name}}!",
+    "accountDeleted": "Hesabınız silindi"
   },
   "errors": {
     "network": "Serverə qoşulmaq mümkün olmadı. İnternet bağlantınızı yoxlayın.",
@@ -979,7 +992,9 @@
       {
         "title": "Hesabın silinməsi",
         "paragraphs": [
-          "İstənilən vaxt hesabınızın və şəxsi məlumatlarınızın silinməsini tələb edə bilərsiniz. Hesabınızın e-poçt ünvanından aşağıdakı ünvana yazın — hesabı siləcək və bunu e-poçtla təsdiqləyəcəyik."
+          "Hesabınızı istənilən vaxt özünüz silə bilərsiniz: profilinizi açın və “Hesabı sil” düyməsini seçin. Hesabınız, səbətiniz, istək siyahınız və mesajlarınız dərhal silinir.",
+          "Verdiyiniz sifarişlər mühasibat uçotu üçün qeydlərimizdə qalır, lakin onlardan adınız, e-poçtunuz, telefon nömrəniz və ünvanınız silinir, ona görə artıq sizi müəyyən etmir.",
+          "Əgər artıq daxil ola bilmirsinizsə, hesabınızın e-poçt ünvanından aşağıdakı ünvana yazın — hesabı sizin üçün silək."
         ]
       }
     ],
